@@ -6,6 +6,7 @@
   <title>nydad — Daily Digest</title>
   <meta name="description" content="투자, AI, 코인, 개발 — 매일 자동 큐레이션되는 올인원 뉴스 다이제스트">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src 'self' https://api.coingecko.com; img-src 'self' data:;">
+  <meta name="theme-color" content="#0a0e17">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2310b981'/><path d='M8 20L14 12L19 16L24 10' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,39 +17,39 @@
   <header>
     <div class="container header-inner">
       <a href="./" class="logo">
-        <span class="logo-icon">N</span>
-        <span class="logo-text">nydad</span>
-        <span class="logo-sub">Daily Digest</span>
+        <span class="logo-mark">N</span>
+        <span class="logo-text">nydad<span class="logo-dot">.</span></span>
       </a>
+      <span class="header-tagline">Daily Digest</span>
     </div>
   </header>
 
   <nav class="tab-bar">
     <div class="container tab-inner">
-      <button class="tab active" data-tab="invest"><span class="tab-icon">&#x1F4C8;</span> 투자</button>
-      <button class="tab" data-tab="ai_industry"><span class="tab-icon">&#x1F916;</span> AI 업계</button>
-      <button class="tab" data-tab="crypto"><span class="tab-icon">&#x1FA99;</span> 코인</button>
-      <button class="tab" data-tab="ai_dev"><span class="tab-icon">&#x1F4BB;</span> AI 코딩</button>
+      <button class="tab active" data-tab="invest">투자</button>
+      <button class="tab" data-tab="ai_industry">AI 업계</button>
+      <button class="tab" data-tab="crypto">코인</button>
+      <button class="tab" data-tab="ai_dev">AI 코딩</button>
     </div>
   </nav>
 
-  <div class="date-bar">
-    <div class="container date-bar-inner">
+  <div class="sub-bar">
+    <div class="container sub-bar-inner">
       <div class="date-scroll" id="date-scroll"></div>
       <button class="sync-btn hidden" id="sync-btn" title="실시간 시세 업데이트">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         <span>Sync</span>
       </button>
     </div>
   </div>
 
   <main class="container" id="app">
-    <div id="loading" class="loading">
-      <div class="loading-bar"></div>
-      <p class="loading-text">데이터를 불러오는 중...</p>
+    <div id="loading" class="state-msg">
+      <div class="loader"></div>
+      <p>데이터를 불러오는 중</p>
     </div>
-    <div id="empty-state" class="empty hidden">
-      <h2>아직 발행된 뉴스가 없습니다</h2>
+    <div id="empty-state" class="state-msg hidden">
+      <p class="state-title">아직 발행된 뉴스가 없습니다</p>
       <p>매일 오전 7시에 자동으로 다이제스트가 생성됩니다.</p>
     </div>
     <div id="digest" class="hidden"></div>
@@ -56,10 +57,10 @@
 
   <footer>
     <div class="container footer-inner">
-      <span class="footer-brand">nydad bot</span>
-      <span class="footer-sep">&middot;</span>
-      <span>Gemini Flash + Claude Sonnet</span>
-      <a href="https://github.com/nydad/nydad-bot" target="_blank">GitHub</a>
+      <span>nydad bot</span>
+      <span class="dot">&middot;</span>
+      <span class="muted">Gemini Flash + Claude Sonnet</span>
+      <a href="https://github.com/nydad/nydad-bot" target="_blank" rel="noopener">Source</a>
     </div>
   </footer>
 
