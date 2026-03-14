@@ -95,6 +95,7 @@
 
   async function loadDigest(date) {
     show("loading"); hide("digest"); hide("empty-state");
+    if (!isValidDate(date)) { showError(date); return; }
     if (cache[date]) { render(cache[date]); return; }
     try {
       var r = await fetch("./data/" + date + ".json"); if (!r.ok) throw 0;
@@ -118,17 +119,17 @@
     // KOSPI Signal
     var sig = d.kospi_signal || {};
     var dir = sig.direction || "neutral";
-    h += '<div class="signal-card ' + dir + ' fade-in">' +
+    h += '<div class="signal-card ' + safeClass(dir) + ' fade-in">' +
       '<div class="signal-header">' +
       '<div><div class="signal-label">\uCF54\uC2A4\uD53C \uBC29\uD5A5\uC131</div>' +
-      '<div class="signal-direction ' + dir + '">' + (DIR_KR[dir] || dir) + '</div></div>' +
-      '<div><span class="signal-badge ' + dir + '">' + (DIR_SUB[dir] || "") + '</span>' +
+      '<div class="signal-direction ' + safeClass(dir) + '">' + (DIR_KR[dir] || dir) + '</div></div>' +
+      '<div><span class="signal-badge ' + safeClass(dir) + '">' + (DIR_SUB[dir] || "") + '</span>' +
       '<div class="signal-conf">\uC2E0\uB8B0\uB3C4 ' + Math.round((sig.confidence || 0) * 100) + '%</div></div>' +
       '</div>';
     if (sig.factors && sig.factors.length) {
       h += '<div class="signal-factors">';
       sig.factors.forEach(function (f) {
-        h += '<span class="signal-factor ' + f.signal + '">' + esc(f.name) + ' ' + esc(f.detail) + '</span>';
+        h += '<span class="signal-factor ' + safeClass(f.signal) + '">' + esc(f.name) + ' ' + esc(f.detail) + '</span>';
       }); h += '</div>';
     }
     // Geopolitical risk badge
@@ -205,7 +206,7 @@
       h += '<section class="fade-in"><p class="section-label">\uD575\uC2EC \uC778\uC0AC\uC774\uD2B8</p><div class="insight-list">';
       tab.key_insights.forEach(function (ins) {
         var t = ins.type || "neutral";
-        h += '<div class="insight-item"><span class="insight-type ' + t + '">' + (INSIGHT_KR[t]||t) + '</span>' +
+        h += '<div class="insight-item"><span class="insight-type ' + safeClass(t) + '">' + (INSIGHT_KR[t]||t) + '</span>' +
           '<div class="insight-body"><div class="insight-title">' + esc(ins.title) + '</div>' +
           '<div class="insight-detail">' + esc(ins.detail) + '</div></div></div>';
       }); h += '</div></section><hr class="divider">';
@@ -282,7 +283,7 @@
       h += '<section class="fade-in"><p class="section-label">\uC8FC\uC694 \uC774\uBCA4\uD2B8</p><div class="insight-list">';
       tab.key_events.forEach(function (ev) {
         var t = ev.type || "neutral";
-        h += '<div class="insight-item"><span class="insight-type ' + t + '">' + (INSIGHT_KR[t]||t) + '</span>' +
+        h += '<div class="insight-item"><span class="insight-type ' + safeClass(t) + '">' + (INSIGHT_KR[t]||t) + '</span>' +
           '<div class="insight-body"><div class="insight-title">' + esc(ev.title) + '</div>' +
           '<div class="insight-detail">' + esc(ev.detail) + '</div></div></div>';
       }); h += '</div></section><hr class="divider">';
@@ -303,7 +304,7 @@
       h += '<section class="fade-in"><p class="section-label">\uC8FC\uC694 \uC5C5\uB370\uC774\uD2B8</p><div class="highlight-list">';
       tab.highlights.forEach(function (hl) {
         var t = hl.type || "trend";
-        h += '<div class="highlight-item"><span class="highlight-type ' + t + '">' + (HL_KR[t]||t) + '</span>' +
+        h += '<div class="highlight-item"><span class="highlight-type ' + safeClass(t) + '">' + (HL_KR[t]||t) + '</span>' +
           '<div class="highlight-body"><div class="highlight-title">' + esc(hl.title) + '</div>' +
           '<div class="highlight-detail">' + esc(hl.detail) + '</div></div></div>';
       }); h += '</div></section><hr class="divider">';
@@ -332,7 +333,7 @@
         a.tags.slice(0, 4).forEach(function (tag) { tags += '<span class="article-tag">' + esc(tag) + '</span>'; });
         tags += '</div>';
       }
-      h += '<article class="article"><h3 class="article-title"><a href="' + attr(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + '</a></h3>' +
+      h += '<article class="article"><h3 class="article-title"><a href="' + safeUrl(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + '</a></h3>' +
         '<div class="article-meta"><span class="article-source">' + esc(a.source) + '</span><span>\u00B7</span><span>' + t + '</span>' + imp + '</div>' +
         '<p class="article-summary">' + esc(a.summary || "") + '</p>' + tags + '</article>';
     });
@@ -353,7 +354,7 @@
     return p[0] + "\uB144 " + p[1] + "\uC6D4 " + p[2] + "\uC77C " + day + "\uC694\uC77C";
   }
   function fmtNum(n) {
-    if (typeof n !== "number") return String(n);
+    if (typeof n !== "number" || !Number.isFinite(n)) return "-";
     if (Math.abs(n) >= 1000) return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     if (Math.abs(n) < 0.01) return n.toPrecision(4);
     if (Math.abs(n) < 1) return n.toFixed(4);
@@ -364,8 +365,19 @@
       if (h < 1) return "\uBC29\uAE08"; if (h < 24) return h + "\uC2DC\uAC04 \uC804"; return Math.floor(h / 24) + "\uC77C \uC804";
     } catch (e) { return ""; }
   }
+  // XSS: allow-list for class attribute values from JSON
+  var SAFE_CLASSES = { bullish:1, bearish:1, neutral:1, alert:1, up:1, down:1, flat:1, long:1, short:1,
+    overweight:1, underweight:1, model:1, tool:1, trend:1, elevated:1, high:1, critical:1 };
+  function safeClass(s) { return SAFE_CLASSES[s] ? s : "neutral"; }
   function esc(s) { if (!s) return ""; var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
-  function attr(s) { return (s || "").replace(/"/g, "&quot;"); }
+  // XSS: URL protocol validation (only http/https)
+  function safeUrl(s) {
+    if (!s) return "#";
+    try { var u = new URL(s); return (u.protocol === "http:" || u.protocol === "https:") ? s.replace(/"/g, "&quot;") : "#"; }
+    catch (e) { return "#"; }
+  }
+  // Date validation
+  function isValidDate(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s); }
   function show(id) { var e = document.getElementById(id); if (e) e.classList.remove("hidden"); }
   function hide(id) { var e = document.getElementById(id); if (e) e.classList.add("hidden"); }
   function showEmpty() { hide("loading"); hide("digest"); show("empty-state"); }

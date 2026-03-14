@@ -856,7 +856,7 @@ def build_digest():
 
 
 def update_index():
-    dates = sorted([f.stem for f in DATA_DIR.glob("*.json") if f.stem != "index"], reverse=True)
+    dates = sorted([f.stem for f in DATA_DIR.glob("*.json") if f.stem not in ("index", "live")], reverse=True)
     with open(DATA_DIR / "index.json", "w", encoding="utf-8") as f:
         json.dump({"dates": dates, "latest": dates[0] if dates else None}, f, indent=2)
     log.info("Index: %d dates", len(dates))
