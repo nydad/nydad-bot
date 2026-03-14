@@ -131,6 +131,24 @@
         h += '<span class="signal-factor ' + f.signal + '">' + esc(f.name) + ' ' + esc(f.detail) + '</span>';
       }); h += '</div>';
     }
+    // Geopolitical risk badge
+    var geo = sig.geo_risk || {};
+    if (geo.level && geo.level !== "low") {
+      var geoColors = { elevated: "var(--yellow)", high: "var(--orange)", critical: "var(--red)" };
+      var geoLabels = { elevated: "\uC9C0\uC815\uD559 \uC8FC\uC758", high: "\uC9C0\uC815\uD559 \uC704\uD5D8", critical: "\uC9C0\uC815\uD559 \uC2EC\uAC01" };
+      h += '<div style="margin-top:14px;padding:10px 14px;border-radius:8px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);display:flex;align-items:center;gap:10px">' +
+        '<span style="font-size:16px">\u26A0\uFE0F</span>' +
+        '<div><div style="font-size:12px;font-weight:700;color:' + (geoColors[geo.level] || "var(--yellow)") + '">' + (geoLabels[geo.level] || geo.level) + ' (' + geo.hit_count + '\uAC74)</div>';
+      if (geo.top_hits && geo.top_hits.length) {
+        h += '<div style="font-size:11px;color:var(--text-3);margin-top:3px">';
+        geo.top_hits.slice(0, 3).forEach(function (hit) {
+          h += '<div>\u2022 [' + esc(hit.source) + '] ' + esc(hit.title) + '</div>';
+        });
+        h += '</div>';
+      }
+      h += '</div></div>';
+    }
+
     if (sig.sectors && sig.sectors.length) {
       h += '<div class="sector-list">';
       sig.sectors.forEach(function (s) {

@@ -246,10 +246,72 @@ def fetch_fear_greed() -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Phase 1: KOSPI Signal
+# Phase 1: KOSPI Signal (Multi-factor)
 # ---------------------------------------------------------------------------
-def calculate_kospi_signal(market: dict) -> dict:
-    """Composite long/short signal from available data."""
+
+# Keywords for geopolitical risk scanning in news headlines
+GEO_RISK_KEYWORDS = [
+    # War / Military conflict
+    "war", "military", "strike", "attack", "missile", "bomb", "invasion",
+    "conflict", "troops", "army", "navy", "airforce", "escalat",
+    "전쟁", "군사", "공격", "미사일", "폭격", "침공", "공습", "확전",
+    # Iran specifically
+    "iran", "tehran", "strait of hormuz", "persian gulf", "irgc",
+    "이란", "호르무즈", "페르시아만",
+    # Middle East / geopolitics
+    "middle east", "israel", "hamas", "hezbollah", "syria", "yemen", "houthi",
+    "중동", "이스라엘", "하마스", "헤즈볼라", "시리아", "예멘", "후티",
+    # US-China / North Korea / Taiwan
+    "taiwan strait", "south china sea", "north korea", "icbm", "nuclear",
+    "대만", "남중국해", "북한", "핵",
+    # Russia / Ukraine
+    "russia", "ukraine", "nato", "러시아", "우크라이나", "나토",
+    # Trade war / sanctions
+    "sanction", "tariff", "trade war", "embargo", "blacklist",
+    "제재", "관세", "무역전쟁", "금수",
+]
+
+
+def _scan_geopolitical_risk(articles: list[dict]) -> dict:
+    """Scan news headlines for geopolitical risk signals."""
+    risk_hits = []
+    for a in articles:
+        text = (a.get("title", "") + " " + a.get("description", "")).lower()
+        for kw in GEO_RISK_KEYWORDS:
+            if kw in text:
+                risk_hits.append({"keyword": kw, "title": a["title"][:80], "source": a["source"]})
+                break  # one hit per article
+
+    risk_level = "low"
+    if len(risk_hits) >= 8:
+        risk_level = "critical"
+    elif len(risk_hits) >= 5:
+        risk_level = "high"
+    elif len(risk_hits) >= 2:
+        risk_level = "elevated"
+
+    return {
+        "level": risk_level,
+        "hit_count": len(risk_hits),
+        "top_hits": risk_hits[:5],  # top 5 most relevant
+    }
+
+
+def calculate_kospi_signal(market: dict, invest_articles: list[dict] = None) -> dict:
+    """Multi-factor composite long/short signal.
+
+    10 factors:
+      1. VIX (공포지수)
+      2. US Futures (S&P 선물)
+      3. USD/KRW (환율)
+      4. S&P 500 종가
+      5. KOSPI 추세
+      6. WTI 유가 변동
+      7. 금 가격 (안전자산)
+      8. 필라델피아 반도체 지수 (한국 수출 프록시)
+      9. 달러인덱스 (글로벌 유동성)
+     10. 지정학 리스크 (뉴스 헤드라인 스캔)
+    """
     factors = []
 
     def find(cat, name_part):
@@ -309,47 +371,119 @@ def calculate_kospi_signal(market: dict) -> dict:
         else:
             factors.append({"name": "KOSPI 보합", "signal": "neutral", "detail": f"{kospi['change_pct']:+.2f}%"})
 
+    # 6. WTI Oil — sharp rise = bearish (cost push inflation, war premium)
+    wti = find("commodities", "WTI")
+    if wti:
+        if wti["change_pct"] > 2.0:
+            factors.append({"name": "유가 급등 (지정학 우려)", "signal": "bearish", "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)"})
+        elif wti["change_pct"] > 0.5:
+            factors.append({"name": "유가 상승", "signal": "neutral", "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)"})
+        elif wti["change_pct"] < -2.0:
+            factors.append({"name": "유가 급락 (수요 우려)", "signal": "bearish", "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)"})
+        elif wti["change_pct"] < -0.5:
+            factors.append({"name": "유가 하락 (비용 완화)", "signal": "bullish", "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)"})
+        else:
+            factors.append({"name": "유가 안정", "signal": "neutral", "detail": f"WTI ${wti['price']:.1f}"})
+
+    # 7. Gold — rising = risk-off sentiment (bearish for equities)
+    gold = find("commodities", "금")
+    if gold:
+        if gold["change_pct"] > 1.0:
+            factors.append({"name": "금 급등 (안전자산 선호)", "signal": "bearish", "detail": f"Gold ${gold['price']:.0f} ({gold['change_pct']:+.1f}%)"})
+        elif gold["change_pct"] < -1.0:
+            factors.append({"name": "금 하락 (위험자산 선호)", "signal": "bullish", "detail": f"Gold ${gold['price']:.0f} ({gold['change_pct']:+.1f}%)"})
+        else:
+            factors.append({"name": "금 보합", "signal": "neutral", "detail": f"Gold ${gold['price']:.0f}"})
+
+    # 8. Philadelphia Semiconductor (SOX) — proxy for Korean semiconductor exports
+    sox = find("us_indices", "반도체")
+    if sox:
+        if sox["change_pct"] > 0.5:
+            factors.append({"name": "SOX 반도체 강세", "signal": "bullish", "detail": f"SOX {sox['change_pct']:+.2f}%"})
+        elif sox["change_pct"] < -0.5:
+            factors.append({"name": "SOX 반도체 약세", "signal": "bearish", "detail": f"SOX {sox['change_pct']:+.2f}%"})
+        else:
+            factors.append({"name": "SOX 반도체 보합", "signal": "neutral", "detail": f"SOX {sox['change_pct']:+.2f}%"})
+
+    # 9. Dollar Index — strong dollar = bearish for EM including Korea
+    dxy = find("forex", "달러인덱스")
+    if dxy:
+        if dxy["change_pct"] > 0.3:
+            factors.append({"name": "달러 강세 (EM 자금유출 우려)", "signal": "bearish", "detail": f"DXY {dxy['price']:.1f} ({dxy['change_pct']:+.2f}%)"})
+        elif dxy["change_pct"] < -0.3:
+            factors.append({"name": "달러 약세 (EM 자금유입 기대)", "signal": "bullish", "detail": f"DXY {dxy['price']:.1f} ({dxy['change_pct']:+.2f}%)"})
+        else:
+            factors.append({"name": "달러 보합", "signal": "neutral", "detail": f"DXY {dxy['price']:.1f}"})
+
+    # 10. Geopolitical risk from news headlines
+    geo_risk = {"level": "low", "hit_count": 0, "top_hits": []}
+    if invest_articles:
+        geo_risk = _scan_geopolitical_risk(invest_articles)
+        if geo_risk["level"] == "critical":
+            factors.append({"name": "지정학 리스크 심각", "signal": "bearish",
+                            "detail": f"{geo_risk['hit_count']}건 위험 뉴스 감지"})
+        elif geo_risk["level"] == "high":
+            factors.append({"name": "지정학 리스크 높음", "signal": "bearish",
+                            "detail": f"{geo_risk['hit_count']}건 위험 뉴스"})
+        elif geo_risk["level"] == "elevated":
+            factors.append({"name": "지정학 리스크 주의", "signal": "neutral",
+                            "detail": f"{geo_risk['hit_count']}건 관련 뉴스"})
+        else:
+            factors.append({"name": "지정학 리스크 낮음", "signal": "bullish",
+                            "detail": "주요 리스크 뉴스 없음"})
+
     if not factors:
-        return {"direction": "neutral", "confidence": 0, "factors": [], "sectors": []}
+        return {"direction": "neutral", "confidence": 0, "factors": [], "sectors": [], "geo_risk": geo_risk}
 
     bull = sum(1 for f in factors if f["signal"] == "bullish")
     bear = sum(1 for f in factors if f["signal"] == "bearish")
     total = len(factors)
 
-    if bull >= 4:
+    # Weighted scoring: majority rules, but critical geo risk overrides
+    if geo_risk["level"] == "critical" and bear >= 3:
+        direction = "short"  # Critical geopolitical = force short if any bearish
+    elif bull >= total * 0.6:
         direction = "long"
-    elif bear >= 4:
+    elif bear >= total * 0.6:
         direction = "short"
-    elif bull >= 3:
+    elif bull > bear:
         direction = "long"
-    elif bear >= 3:
+    elif bear > bull:
         direction = "short"
     else:
         direction = "neutral"
 
     confidence = round(max(bull, bear) / total, 2) if total else 0
 
-    # Sector recommendations based on signal
+    # Sector recommendations considering oil/geopolitics
     sectors = []
+    oil_surge = any("유가 급등" in f["name"] for f in factors)
+    geo_high = geo_risk["level"] in ("high", "critical")
+
     if direction == "long":
         sectors = [
-            {"name": "반도체", "reason": "미 증시 강세 시 외국인 수급 유입 기대"},
-            {"name": "2차전지", "reason": "성장주 랠리 시 수혜"},
-            {"name": "자동차", "reason": "원화 강세 시 수출주 반등"},
+            {"name": "반도체", "direction": "overweight", "reason": "SOX 연동 + 외국인 수급 유입 기대"},
+            {"name": "2차전지", "direction": "overweight", "reason": "성장주 랠리 시 수혜"},
+            {"name": "자동차", "direction": "overweight", "reason": "원화 강세 시 수출주 반등"},
         ]
     elif direction == "short":
         sectors = [
-            {"name": "방어주/유틸리티", "reason": "하락장 방어 섹터"},
-            {"name": "통신", "reason": "배당 매력 부각"},
-            {"name": "금/원자재 ETF", "reason": "안전자산 선호 구간"},
+            {"name": "방어주/유틸리티", "direction": "overweight", "reason": "하락장 방어 + 배당 매력"},
+            {"name": "통신", "direction": "overweight", "reason": "변동성 장세 방어 섹터"},
         ]
+        if oil_surge or geo_high:
+            sectors.append({"name": "에너지/정유", "direction": "overweight", "reason": "유가 상승 수혜 + 지정학 프리미엄"})
+            sectors.append({"name": "방산", "direction": "overweight", "reason": "지정학 긴장 시 방산주 수혜"})
+        else:
+            sectors.append({"name": "금/원자재 ETF", "direction": "overweight", "reason": "안전자산 선호 구간"})
     else:
         sectors = [
-            {"name": "배당주", "reason": "박스권 장세에서 배당 수익 확보"},
-            {"name": "바이오", "reason": "개별 모멘텀 중심 접근"},
+            {"name": "배당주", "direction": "neutral", "reason": "박스권 장세에서 배당 수익 확보"},
+            {"name": "바이오", "direction": "neutral", "reason": "개별 모멘텀 중심 접근"},
         ]
 
-    return {"direction": direction, "confidence": confidence, "factors": factors, "sectors": sectors}
+    return {"direction": direction, "confidence": confidence, "factors": factors,
+            "sectors": sectors, "geo_risk": geo_risk}
 
 
 # ---------------------------------------------------------------------------
@@ -620,14 +754,21 @@ def build_digest():
     crypto_prices = fetch_crypto_prices()
     fg = fetch_fear_greed()
 
-    # Phase 1
-    log.info("=== Phase 1: KOSPI Signal ===")
-    signal = calculate_kospi_signal(market)
-    log.info("  Direction: %s (conf: %s)", signal["direction"], signal["confidence"])
-
-    # Phase 2
-    log.info("=== Phase 2: News Collection ===")
+    # Phase 1.5: Fetch investment news FIRST (needed for geopolitical risk scan)
+    log.info("=== Phase 1.5: Fetch Investment News (for geo risk scan) ===")
     invest_raw = fetch_tab_feeds(INVEST_FEEDS, "invest")
+
+    # Phase 1: KOSPI Signal (uses market data + invest news for geo risk)
+    log.info("=== Phase 1: KOSPI Signal (10 factors + geo risk) ===")
+    signal = calculate_kospi_signal(market, invest_raw)
+    log.info("  Direction: %s (conf: %s) | Geo risk: %s (%d hits)",
+             signal["direction"], signal["confidence"],
+             signal.get("geo_risk", {}).get("level", "?"),
+             signal.get("geo_risk", {}).get("hit_count", 0))
+
+    # Phase 2: Remaining news
+    log.info("=== Phase 2: News Collection ===")
+    # invest_raw already fetched above for geo risk scan
     ai_raw = fetch_tab_feeds(AI_INDUSTRY_FEEDS, "ai_industry")
     crypto_raw = fetch_tab_feeds(CRYPTO_FEEDS, "crypto")
     dev_raw = fetch_tab_feeds(AI_DEV_FEEDS, "ai_dev")
