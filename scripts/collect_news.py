@@ -13,7 +13,7 @@ Pipeline:
   Phase 5 — JSON output
 """
 
-import os, sys, json, hashlib, logging, re, time
+import os, sys, json, hashlib, logging, math, re, time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -51,11 +51,11 @@ RETRY = 2
 RETRY_DELAY = 5
 
 KST = timezone(timedelta(hours=9))
-NOW_KST = datetime.now(KST)
-TODAY = NOW_KST.strftime("%Y-%m-%d")
-DOW = NOW_KST.weekday()  # 0=Mon
-IS_MONDAY = DOW == 0
-AGE_HOURS = 72 if IS_MONDAY else 36
+# Computed at runtime in main() to avoid stale module-load values
+NOW_KST = None
+TODAY = None
+IS_MONDAY = False
+AGE_HOURS = 36
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("nydad-bot")
@@ -178,7 +178,11 @@ def fetch_market_data() -> dict:
                 if len(close) < 1:
                     continue
                 cur = float(close.iloc[-1])
+                if math.isnan(cur):
+                    continue
                 prev = float(close.iloc[-2]) if len(close) >= 2 else cur
+                if math.isnan(prev):
+                    prev = cur
                 chg = cur - prev
                 pct = (chg / prev) * 100 if prev else 0
                 prec = 4 if cat in ("forex", "bonds") else 2
@@ -455,26 +459,36 @@ def calculate_kospi_signal(market: dict, invest_articles: list[dict] = None) -> 
 
     confidence = round(max(bull, bear) / total, 2) if total else 0
 
-    # Sector recommendations considering oil/geopolitics
+    # Sector recommendations using actual factor data (avoid contradictions)
     sectors = []
+    factor_map = {f["name"]: f["signal"] for f in factors}
     oil_surge = any("유가 급등" in f["name"] for f in factors)
+    oil_drop = any("유가 하락" in f["name"] or "비용 완화" in f["name"] for f in factors)
     geo_high = geo_risk["level"] in ("high", "critical")
+    sox_bull = any("SOX" in f["name"] and f["signal"] == "bullish" for f in factors)
+    krw_strong = any("원화 강세" in f["name"] for f in factors)
+    krw_weak = any("원화 약세" in f["name"] for f in factors)
+    gold_up = any("금 급등" in f["name"] for f in factors)
 
     if direction == "long":
-        sectors = [
-            {"name": "반도체", "direction": "overweight", "reason": "SOX 연동 + 외국인 수급 유입 기대"},
-            {"name": "2차전지", "direction": "overweight", "reason": "성장주 랠리 시 수혜"},
-            {"name": "자동차", "direction": "overweight", "reason": "원화 강세 시 수출주 반등"},
-        ]
+        if sox_bull:
+            sectors.append({"name": "반도체", "direction": "overweight", "reason": "SOX 강세 연동 + 외국인 수급 유입 기대"})
+        sectors.append({"name": "2차전지", "direction": "overweight", "reason": "성장주 랠리 환경"})
+        if krw_strong:
+            sectors.append({"name": "내수/유통", "direction": "overweight", "reason": "원화 강세 시 내수 소비 수혜"})
+        elif krw_weak:
+            sectors.append({"name": "수출주/자동차", "direction": "overweight", "reason": "원화 약세 시 수출 경쟁력 강화"})
+        if oil_drop:
+            sectors.append({"name": "항공/운송", "direction": "overweight", "reason": "유가 하락 시 비용 절감 수혜"})
     elif direction == "short":
-        sectors = [
-            {"name": "방어주/유틸리티", "direction": "overweight", "reason": "하락장 방어 + 배당 매력"},
-            {"name": "통신", "direction": "overweight", "reason": "변동성 장세 방어 섹터"},
-        ]
+        sectors.append({"name": "방어주/유틸리티", "direction": "overweight", "reason": "하락장 방어 + 배당 매력"})
+        sectors.append({"name": "통신", "direction": "overweight", "reason": "변동성 장세 방어 섹터"})
         if oil_surge or geo_high:
             sectors.append({"name": "에너지/정유", "direction": "overweight", "reason": "유가 상승 수혜 + 지정학 프리미엄"})
             sectors.append({"name": "방산", "direction": "overweight", "reason": "지정학 긴장 시 방산주 수혜"})
-        else:
+        if gold_up:
+            sectors.append({"name": "금 ETF", "direction": "overweight", "reason": "안전자산 랠리 지속 기대"})
+        if not oil_surge and not geo_high and not gold_up:
             sectors.append({"name": "금/원자재 ETF", "direction": "overweight", "reason": "안전자산 선호 구간"})
     else:
         sectors = [
@@ -525,7 +539,7 @@ def fetch_tab_feeds(feeds, tab_name):
     seen = set()
     unique = []
     for a in articles:
-        key = hashlib.md5(a["url"].lower().split("?")[0].rstrip("/").encode()).hexdigest()
+        key = hashlib.sha256(a["url"].lower().split("?")[0].rstrip("/").encode()).hexdigest()[:16]
         if key not in seen:
             seen.add(key)
             unique.append(a)
@@ -552,8 +566,8 @@ def extract_content(url):
     if not trafilatura:
         return ""
     try:
-        dl = trafilatura.fetch_url(url)
-        if dl:
+        dl = trafilatura.fetch_url(url, no_ssl=True)
+        if dl and len(dl) < 500_000:  # skip pages > 500KB
             t = trafilatura.extract(dl, include_comments=False, include_tables=False, deduplicate=True)
             if t:
                 return t[:2500]
@@ -571,10 +585,21 @@ def _call_api(model, system, user, max_tokens=4096):
     payload = {"model": model, "messages": [{"role": "system", "content": system},
                {"role": "user", "content": user}], "temperature": 0.2, "max_tokens": max_tokens,
                "response_format": {"type": "json_object"}}
-    for attempt in range(1, RETRY + 1):
+    for attempt in range(1, RETRY + 2):  # 3 total attempts
         try:
             resp = requests.post("https://openrouter.ai/api/v1/chat/completions",
                                  headers=headers, json=payload, timeout=180)
+            # Handle rate limits
+            if resp.status_code == 429:
+                retry_after = int(resp.headers.get("Retry-After", 10))
+                log.warning("Rate limited (429), waiting %ds...", retry_after)
+                time.sleep(min(retry_after, 60))
+                continue
+            if resp.status_code >= 500:
+                delay = RETRY_DELAY * (2 ** (attempt - 1))  # exponential backoff
+                log.warning("Server error %d, retrying in %ds...", resp.status_code, delay)
+                time.sleep(delay)
+                continue
             resp.raise_for_status()
             content = resp.json()["choices"][0]["message"]["content"].strip()
             if content.startswith("```"):
@@ -585,10 +610,12 @@ def _call_api(model, system, user, max_tokens=4096):
             result = json.loads(content)
             log.info("API OK (%s, attempt %d)", model.split("/")[-1], attempt)
             return result
+        except json.JSONDecodeError as e:
+            log.warning("JSON parse error (attempt %d): %s", attempt, e)
         except Exception as e:
             log.warning("API fail (attempt %d): %s", attempt, e)
-            if attempt < RETRY:
-                time.sleep(RETRY_DELAY)
+        if attempt <= RETRY:
+            time.sleep(RETRY_DELAY * (2 ** (attempt - 1)))
     return None
 
 
@@ -641,6 +668,8 @@ def summarize_tab(articles, tab_id):
         user = f"Summarize {len(batch)} articles.\n\n" + "\n".join(parts)
         ai = _call_api(MODEL_FAST, SUMMARY_PROMPTS.get(tab_id, SUMMARY_PROMPTS["invest"]), user)
         ai_list = ai.get("articles", []) if ai else []
+        # Validate response shape
+        ai_list = [item for item in ai_list if isinstance(item, dict) and "summary" in item]
         for j, article in enumerate(batch):
             if j < len(ai_list):
                 item = ai_list[j]
@@ -862,10 +891,31 @@ def update_index():
     log.info("Index: %d dates", len(dates))
 
 
+def cleanup_old_data(keep_days=30):
+    """Remove data files older than keep_days."""
+    cutoff = datetime.now(KST) - timedelta(days=keep_days)
+    cutoff_str = cutoff.strftime("%Y-%m-%d")
+    removed = 0
+    for f in DATA_DIR.glob("*.json"):
+        if f.stem not in ("index", "live") and f.stem < cutoff_str:
+            f.unlink()
+            removed += 1
+    if removed:
+        log.info("Cleaned up %d old data files (>%d days)", removed, keep_days)
+
+
 def main():
+    global NOW_KST, TODAY, IS_MONDAY, AGE_HOURS
+
     if not API_KEY:
         log.error("OPENROUTER_API_KEY not set!")
         sys.exit(1)
+
+    # Compute time at runtime (not module load)
+    NOW_KST = datetime.now(KST)
+    TODAY = NOW_KST.strftime("%Y-%m-%d")
+    IS_MONDAY = NOW_KST.weekday() == 0
+    AGE_HOURS = 72 if IS_MONDAY else 36
 
     log.info("=" * 60)
     log.info("nydad-bot Unified Digest v1.0")
@@ -883,6 +933,7 @@ def main():
     log.info("Saved: %s (%d articles)", path.name, digest["total_articles"])
 
     update_index()
+    cleanup_old_data(keep_days=30)
     log.info("=" * 60)
     log.info("Done!")
 

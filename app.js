@@ -57,7 +57,7 @@
             render(cache[currentDate]);
           }
         }
-      } catch (e) {}
+      } catch (e) { console.warn("Sync live.json failed:", e); }
       // Also try live CoinGecko
       try {
         var cr = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=15&page=1&sparkline=false&price_change_percentage=24h");
@@ -72,7 +72,7 @@
             render(cache[currentDate]);
           }
         }
-      } catch (e) {}
+      } catch (e) { console.warn("CoinGecko sync failed:", e); }
       btn.classList.remove("syncing"); btn.querySelector("span").textContent = "Sync";
     });
   }
@@ -153,7 +153,7 @@
     if (sig.sectors && sig.sectors.length) {
       h += '<div class="sector-list">';
       sig.sectors.forEach(function (s) {
-        var dirCls = s.direction || "overweight";
+        var dirCls = safeClass(s.direction || "overweight");
         h += '<div class="sector-chip"><span class="sector-name">' + esc(s.name) + '</span>' +
           '<span class="sector-dir ' + dirCls + '">' + dirCls + '</span>' +
           '<div class="sector-reason">' + esc(s.reason) + '</div></div>';
