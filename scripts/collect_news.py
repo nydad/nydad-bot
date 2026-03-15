@@ -128,6 +128,7 @@ AI_INDUSTRY_FEEDS = [
     {"name": "Microsoft AI", "url": "https://blogs.microsoft.com/ai/feed/"},
     {"name": "Meta AI", "url": "https://ai.meta.com/blog/rss/"},
     {"name": "MIT Tech Review", "url": "https://www.technologyreview.com/feed/"},
+    {"name": "AI Frontier", "url": "https://aifrontier.kr/rss.xml"},
 ]
 
 CRYPTO_FEEDS = [
@@ -152,6 +153,7 @@ AI_DEV_FEEDS = [
     {"name": "GeekNews", "url": "https://news.hada.io/rss/news"},
     {"name": "HN AI", "url": "https://hnrss.org/newest?q=AI+OR+LLM+OR+GPT+OR+Claude&points=80"},
     {"name": "Lobsters AI", "url": "https://lobste.rs/t/ai.rss"},
+    {"name": "AI Frontier", "url": "https://aifrontier.kr/rss.xml"},
 ]
 
 # ---------------------------------------------------------------------------
