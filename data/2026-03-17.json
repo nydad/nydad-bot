@@ -1,0 +1,4012 @@
+{
+  "date": "2026-03-17",
+  "generated_at": "2026-03-16T22:44:16.056948+00:00",
+  "market_data": {
+    "us_indices": [
+      {
+        "name": "S&P 500",
+        "ticker": "^GSPC",
+        "price": 6699.38,
+        "change": 67.19,
+        "change_pct": 1.01
+      },
+      {
+        "name": "NASDAQ",
+        "ticker": "^IXIC",
+        "price": 22374.18,
+        "change": 268.82,
+        "change_pct": 1.22
+      },
+      {
+        "name": "다우존스",
+        "ticker": "^DJI",
+        "price": 46946.41,
+        "change": 387.94,
+        "change_pct": 0.83
+      },
+      {
+        "name": "러셀 2000",
+        "ticker": "^RUT",
+        "price": 2503.29,
+        "change": 23.24,
+        "change_pct": 0.94
+      },
+      {
+        "name": "필라델피아 반도체",
+        "ticker": "^SOX",
+        "price": 7796.24,
+        "change": 149.6,
+        "change_pct": 1.96
+      }
+    ],
+    "futures": [
+      {
+        "name": "S&P 500 선물",
+        "ticker": "ES=F",
+        "price": 6748.75,
+        "change": 112.75,
+        "change_pct": 1.7
+      },
+      {
+        "name": "나스닥 선물",
+        "ticker": "NQ=F",
+        "price": 24860.75,
+        "change": 466.5,
+        "change_pct": 1.91
+      },
+      {
+        "name": "다우 선물",
+        "ticker": "YM=F",
+        "price": 47266.0,
+        "change": 674.0,
+        "change_pct": 1.45
+      }
+    ],
+    "volatility": [
+      {
+        "name": "VIX",
+        "ticker": "^VIX",
+        "price": 23.51,
+        "change": -3.68,
+        "change_pct": -13.53
+      }
+    ],
+    "forex": [
+      {
+        "name": "달러/원",
+        "ticker": "KRW=X",
+        "price": 1490.26,
+        "change": 19.6801,
+        "change_pct": 1.34
+      },
+      {
+        "name": "달러/엔",
+        "ticker": "JPY=X",
+        "price": 159.117,
+        "change": -0.089,
+        "change_pct": -0.06
+      },
+      {
+        "name": "유로/달러",
+        "ticker": "EURUSD=X",
+        "price": 1.1505,
+        "change": -0.0017,
+        "change_pct": -0.15
+      }
+    ],
+    "commodities": [
+      {
+        "name": "WTI 원유",
+        "ticker": "CL=F",
+        "price": 94.28,
+        "change": -4.43,
+        "change_pct": -4.49
+      },
+      {
+        "name": "브렌트유",
+        "ticker": "BZ=F",
+        "price": 101.06,
+        "change": -2.08,
+        "change_pct": -2.02
+      },
+      {
+        "name": "금",
+        "ticker": "GC=F",
+        "price": 5006.8,
+        "change": -45.7,
+        "change_pct": -0.9
+      },
+      {
+        "name": "은",
+        "ticker": "SI=F",
+        "price": 80.99,
+        "change": 0.07,
+        "change_pct": 0.09
+      },
+      {
+        "name": "천연가스",
+        "ticker": "NG=F",
+        "price": 3.03,
+        "change": -0.1,
+        "change_pct": -3.23
+      },
+      {
+        "name": "구리",
+        "ticker": "HG=F",
+        "price": 5.84,
+        "change": 0.12,
+        "change_pct": 2.17
+      }
+    ],
+    "bonds": [
+      {
+        "name": "미국 10년물",
+        "ticker": "^TNX",
+        "price": 4.22,
+        "change": -0.065,
+        "change_pct": -1.52
+      },
+      {
+        "name": "미국 2년물",
+        "ticker": "^IRX",
+        "price": 3.605,
+        "change": 0.002,
+        "change_pct": 0.06
+      }
+    ],
+    "kr_indices": [
+      {
+        "name": "KOSPI",
+        "ticker": "^KS11",
+        "price": 5549.85,
+        "change": 62.61,
+        "change_pct": 1.14
+      },
+      {
+        "name": "KOSDAQ",
+        "ticker": "^KQ11",
+        "price": 1138.29,
+        "change": -14.67,
+        "change_pct": -1.27
+      },
+      {
+        "name": "KOSPI 200",
+        "ticker": "^KS200",
+        "price": 826.83,
+        "change": 13.9,
+        "change_pct": 1.71
+      }
+    ],
+    "kr_sectors": [
+      {
+        "name": "반도체",
+        "ticker": "091160.KS",
+        "price": 99470.0,
+        "change": 2535.0,
+        "change_pct": 2.62
+      },
+      {
+        "name": "2차전지",
+        "ticker": "305720.KS",
+        "price": 15935.0,
+        "change": -250.0,
+        "change_pct": -1.54
+      },
+      {
+        "name": "바이오",
+        "ticker": "143860.KS",
+        "price": 50065.0,
+        "change": -1015.0,
+        "change_pct": -1.99
+      },
+      {
+        "name": "은행",
+        "ticker": "091170.KS",
+        "price": 14710.0,
+        "change": -50.0,
+        "change_pct": -0.34
+      },
+      {
+        "name": "KODEX 200",
+        "ticker": "069500.KS",
+        "price": 82985.0,
+        "change": 1445.0,
+        "change_pct": 1.77
+      }
+    ]
+  },
+  "crypto_prices": [
+    {
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "price": 74647,
+      "change_pct": 3.39,
+      "market_cap": 1493384200407,
+      "volume_24h": 58562926553,
+      "rank": 1
+    },
+    {
+      "name": "Ethereum",
+      "symbol": "ETH",
+      "price": 2360.96,
+      "change_pct": 9.32,
+      "market_cap": 285003712789,
+      "volume_24h": 40934755165,
+      "rank": 2
+    },
+    {
+      "name": "Tether",
+      "symbol": "USDT",
+      "price": 0.999949,
+      "change_pct": -0.02,
+      "market_cap": 184023073453,
+      "volume_24h": 108732960564,
+      "rank": 3
+    },
+    {
+      "name": "XRP",
+      "symbol": "XRP",
+      "price": 1.54,
+      "change_pct": 7.49,
+      "market_cap": 94266515186,
+      "volume_24h": 4375378853,
+      "rank": 4
+    },
+    {
+      "name": "BNB",
+      "symbol": "BNB",
+      "price": 682.38,
+      "change_pct": 1.78,
+      "market_cap": 93042550403,
+      "volume_24h": 1771918098,
+      "rank": 5
+    },
+    {
+      "name": "USDC",
+      "symbol": "USDC",
+      "price": 0.999963,
+      "change_pct": -0.0,
+      "market_cap": 79301372644,
+      "volume_24h": 15041455094,
+      "rank": 6
+    },
+    {
+      "name": "Solana",
+      "symbol": "SOL",
+      "price": 96.62,
+      "change_pct": 6.48,
+      "market_cap": 55211866511,
+      "volume_24h": 6910969321,
+      "rank": 7
+    },
+    {
+      "name": "TRON",
+      "symbol": "TRX",
+      "price": 0.295443,
+      "change_pct": -1.05,
+      "market_cap": 27996017000,
+      "volume_24h": 422350493,
+      "rank": 8
+    },
+    {
+      "name": "Figure Heloc",
+      "symbol": "FIGR_HELOC",
+      "price": 1.027,
+      "change_pct": 0.92,
+      "market_cap": 16265452266,
+      "volume_24h": 13791292,
+      "rank": 9
+    },
+    {
+      "name": "Dogecoin",
+      "symbol": "DOGE",
+      "price": 0.102917,
+      "change_pct": 7.2,
+      "market_cap": 15786826700,
+      "volume_24h": 2470243985,
+      "rank": 10
+    },
+    {
+      "name": "WhiteBIT Coin",
+      "symbol": "WBT",
+      "price": 58.39,
+      "change_pct": 3.74,
+      "market_cap": 12460848998,
+      "volume_24h": 95783514,
+      "rank": 11
+    },
+    {
+      "name": "USDS",
+      "symbol": "USDS",
+      "price": 1.0,
+      "change_pct": 0.04,
+      "market_cap": 11258856660,
+      "volume_24h": 78409694,
+      "rank": 12
+    },
+    {
+      "name": "Cardano",
+      "symbol": "ADA",
+      "price": 0.289817,
+      "change_pct": 8.53,
+      "market_cap": 10674026473,
+      "volume_24h": 1073638316,
+      "rank": 13
+    },
+    {
+      "name": "Hyperliquid",
+      "symbol": "HYPE",
+      "price": 41.16,
+      "change_pct": 10.89,
+      "market_cap": 9788482589,
+      "volume_24h": 504407672,
+      "rank": 14
+    },
+    {
+      "name": "Bitcoin Cash",
+      "symbol": "BCH",
+      "price": 482.06,
+      "change_pct": 3.57,
+      "market_cap": 9647042545,
+      "volume_24h": 277776915,
+      "rank": 15
+    }
+  ],
+  "fear_greed": {
+    "crypto": {
+      "score": 23,
+      "rating": "Extreme Fear"
+    }
+  },
+  "kospi_signal": {
+    "direction": "short",
+    "confidence": 0.44,
+    "factors": [
+      {
+        "name": "VIX 경계 구간",
+        "signal": "neutral",
+        "detail": "VIX 23.5"
+      },
+      {
+        "name": "미 선물 강세",
+        "signal": "bullish",
+        "detail": "+1.70%"
+      },
+      {
+        "name": "원화 약세",
+        "signal": "bearish",
+        "detail": "USD/KRW 1490"
+      },
+      {
+        "name": "미 증시 강세 마감",
+        "signal": "bullish",
+        "detail": "+1.01%"
+      },
+      {
+        "name": "KOSPI 상승 흐름",
+        "signal": "bullish",
+        "detail": "+1.14%"
+      },
+      {
+        "name": "유가 급락 (수요 우려)",
+        "signal": "bearish",
+        "detail": "WTI $94.3 (-4.5%)"
+      },
+      {
+        "name": "금 보합",
+        "signal": "neutral",
+        "detail": "Gold $5007"
+      },
+      {
+        "name": "SOX 반도체 강세",
+        "signal": "bullish",
+        "detail": "SOX +1.96%"
+      },
+      {
+        "name": "지정학 리스크 심각",
+        "signal": "bearish",
+        "detail": "29건 위험 뉴스 감지"
+      }
+    ],
+    "sectors": [
+      {
+        "name": "반도체",
+        "direction": "overweight",
+        "reason": "Nvidia GTC에서 1조 달러 규모 AI 칩 수요가 확인되고 SOX가 +1.96% 급등하며 삼성전자·SK하이닉스 등 국내 반도체 기업에 대한 수혜 기대감이 강하게 유입되고 있습니다."
+      },
+      {
+        "name": "방산/에너지",
+        "direction": "overweight",
+        "reason": "Iran 전쟁 장기화와 Strait of Hormuz 긴장 고조로 방산 수요 증가 및 에너지 가격 변동성 확대가 예상되며, 방어적 성격의 방산주와 정유주에 대한 관심이 높아지고 있습니다."
+      },
+      {
+        "name": "2차전지/바이오",
+        "direction": "underweight",
+        "reason": "2차전지(-1.54%)와 바이오(-1.99%) 섹터는 전일에도 약세를 보였으며, 원화 약세와 글로벌 위험회피 심리 속에서 성장주 밸류에이션 부담이 지속되고 있습니다."
+      }
+    ],
+    "geo_risk": {
+      "level": "critical",
+      "hit_count": 29,
+      "top_hits": [
+        {
+          "keyword": "strait of hormuz",
+          "title": "Trump signals coalition to force open Strait of Hormuz is not ready yet: 'Some a",
+          "source": "CNBC Top"
+        },
+        {
+          "keyword": "war",
+          "title": "Trump says U.S. asked China to delay Xi meeting 'a month or so' due to Iran war",
+          "source": "CNBC Top"
+        },
+        {
+          "keyword": "navy",
+          "title": "U.S. is allowing Iranian oil tankers through Strait of Hormuz, says Bessent",
+          "source": "CNBC Top"
+        },
+        {
+          "keyword": "war",
+          "title": "Oil prices fall as Trump pressures allies to help protect tankers in Strait of H",
+          "source": "CNBC Top"
+        },
+        {
+          "keyword": "war",
+          "title": "Apollo's John Zito questions private equity's software valuations: 'All the mark",
+          "source": "CNBC Top"
+        }
+      ]
+    }
+  },
+  "total_articles": 256,
+  "tabs": {
+    "invest": {
+      "briefing": "월요일 미국 증시는 3주 연속 하락세를 끊고 강하게 반등했습니다. S&P 500은 +1.01%, NASDAQ은 +1.22%, 필라델피아 반도체 지수(SOX)는 +1.96% 상승하며 기술주가 시장을 주도했습니다. Nvidia CEO Jensen Huang이 GTC 2026에서 Blackwell 및 Vera Rubin 아키텍처에 대한 2027년까지 1조 달러 규모의 주문을 예고하며 AI 투자 심리를 강하게 자극했습니다. VIX는 23.51로 -13.53% 급락하며 단기 공포 심리가 완화되었고, 미국 10년물 국채 금리도 4.22%로 하락해 채권 시장도 안정세를 보였습니다. 다만 Iran 전쟁 장기화 우려 속에서 WTI 원유는 $94.28로 -4.49% 급락했으며, Moody's는 유가 고공행진이 수주간 지속될 경우 경기침체를 피하기 어렵다고 경고했습니다. Trump 대통령은 Iran 사태를 이유로 Xi Jinping과의 정상회담을 한 달 연기 요청했고, Strait of Hormuz 긴장이 글로벌 공급망 리스크로 부각되고 있습니다. 현재 S&P 500 선물은 +1.70%, 나스닥 선물은 +1.91% 강세를 보이고 있으나, 지정학적 불확실성과 원화 약세(USD/KRW 1490.26)가 KOSPI 상단을 제한할 수 있어 신중한 접근이 필요합니다.",
+      "key_insights": [
+        {
+          "title": "Nvidia GTC 쇼크",
+          "detail": "Jensen Huang CEO가 Blackwell·Vera Rubin 아키텍처에 대해 2027년까지 1조 달러 규모 주문을 예고하며 AI 반도체 수요 폭발을 재확인했습니다. 국내 반도체 섹터(+2.62%)에 직접적인 수혜 기대감이 유입될 전망입니다.",
+          "type": "bullish"
+        },
+        {
+          "title": "Iran 전쟁·호르무즈 리스크",
+          "detail": "Strait of Hormuz 봉쇄 우려가 지속되며 유가 $200 시나리오 경고가 나오고 있고, Moody's는 수주 내 경기침체 가능성을 언급했습니다. 지정학 리스크 29건 감지로 시장 변동성 확대 가능성이 높습니다.",
+          "type": "bearish"
+        },
+        {
+          "title": "Fed 금리 경로 불확실",
+          "detail": "Morgan Stanley는 6월 금리 인하 전망을 유지했으나, 전 Boston Fed 총재 Rosengren은 Iran 사태 해소 전까지 Fed가 관망할 것이라고 분석했습니다. 인플레이션 재점화 우려가 통화정책 불확실성을 높이고 있습니다.",
+          "type": "alert"
+        },
+        {
+          "title": "달러 강세·원화 약세",
+          "detail": "Iran 분쟁에 따른 인플레이션 우려로 달러가 수개월 만에 최강 수준을 기록하며 USD/KRW가 1490.26까지 상승했습니다. 외국인 자금 이탈 압력과 수입 물가 상승이 국내 증시에 부담 요인으로 작용할 수 있습니다.",
+          "type": "bearish"
+        },
+        {
+          "title": "구리 강세·경기 신호",
+          "detail": "구리 가격이 +2.17% 상승하며 글로벌 제조업 및 AI 인프라 수요 기대감을 반영했습니다. 유가 급락과 달리 구리 강세는 경기 침체 우려를 일부 상쇄하는 긍정적 신호로 해석됩니다.",
+          "type": "neutral"
+        }
+      ],
+      "forex_commentary": "USD/KRW는 1490.26으로 전일 대비 +1.34% 급등하며 원화 약세가 뚜렷하게 나타났습니다. Iran 분쟁에 따른 글로벌 인플레이션 우려와 안전자산 선호 심리가 달러 수요를 강하게 자극하고 있으며, 달러는 수개월 만에 최강 수준에서 거래되고 있습니다. 원화 약세는 수출 기업에 일부 긍정적이나 외국인 투자자의 환차손 우려를 키워 KOSPI 상단을 제한하는 요인으로 작용할 전망입니다.",
+      "commodity_commentary": "WTI 원유는 $94.28로 -4.49% 급락했으며, 이는 Trump 대통령이 동맹국들에게 Strait of Hormuz 유조선 보호를 압박하면서 단기 공급 우려가 다소 완화된 데 따른 것입니다. 그러나 Iran 전쟁 장기화 시 $200 시나리오 경고가 나오는 등 유가 변동성은 여전히 극도로 높은 상태입니다. 금은 $5,006.8로 -0.90% 소폭 하락했으나 여전히 $5,000선을 유지하며 지정학적 불확실성 속 안전자산 수요가 지속되고 있음을 시사합니다.",
+      "outlook": "오늘 KOSPI는 미국 증시 강세 마감과 SOX 반도체 지수 급등, Nvidia GTC 호재를 반영해 반도체 중심의 상승 출발이 예상되나, 원화 약세(1490원대)와 지정학 리스크 29건 감지, KOSPI SHORT 시그널(신뢰도 0.44)을 감안할 때 상승폭은 제한적일 수 있습니다. KOSDAQ은 바이오·2차전지 약세가 지속되며 차별화 장세가 이어질 전망입니다. 오늘 주요 이벤트로는 미국 2월 소매판매 지표 발표와 Fed 위원들의 발언이 예정되어 있어 금리 경로에 대한 추가 단서를 제공할 것으로 보입니다.",
+      "trends": [
+        "Nvidia GTC 수혜",
+        "호르무즈 지정학 리스크",
+        "달러 강세·원화 약세",
+        "AI 반도체 랠리",
+        "유가 변동성"
+      ],
+      "articles": [
+        {
+          "title": "Nvidia GTC 2026: CEO Jensen Huang sees $1 trillion in orders for Blackwell and Vera Rubin through '27",
+          "url": "https://www.cnbc.com/2026/03/16/nvidia-gtc-2026-ceo-jensen-huang-keynote-blackwell-vera-rubin.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T20:51:22+00:00",
+          "summary": "Nvidia CEO Jensen Huang은 GTC 2026에서 Blackwell 및 Vera Rubin 아키텍처에 대한 수요가 폭발적이며, 2027년까지 1 trillion 달러 규모의 주문이 예상된다고 밝혔습니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "ai",
+            "semiconductors"
+          ]
+        },
+        {
+          "title": "Trump says U.S. asked China to delay Xi meeting 'a month or so' due to Iran war",
+          "url": "https://www.cnbc.com/2026/03/16/trump-china-iran-xi-war-trade.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T22:13:53+00:00",
+          "summary": "Trump 행정부는 Iran war 상황으로 인해 Xi Jinping 주석과의 회담을 한 달 정도 연기할 것을 China 측에 요청했으며, 이는 향후 협상 결과에 영향을 미칠 전망입니다.",
+          "importance": "high",
+          "tags": [
+            "us-china",
+            "geopolitics",
+            "trade"
+          ]
+        },
+        {
+          "title": "Oil prices fall as Trump pressures allies to help protect tankers in Strait of Hormuz",
+          "url": "https://www.cnbc.com/2026/03/15/oil-prices-today-iran-war.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T19:05:01+00:00",
+          "summary": "Trump 대통령이 동맹국들에게 Strait of Hormuz의 유조선 보호를 압박하면서 Oil 가격이 하락했습니다. JPMorgan은 미국의 Kharg Island 공격과 Iran 석유 인프라 타격 위협을 전쟁의 중대한 에스컬레이션으로 평가했습니다.",
+          "importance": "high",
+          "tags": [
+            "oil",
+            "trump",
+            "iran"
+          ]
+        },
+        {
+          "title": "Trump signals possible delay to Beijing summit as U.S. pressures China to help reopen Strait of Hormuz",
+          "url": "https://www.cnbc.com/2026/03/16/trump-possible-delay-beijing-summit-china-iran-strait-of-hormuz-.html",
+          "source": "CNBC Economy",
+          "published": "2026-03-16T12:07:55+00:00",
+          "summary": "Trump 대통령이 Strait of Hormuz 재개방을 위해 China를 압박하면서 Beijing 정상회담의 연기 가능성을 시사했습니다. Scott Bessent 장관은 Paris에서 He Lifeng 부총리를 만나 3월 정상회담을 위한 사전 논의를 진행했습니다.",
+          "importance": "high",
+          "tags": [
+            "trump",
+            "china",
+            "diplomacy"
+          ]
+        },
+        {
+          "title": "S&P 500 rebounds Monday following three straight weeks of losses as oil prices cool a bit: Live updates",
+          "url": "https://www.cnbc.com/2026/03/15/stock-market-today-live-updates.html",
+          "source": "CNBC World",
+          "published": "2026-03-16T21:30:33+00:00",
+          "summary": "S&P 500 지수가 3주 연속 하락세를 끊고 월요일 반등에 성공했습니다. 유가가 다소 진정되면서 시장은 올해 최저치를 기록했던 지난 금요일의 부진에서 회복하는 모습입니다.",
+          "importance": "high",
+          "tags": [
+            "s&p 500",
+            "stock market",
+            "oil"
+          ]
+        },
+        {
+          "title": "Why traders are getting nervous about Iran's $200 oil warning as the conflict drags on",
+          "url": "https://www.cnbc.com/2026/03/16/oil-prices-iran-war-200-crude-strait-of-hormuz-supply-shock.html",
+          "source": "CNBC World",
+          "published": "2026-03-16T18:30:13+00:00",
+          "summary": "Iran 전쟁이 장기화됨에 따라 Oil 가격이 배럴당 $200까지 치솟을 가능성을 배제해서는 안 된다고 Analysts들이 경고하고 있습니다. Traders들은 이러한 극단적인 가격 상승 시나리오에 대해 우려를 표하고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "oil",
+            "iran",
+            "energy"
+          ]
+        },
+        {
+          "title": "Strait of Hormuz standoff puts supply of America's generic drug prescriptions at risk",
+          "url": "https://www.cnbc.com/2026/03/16/strait-of-hormuz-closure-generic-drug-prescriptions.html",
+          "source": "CNBC World",
+          "published": "2026-03-16T18:04:17+00:00",
+          "summary": "미국 Generic drug의 절반이 India에서 제조되어 Strait of Hormuz를 통과하기 때문에 해당 지역의 긴장이 의약품 공급망을 위협하고 있습니다. 현재 Prescription stockpiles가 제한적인 상황이라 비상 대책이 요구됩니다.",
+          "importance": "high",
+          "tags": [
+            "supply chain",
+            "healthcare",
+            "geopolitics"
+          ]
+        },
+        {
+          "title": "Moody’s says a recession will be hard to avoid if oil prices stay elevated for even a few more weeks",
+          "url": "https://www.marketwatch.com/story/moodys-says-a-recession-will-be-hard-to-avoid-if-oil-prices-stay-elevated-for-even-a-few-more-weeks-cd53a198?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T22:01:00+00:00",
+          "summary": "Moody’s는 Strait of Hormuz 폐쇄로 인해 Oil 가격이 몇 주간 더 높은 수준을 유지할 경우 Recession을 피하기 어려울 것이라고 경고했습니다. 미국이 에너지 자급자족에 가깝더라도 글로벌 가격 상승의 영향은 피할 수 없습니다.",
+          "importance": "high",
+          "tags": [
+            "recession",
+            "oil",
+            "economy"
+          ]
+        },
+        {
+          "title": "Elon Musk’s xAI is facing a growing number of lawsuits over AI-generated deepfakes",
+          "url": "https://www.marketwatch.com/story/elon-musks-xai-is-facing-a-growing-number-of-lawsuits-over-ai-generated-deepfakes-08fa166b?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T20:39:00+00:00",
+          "summary": "Elon Musk의 xAI가 AI-generated deepfakes와 관련된 다수의 소송에 직면해 있습니다. Tennessee의 원고들은 xAI가 아동 포르노물 제작 및 유포를 용이하게 했다며 집단 소송을 제기했습니다.",
+          "importance": "high",
+          "tags": [
+            "xai",
+            "elon musk",
+            "lawsuit"
+          ]
+        },
+        {
+          "title": "Dollar is benefiting from Iran conflict as investors worry about inflation",
+          "url": "https://www.marketwatch.com/story/the-u-s-dollar-and-crypto-are-both-benefiting-from-the-iran-crisis-in-an-unusual-move-85873834?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T20:36:00+00:00",
+          "summary": "Iran conflict로 인한 인플레이션 우려가 커지면서 U.S. dollar가 주요 수혜자로 떠올랐습니다. 달러 가치는 월요일 기준으로 수개월 만에 가장 강력한 수준에서 거래되었습니다.",
+          "importance": "high",
+          "tags": [
+            "dollar",
+            "inflation",
+            "geopolitics"
+          ]
+        },
+        {
+          "title": "What's Driving Grains Higher?",
+          "url": "https://finance.yahoo.com/news/whats-driving-grains-higher-135246943.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T13:52:46+00:00",
+          "summary": "최근 Grains 가격 상승은 주요 생산지인 South America의 기상 악화와 공급망 차질에 의해 주도되고 있습니다. 투자자들은 Wheat, Corn, Soybeans 시장의 변동성을 주시하며 글로벌 수급 불균형에 따른 추가 상승 가능성을 분석하고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "commodities",
+            "agriculture",
+            "inflation"
+          ]
+        },
+        {
+          "title": "NIO Is Outperforming Even as U.S. Stocks Slump: Can the Uptrend Continue?",
+          "url": "https://finance.yahoo.com/news/nio-outperforming-even-u-stocks-130002642.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T13:00:02+00:00",
+          "summary": "미국 증시의 전반적인 하락세에도 불구하고 NIO 주가는 상대적으로 강한 Uptrend를 보이며 시장을 아웃퍼폼하고 있습니다. 중국 내 전기차 수요 회복과 신모델 출시 기대감이 반영되었으나, 지속 가능 여부는 향후 실적 발표와 정책 변화에 달려 있습니다.",
+          "importance": "high",
+          "tags": [
+            "nio",
+            "ev",
+            "stock market"
+          ]
+        },
+        {
+          "title": "A 'dividend' for your crypto? Wall Street's newest way to sweeten the deal for ETF holders",
+          "url": "https://finance.yahoo.com/news/a-dividend-for-your-crypto-wall-streets-newest-way-to-sweeten-the-deal-for-etf-holders-153053526.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T15:30:53+00:00",
+          "summary": "Wall Street에서 Crypto ETF 보유자들에게 추가 수익을 제공하기 위해 Staking 보상을 활용한 'Dividend' 개념을 도입하고 있습니다. 이는 단순한 시세 차익 외에 추가적인 Yield를 창출하여 기관 투자자들의 유입을 가속화할 수 있는 전략입니다.",
+          "importance": "high",
+          "tags": [
+            "crypto",
+            "etf",
+            "staking"
+          ]
+        },
+        {
+          "title": "Why surging oil prices should matter even if you own Apple, Nvidia, and Microsoft",
+          "url": "https://finance.yahoo.com/news/why-surging-oil-prices-should-matter-even-if-you-own-apple-nvidia-and-microsoft-123027737.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T12:30:27+00:00",
+          "summary": "Oil prices의 급등은 Apple, Nvidia, Microsoft와 같은 대형 기술주 투자자들에게도 중요한 변수입니다. 에너지 비용 상승은 인플레이션을 자극하고 Fed의 금리 인하 경로를 방해하여 전반적인 주식 시장의 밸류에이션에 압박을 가할 수 있습니다.",
+          "importance": "high",
+          "tags": [
+            "oil prices",
+            "tech stocks",
+            "macroeconomics"
+          ]
+        },
+        {
+          "title": "Semtech Q4’26 slides: data center surge drives record year",
+          "url": "https://www.investing.com/news/company-news/semtech-q426-slides-data-center-surge-drives-record-year-93CH-4564245",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:21:52+00:00",
+          "summary": "Semtech은 Data Center 부문의 급격한 수요 증가에 힘입어 Q4'26 실적 발표에서 기록적인 성과를 거두었습니다. AI 인프라 확장에 따른 광통신 및 데이터 전송 칩 수요가 회사의 강력한 성장 동력으로 작용했습니다.",
+          "importance": "high",
+          "tags": [
+            "semtech",
+            "data center",
+            "earnings"
+          ]
+        },
+        {
+          "title": "Nvidia expands its autonomous driving system with new car manufacturers and Uber: GTC",
+          "url": "https://seekingalpha.com/news/4565003-nvidia-expands-its-autonomous-driving-system-with-new-car-manufacturers-and-uber-gtc?utm_source=feed_news_all&utm_medium=referral&feed_item_type=news",
+          "source": "Seeking Alpha",
+          "published": "2026-03-16T21:55:39+00:00",
+          "summary": "Nvidia가 GTC 컨퍼런스에서 새로운 자동차 제조사 및 Uber와의 파트너십을 통해 autonomous driving system 생태계를 확장한다고 발표했습니다. 이번 협력은 AI 기반 자율주행 기술의 상용화를 가속화할 전망입니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "autonomous driving",
+            "gtc"
+          ]
+        },
+        {
+          "title": "Oil Holds Decline as Investors Weigh Iran War Impact on Supply",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-16/latest-oil-market-news-and-analysis-for-march-17",
+          "source": "Bloomberg",
+          "published": "2026-03-16T22:01:32+00:00",
+          "summary": "Oil 가격이 중동의 군사적 위협과 공급 과잉 우려 사이에서 변동성을 보인 끝에 하락세를 유지하고 있습니다. 투자자들은 Iran 전쟁이 실제 에너지 공급망에 미칠 실질적인 타격을 예의주시하고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "oil",
+            "energy",
+            "geopolitics"
+          ]
+        },
+        {
+          "title": "Morgan Stanley Sticks With June Rate Cut Call Despite Oil Surge",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-16/morgan-stanley-sticks-with-june-rate-cut-call-despite-oil-surge",
+          "source": "Bloomberg",
+          "published": "2026-03-16T21:44:15+00:00",
+          "summary": "Morgan Stanley는 최근 유가 급등에도 불구하고 Federal Reserve가 6월에 금리 인하를 시작하고 9월에 추가 인하를 단행할 것이라는 전망을 유지했습니다. 이는 시장 트레이더들이 금리 인하 기대치를 낮추는 흐름과 대조적입니다.",
+          "importance": "high",
+          "tags": [
+            "morgan stanley",
+            "federal reserve",
+            "interest rates",
+            "oil prices"
+          ]
+        },
+        {
+          "title": "Rosengren: Fed is on Hold Without Iran Timeline Clarity",
+          "url": "https://www.bloomberg.com/news/videos/2026-03-16/rosengren-fed-is-on-hold-without-iran-timeline-clarity-video",
+          "source": "Bloomberg",
+          "published": "2026-03-16T20:54:27+00:00",
+          "summary": "Eric Rosengren 전 Boston Fed 총재는 Iran 관련 지정학적 리스크의 불확실성이 해소되기 전까지 Fed가 금리 결정을 유보할 가능성이 높다고 분석했습니다.",
+          "importance": "high",
+          "tags": [
+            "fed",
+            "iran",
+            "geopolitics",
+            "interest rates"
+          ]
+        },
+        {
+          "title": "李 “백년해로 부부 불이익 주는 기초연금 안돼”…하후상박 강조",
+          "url": "https://www.mk.co.kr/news/economy/11989822",
+          "source": "매일경제",
+          "published": "2026-03-16T21:15:56+00:00",
+          "summary": "이재명 대표는 노인 빈곤 해결을 위해 기초연금의 부부 감액 제도를 폐지하고, 저소득층에게 더 많은 혜택을 주는 '하후상박'식 개혁안을 제시했습니다. 이에 따라 국회 연금개혁특별위원회는 재정 부담과 구체적인 개혁 방향을 논의할 예정입니다.",
+          "importance": "high",
+          "tags": [
+            "pension reform",
+            "korea politics",
+            "welfare",
+            "economy"
+          ]
+        },
+        {
+          "title": "IEA 사무총장 “필요시 전략비축유 추가 방출”",
+          "url": "https://www.mk.co.kr/news/economy/11989700",
+          "source": "매일경제",
+          "published": "2026-03-16T15:07:29+00:00",
+          "summary": "Fatih Birol IEA 사무총장은 Middle East 전쟁으로 인한 에너지 위기 시 전략비축유를 추가 방출할 수 있다고 밝혔습니다. 현재 14억 배럴 이상의 비축유가 남아있으며, India, Thailand 등 비회원국도 공조에 참여할 예정입니다.",
+          "importance": "high",
+          "tags": [
+            "iea",
+            "oil inventory",
+            "energy crisis"
+          ]
+        },
+        {
+          "title": "물가 연쇄폭탄 터지나…IMF “1년6개월 동안 오를 수도” 경고",
+          "url": "https://www.mk.co.kr/news/economy/11989518",
+          "source": "매일경제",
+          "published": "2026-03-16T10:28:47+00:00",
+          "summary": "IMF는 에너지 가격 상승이 생활필수품으로 전이되는 '도미노 물가 상승'이 최대 1.5년 지속될 수 있다고 경고했습니다. 고유가가 장기화될 경우 Stagflation 국면 진입 우려가 있으며, 통화 및 재정 정책 운용에 어려움이 예상됩니다.",
+          "importance": "high",
+          "tags": [
+            "imf",
+            "inflation",
+            "stagflation"
+          ]
+        },
+        {
+          "title": "물가 연쇄폭탄 터지나 … IMF \"1년6개월간 오를수도\" 경고",
+          "url": "https://www.mk.co.kr/news/economy/11989423",
+          "source": "매일경제",
+          "published": "2026-03-16T08:57:49+00:00",
+          "summary": "국제 유가 급등으로 인한 인플레이션이 농업, 제조업을 거쳐 서비스업까지 확산되며 Stagflation 우려를 낳고 있습니다. 특히 한국은 민생 추경 검토 중이나, 유동성이 자산 거품을 자극할 수 있다는 분석이 나옵니다.",
+          "importance": "high",
+          "tags": [
+            "inflation",
+            "imf",
+            "monetary policy"
+          ]
+        },
+        {
+          "title": "기업 71%가 '원료 절벽' 호소 … 이대로면 볼펜도 못만들 판",
+          "url": "https://www.mk.co.kr/news/economy/11989424",
+          "source": "매일경제",
+          "published": "2026-03-16T08:57:49+00:00",
+          "summary": "Middle East 전쟁 여파로 Plastic 원료인 Naphtha와 PP 공급망에 비상이 걸리며 기업 71%가 수급 불안을 호소하고 있습니다. 유가 10% 상승 시 석유제품 생산비는 6.3% 증가하며, 중소기업의 수익성 악화와 납기 지연이 현실화되고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "supply chain",
+            "petrochemical",
+            "naphtha"
+          ]
+        },
+        {
+          "title": "'중동쇼크' 플라스틱까지 덮쳤다",
+          "url": "https://www.mk.co.kr/news/economy/11989398",
+          "source": "매일경제",
+          "published": "2026-03-16T08:55:48+00:00",
+          "summary": "중동 리스크로 Naphtha 가격이 급등하면서 국내 Polyethylene 가격이 평균 13% 인상 통보되었습니다. 이는 포장재, 생활용품 등 플라스틱 제품 전반의 원가 상승으로 이어져 생활 물가에 타격을 줄 전망입니다.",
+          "importance": "high",
+          "tags": [
+            "plastic",
+            "petrochemical",
+            "commodity prices"
+          ]
+        },
+        {
+          "title": "[단독] 중동쇼크 플라스틱도 덮쳤다…폴리에틸렌 가격 13% 인상",
+          "url": "https://www.mk.co.kr/news/economy/11989379",
+          "source": "매일경제",
+          "published": "2026-03-16T08:47:34+00:00",
+          "summary": "Middle East 쇼크로 Polyethylene 공급가가 t당 20만 원 이상 급등하며 플라스틱 업계에 비상이 걸렸습니다. 당정은 Naphtha 수출 동결 및 대체 수입처 발굴 등 긴급 수급 안정 대책을 논의 중입니다.",
+          "importance": "high",
+          "tags": [
+            "polyethylene",
+            "naphtha",
+            "government policy"
+          ]
+        },
+        {
+          "title": "[연합뉴스 이 시각 헤드라인] - 07:30",
+          "url": "https://www.yna.co.kr/view/AKR20260317017200011",
+          "source": "연합뉴스",
+          "published": "2026-03-16T22:30:00+00:00",
+          "summary": "Trump 미국 대통령이 호르무즈 해협 호위 작전에 한국 등 동맹국의 참여를 압박하면서 국제유가가 하락했습니다. 한편 NVIDIA의 Jensen Huang CEO는 Samsung이 차세대 AI 칩 제조를 맡고 있음을 밝히며 감사를 표했습니다.",
+          "importance": "high",
+          "tags": [
+            "trump",
+            "nvidia",
+            "samsung"
+          ]
+        },
+        {
+          "title": "네이버·두나무 합병 심사 속도전…공정위 추가 자료 요구",
+          "url": "https://www.yna.co.kr/view/AKR20260316125500017",
+          "source": "연합뉴스",
+          "published": "2026-03-16T21:33:00+00:00",
+          "summary": "Naver Financial과 Upbit 운영사 Dunamu의 기업결합 심사가 막바지 단계에 진입했으며, 공정거래위원회는 추가 자료를 요구하며 속도를 내고 있습니다. STO 및 Stablecoin 시장 주도권 선점을 위해 양사는 신속히 대응 중이며, 이르면 5월 중 최종 결론이 날 전망입니다.",
+          "importance": "high",
+          "tags": [
+            "naver",
+            "dunamu",
+            "m&a"
+          ]
+        },
+        {
+          "title": "[이코노워치] '위기 온다'는 공포 마케팅이 고개를 들 때",
+          "url": "https://www.yna.co.kr/view/AKR20260316131700546",
+          "source": "연합뉴스",
+          "published": "2026-03-16T21:10:00+00:00",
+          "summary": "중동 전쟁 장기화와 미국 사모대출 펀드 환매 중단 소식으로 Stagflation 및 금융위기 우려가 확산되고 있습니다. 전문가들은 이를 과도한 공포 마케팅으로 보기도 하지만, 고유가와 고환율 등 한국 경제의 복합 악재에 대한 철저한 대비가 필요합니다.",
+          "importance": "high",
+          "tags": [
+            "economy",
+            "inflation",
+            "risk"
+          ]
+        },
+        {
+          "title": "AI 신약에 돈 몰린다…빅파마 공동 R&D 130조원 베팅",
+          "url": "https://www.yna.co.kr/view/AKR20260316133700017",
+          "source": "연합뉴스",
+          "published": "2026-03-16T21:05:01+00:00",
+          "summary": "글로벌 제약사들이 AI 신약 개발 플랫폼 확보를 위해 공동 R&D 투자 규모를 전년 대비 49% 늘린 130조 원으로 확대했습니다. AstraZeneca와 Merck 등 빅파마들은 후보물질 발굴 효율성을 높이기 위해 AI 전문 기업들과 대규모 계약을 체결하는 추세입니다.",
+          "importance": "high",
+          "tags": [
+            "ai",
+            "biotech",
+            "r&d"
+          ]
+        },
+        {
+          "title": "Trump signals coalition to force open Strait of Hormuz is not ready yet: 'Some are less than enthusiastic'",
+          "url": "https://www.cnbc.com/2026/03/16/strait-of-hormuz-trump-says-coalition-to-protect-oil-tankers-not-ready-yet.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T19:44:15+00:00",
+          "summary": "Donald Trump 대통령은 Strait of Hormuz에서 유조선을 보호하기 위한 연합군 구성에 대해 일부 동맹국들이 소극적인 태도를 보이고 있다고 언급했습니다.",
+          "importance": "medium",
+          "tags": [
+            "geopolitics",
+            "oil",
+            "trump"
+          ]
+        },
+        {
+          "title": "Stock futures are little changed after major averages rebound on easing oil prices: Live updates",
+          "url": "https://www.cnbc.com/2026/03/16/stock-market-today-live-updates.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T22:29:14+00:00",
+          "summary": "유가 하락에 힘입어 S&P 500의 11개 섹터가 모두 상승 마감한 가운데, 주식 선물 시장은 기술주 중심의 반등 이후 보합세를 유지하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "stock market",
+            "sp500",
+            "oil prices"
+          ]
+        },
+        {
+          "title": "Bill Gurley on AI bubble: A bunch of people got rich quick and a reset is coming",
+          "url": "https://www.cnbc.com/2026/03/16/bill-gurley-ai-bubble-get-rich-quick.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T22:30:19+00:00",
+          "summary": "Benchmark의 Bill Gurley는 현재 AI 시장의 거품을 경고하며, 급격한 부를 축적한 이들 이후에 시장 리셋(reset)이 올 것이라고 예측했습니다.",
+          "importance": "medium",
+          "tags": [
+            "ai bubble",
+            "venture capital",
+            "tech"
+          ]
+        },
+        {
+          "title": "Apple acquires video editing company MotionVFX to boost subscribers",
+          "url": "https://www.cnbc.com/2026/03/16/apple-acquires-video-editing-company-motionvfx-to-boost-subscribers.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T21:40:30+00:00",
+          "summary": "Apple은 크리에이터 도구 구독자를 늘리기 위해 영상 편집 전문 기업인 MotionVFX를 인수하기로 결정했습니다.",
+          "importance": "medium",
+          "tags": [
+            "apple",
+            "m&a",
+            "software"
+          ]
+        },
+        {
+          "title": "U.S. is allowing Iranian oil tankers through Strait of Hormuz, says Bessent",
+          "url": "https://www.cnbc.com/2026/03/16/us-is-allowing-iranian-tankers-through-strait-of-hormuz-says-bessent.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T15:36:49+00:00",
+          "summary": "Scott Bessent 재무장관은 해군 호위함 배치 전까지 Strait of Hormuz를 통과하는 Iranian 유조선 통행량이 일시적으로 증가할 것을 허용하고 있다고 밝혔습니다.",
+          "importance": "medium",
+          "tags": [
+            "oil",
+            "iran",
+            "energy"
+          ]
+        },
+        {
+          "title": "Bessent says Treasury is not intervening in oil commodities markets and has no authority to do so",
+          "url": "https://www.cnbc.com/2026/03/16/bessent-says-treasury-is-not-intervening-in-oil-commodities-markets-and-has-no-authority-to-do-so.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T14:25:00+00:00",
+          "summary": "Scott Bessent Treasury 장관은 재무부가 Oil 시장에 개입하고 있지 않으며 그럴 권한도 없다고 밝혔습니다. 이는 정부가 유가를 낮추기 위해 개입할 것이라는 루머를 일축한 것입니다.",
+          "importance": "medium",
+          "tags": [
+            "oil",
+            "treasury",
+            "bessent"
+          ]
+        },
+        {
+          "title": "Apollo's John Zito questions private equity's software valuations: 'All the marks are wrong'",
+          "url": "https://www.cnbc.com/2026/03/16/apollo-john-zito-private-equity-software-valuations.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T17:17:36+00:00",
+          "summary": "Apollo의 John Zito는 Private Equity의 Software 밸류에이션 산정이 잘못되었다고 지적하며 약점을 인정했습니다. 이는 Private Credit 업계 내부에서 나온 이례적인 솔직한 경고로 받아들여집니다.",
+          "importance": "medium",
+          "tags": [
+            "apollo",
+            "private equity",
+            "valuation"
+          ]
+        },
+        {
+          "title": "Gig workers feel pain at the pump as gas prices hit 21-month highs",
+          "url": "https://www.cnbc.com/2026/03/12/gig-workers-gas-prices-aaa-iran.html",
+          "source": "CNBC Economy",
+          "published": "2026-03-15T17:59:39+00:00",
+          "summary": "Gas 가격이 21개월 만에 최고치를 기록하면서 배달 및 라이드셰어 서비스를 제공하는 Gig workers들의 경제적 고통이 커지고 있습니다. 수백만 명의 노동자들이 치솟는 연료비의 직접적인 타격을 입고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "gas prices",
+            "gig economy",
+            "inflation"
+          ]
+        },
+        {
+          "title": "Nvidia adds Hyundai, BYD and other automakers to self-driving tech business",
+          "url": "https://www.cnbc.com/2026/03/16/nvidia-hyundai-byd-nissan-self-driving-tech.html",
+          "source": "CNBC World",
+          "published": "2026-03-16T22:06:38+00:00",
+          "summary": "Nvidia가 Hyundai와 BYD를 포함한 주요 자동차 제조사들을 자율주행 기술 파트너로 확보했습니다. 이는 Nvidia가 AI 이외의 분야에서 성장을 증명할 수 있는 핵심 사업 영역으로 평가받습니다.",
+          "importance": "medium",
+          "tags": [
+            "nvidia",
+            "hyundai",
+            "autonomous driving"
+          ]
+        },
+        {
+          "title": "Big Tech purchases of carbon credits explode amid AI race, with Microsoft leading the way",
+          "url": "https://www.cnbc.com/2026/03/16/microsoft-carbon-credits-ai-tech-google-meta.html",
+          "source": "CNBC World",
+          "published": "2026-03-16T08:39:38+00:00",
+          "summary": "AI 경쟁이 치열해지면서 Microsoft를 필두로 Amazon, Google, Meta 등 Big Tech 기업들의 Carbon credit 구매가 2023년에 급증했습니다. 이는 기업들의 탄소 중립 목표 달성을 위한 전략적 움직임으로 풀이됩니다.",
+          "importance": "medium",
+          "tags": [
+            "big tech",
+            "carbon credits",
+            "ai"
+          ]
+        },
+        {
+          "title": "U.S. stocks have been surprisingly resilient as the Iran conflict threatens global economic disruption. Thank industry analysts?",
+          "url": "https://www.marketwatch.com/story/u-s-stocks-have-been-surprisingly-resilient-as-the-iran-conflict-threatens-global-economic-disruption-thank-industry-analysts-fba3b2ca?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T21:28:00+00:00",
+          "summary": "Iran 갈등으로 인한 글로벌 경제 위기 속에서도 U.S. stocks는 놀라운 회복력을 보이고 있습니다. Yardeni Research에 따르면 Wall Street analysts들이 기업들의 Earnings forecasts를 계속 상향 조정하는 것이 시장을 지탱하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "stock market",
+            "earnings",
+            "wall street"
+          ]
+        },
+        {
+          "title": "Upstart’s stock rises as analyst says investors have been ignoring a key catalyst",
+          "url": "https://www.marketwatch.com/story/upstarts-stock-rises-as-analyst-says-investors-have-been-ignoring-a-key-catalyst-81fbde00?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T20:57:00+00:00",
+          "summary": "BTIG Analyst는 Upstart가 Banking charter를 획득할 경우 Private credit에 대한 위험 노출을 줄일 수 있다며 55%의 추가 상승 여력이 있다고 분석했습니다. 이 소식에 Upstart의 주가는 상승세를 보였습니다.",
+          "importance": "medium",
+          "tags": [
+            "upstart",
+            "fintech",
+            "stocks"
+          ]
+        },
+        {
+          "title": "Warren Buffett’s parting gift to Berkshire Hathaway: A $2 billion Iran oil windfall",
+          "url": "https://www.marketwatch.com/story/warren-buffetts-parting-gift-to-berkshire-hathaway-a-2-billion-iran-oil-windfall-4daf28ba?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T20:52:00+00:00",
+          "summary": "Warren Buffett의 Berkshire Hathaway가 에너지 주식 보유를 통해 Iran oil 관련 약 $2 billion의 횡재를 얻었습니다. 이는 은퇴 계좌인 401(k)에서 에너지 섹터 비중을 유지하는 것의 중요성을 시사합니다.",
+          "importance": "medium",
+          "tags": [
+            "berkshire hathaway",
+            "warren buffett",
+            "energy stocks"
+          ]
+        },
+        {
+          "title": "Record Oscar haul for Warner Bros. caps off a topsy-turvy year for the legendary studio",
+          "url": "https://www.marketwatch.com/story/record-oscar-haul-for-warner-bros-caps-off-a-topsy-turvy-year-for-the-legendary-studio-0f81f0d9?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T20:14:00+00:00",
+          "summary": "Warner Bros.가 11개의 Oscar 상을 휩쓸며 기록적인 성과를 거두었습니다. 이는 박스오피스 흥행과 모기업의 복잡한 매각 과정 등 격동의 시기를 보낸 후 얻은 값진 결과입니다.",
+          "importance": "medium",
+          "tags": [
+            "warner bros",
+            "oscars",
+            "entertainment"
+          ]
+        },
+        {
+          "title": "Uber Expands Robotaxi Empire With Nissan Deal. Is UBER a Buy Now?",
+          "url": "https://finance.yahoo.com/news/uber-expands-robotaxi-empire-nissan-140002115.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T14:00:02+00:00",
+          "summary": "Uber가 Nissan과의 파트너십을 통해 robotaxi 사업 영역을 확장하고 있습니다. 이번 딜이 UBER 주식의 매수 적기인지에 대한 시장의 관심이 집중되고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "uber",
+            "nissan",
+            "robotaxi"
+          ]
+        },
+        {
+          "title": "Polymarket Five-Minute Bets Capture ‘Addictive’ Crypto Craze",
+          "url": "https://finance.yahoo.com/news/polymarket-five-minute-bets-capture-140000351.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T14:00:00+00:00",
+          "summary": "Polymarket의 5분 단위 베팅 서비스가 crypto 투자자들 사이에서 중독적인 인기를 끌고 있습니다. 이러한 초단기 예측 시장은 최근의 암호화폐 열풍을 단적으로 보여주는 사례입니다.",
+          "importance": "medium",
+          "tags": [
+            "polymarket",
+            "crypto",
+            "betting"
+          ]
+        },
+        {
+          "title": "My soon to be ex-husband maxed out new credit cards in my name. How can I ensure he gets the debt in the divorce?",
+          "url": "https://finance.yahoo.com/news/soon-ex-husband-maxed-credit-140000549.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T14:00:00+00:00",
+          "summary": "이혼 절차 중 배우자가 본인 명의로 신용카드 Debt를 발생시킨 경우, 법적 분쟁에서 이를 'Non-marital debt'로 입증하는 것이 중요합니다. Divorce 변호사와 상담하여 신용 보고서를 동결하고 부당하게 발생한 부채가 재산 분할 과정에서 배우자에게 할당되도록 조치해야 합니다.",
+          "importance": "medium",
+          "tags": [
+            "divorce",
+            "credit card debt",
+            "personal finance"
+          ]
+        },
+        {
+          "title": "A Florida Trucking Company Raised $158 Million From 2,000 Investors by Promising 200% Monthly Returns – Here Is Exactly How It Worked and Why Every Small Carrier Needs to Read It",
+          "url": "https://finance.yahoo.com/news/florida-trucking-company-raised-158-142133037.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T14:21:33+00:00",
+          "summary": "Florida의 한 Trucking Company가 월 200% 수익을 약속하며 2,000명의 투자자로부터 158 Million 달러를 모금한 Ponzi scheme 사례가 공개되었습니다. 소규모 운송업체들은 비현실적인 고수익 투자 제안을 경계하고 투명한 재무 구조를 확인해야 합니다.",
+          "importance": "medium",
+          "tags": [
+            "fraud",
+            "trucking",
+            "investment"
+          ]
+        },
+        {
+          "title": "Analyst Report: Illinois Tool Works Inc",
+          "url": "https://finance.yahoo.com/research/reports/ARGUS_3094_AnalystReport_1773681533000?yptr=yahoo&ncid=yahooproperties_plusresear_nm5q6ze1cei",
+          "source": "Yahoo Finance",
+          "published": "2026-03-16T17:18:53+00:00",
+          "summary": "Illinois Tool Works Inc(ITW)에 대한 최신 Analyst Report는 회사의 다각화된 사업 모델과 견고한 Operating margins를 강조합니다. 거시 경제의 불확실성에도 불구하고 ITW의 주주 환원 정책과 자본 효율성은 긍정적인 평가를 받고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "itw",
+            "stock analysis",
+            "manufacturing"
+          ]
+        },
+        {
+          "title": "This Stock Has an 18%+ Annual Yield, Pays Monthly, and is Covered by Cash Flow",
+          "url": "https://finance.yahoo.com/news/stock-18-annual-yield-pays-123002351.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T12:30:02+00:00",
+          "summary": "연간 18% 이상의 고배당 수익률을 제공하며 매월 배당금을 지급하는 특정 주식이 Cash flow에 의해 안정적으로 뒷받침되고 있습니다. Income 투자자들에게 매력적인 대안이 될 수 있으나, 고금리 환경에서의 리스크 관리가 병행되어야 합니다.",
+          "importance": "medium",
+          "tags": [
+            "dividend",
+            "passive income",
+            "yield"
+          ]
+        },
+        {
+          "title": "Analyst Report: Best Buy Co Inc",
+          "url": "https://finance.yahoo.com/research/reports/ARGUS_2762_AnalystReport_1773681533000?yptr=yahoo&ncid=yahooproperties_plusresear_nm5q6ze1cei",
+          "source": "Yahoo Finance",
+          "published": "2026-03-16T17:18:53+00:00",
+          "summary": "Best Buy Co Inc에 대한 최신 Analyst Report는 가전 제품 수요의 회복 가능성과 수익성 개선 전략을 분석합니다. 시장 경쟁 심화 속에서도 서비스 부문의 성장과 비용 절감 노력이 향후 주가 향방의 핵심 요소로 꼽힙니다.",
+          "importance": "medium",
+          "tags": [
+            "best buy",
+            "retail",
+            "analyst report"
+          ]
+        },
+        {
+          "title": "Oklo Inc: director Cochran sells $2.68m in shares",
+          "url": "https://www.investing.com/news/insider-trading-news/oklo-inc-director-cochran-sells-268m-in-shares-93CH-4564246",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:22:18+00:00",
+          "summary": "Oklo Inc의 이사인 Cochran이 약 2.68M 달러 규모의 자사주를 매각했습니다. 이번 내부자 매도 거래는 최근 원자력 에너지 섹터에 대한 관심이 높아진 가운데 발생하여 투자자들의 주의를 끌고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "oklo",
+            "insider selling",
+            "nuclear energy"
+          ]
+        },
+        {
+          "title": "Oklo Inc: CEO DeWitte sells $4.3M in shares",
+          "url": "https://www.investing.com/news/insider-trading-news/oklo-inc-ceo-dewitte-sells-43m-in-shares-93CH-4564244",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:21:52+00:00",
+          "summary": "Oklo Inc의 CEO인 DeWitte가 4.3M 달러 상당의 주식을 매각하며 내부자 지분 변동을 공시했습니다. 이사 Cochran의 매도에 이은 CEO의 대규모 매각은 향후 주가 변동성에 영향을 줄 수 있는 요소입니다.",
+          "importance": "medium",
+          "tags": [
+            "oklo",
+            "insider selling",
+            "ceo"
+          ]
+        },
+        {
+          "title": "BofA raises Dollar Tree stock price target on multi-price strategy",
+          "url": "https://www.investing.com/news/analyst-ratings/bofa-raises-dollar-tree-stock-price-target-on-multiprice-strategy-93CH-4564238",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:17:31+00:00",
+          "summary": "BofA는 Dollar Tree의 multi-price strategy를 긍정적으로 평가하며 목표 주가를 상향 조정했습니다. 새로운 가격 정책이 수익성 개선에 기여할 것으로 기대됩니다.",
+          "importance": "medium",
+          "tags": [
+            "dollar tree",
+            "bofa",
+            "price target"
+          ]
+        },
+        {
+          "title": "Dragonfly Energy targets positive adjusted EBITDA at $70M revenue run rate while accelerating OEM and trucking expansion",
+          "url": "https://seekingalpha.com/news/4565010-dragonfly-energy-targets-positive-adjusted-ebitda-at-70m-revenue-run-rate-while-accelerating?utm_source=feed_news_all&utm_medium=referral&feed_item_type=news",
+          "source": "Seeking Alpha",
+          "published": "2026-03-16T22:12:49+00:00",
+          "summary": "Dragonfly Energy는 $70M의 revenue run rate 달성을 통해 positive adjusted EBITDA를 목표로 하고 있습니다. OEM 및 trucking 부문의 확장을 가속화할 계획입니다.",
+          "importance": "medium",
+          "tags": [
+            "dragonfly energy",
+            "ebitda",
+            "oem"
+          ]
+        },
+        {
+          "title": "FinVolution Group Non-GAAP EPS of $0.25, revenue of $432.4M",
+          "url": "https://seekingalpha.com/news/4565008-finvolution-group-non-gaap-eps-of-0_25-revenue-of-432_4m?utm_source=feed_news_all&utm_medium=referral&feed_item_type=news",
+          "source": "Seeking Alpha",
+          "published": "2026-03-16T22:05:49+00:00",
+          "summary": "FinVolution Group이 Non-GAAP EPS $0.25와 revenue $432.4M를 기록했습니다. 이는 회사의 최근 분기 실적 성과를 반영합니다.",
+          "importance": "medium",
+          "tags": [
+            "finvolution group",
+            "earnings",
+            "eps"
+          ]
+        },
+        {
+          "title": "Assertio outlines $110M–$125M 2026 revenue target with Rolvedon at the core while shifting business development approach",
+          "url": "https://seekingalpha.com/news/4565007-assertio-outlines-110m-125m-2026-revenue-target-with-rolvedon-at-the-core-while-shifting?utm_source=feed_news_all&utm_medium=referral&feed_item_type=news",
+          "source": "Seeking Alpha",
+          "published": "2026-03-16T22:03:07+00:00",
+          "summary": "Assertio는 Rolvedon을 중심으로 2026년까지 $110M–$125M의 revenue target을 설정했습니다. 또한 비즈니스 개발 방식을 전략적으로 전환하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "assertio",
+            "revenue target",
+            "rolvedon"
+          ]
+        },
+        {
+          "title": "Most oversold consumer discretionary stocks on Wall Street amid Middle East disruptions (market cap $2B to $10B)",
+          "url": "https://seekingalpha.com/news/4564981-most-oversold-consumer-discretionary-stocks-on-wall-street-amid-middle-east-disruptions-market-cap-2b-to-10b?utm_source=feed_news_all&utm_medium=referral&feed_item_type=news",
+          "source": "Seeking Alpha",
+          "published": "2026-03-16T22:02:31+00:00",
+          "summary": "Middle East 지정학적 리스크 속에서 시가총액 $2B~$10B 사이의 가장 과매도된 consumer discretionary 주식들이 분석되었습니다. 시장 변동성 확대에 따른 투자 기회를 탐색합니다.",
+          "importance": "medium",
+          "tags": [
+            "consumer discretionary",
+            "oversold",
+            "middle east"
+          ]
+        },
+        {
+          "title": "Here are the major earnings before the open Tuesday",
+          "url": "https://seekingalpha.com/news/4564778-here-are-the-major-earnings-before-the-open-tuesday?utm_source=feed_news_all&utm_medium=referral&feed_item_type=news",
+          "source": "Seeking Alpha",
+          "published": "2026-03-16T22:00:16+00:00",
+          "summary": "Tuesday 장 시작 전 발표될 주요 기업들의 earnings 실적 발표 일정이 공개되었습니다. 투자자들은 주요 섹터 기업들의 실적 결과가 시장에 미칠 영향을 주목하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "earnings",
+            "stock market",
+            "investing"
+          ]
+        },
+        {
+          "title": "Asian Stocks Set to Rise as Oil Retreat Lifts Mood: Markets Wrap",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-16/stock-market-today-dow-s-p-live-updates-",
+          "source": "Bloomberg",
+          "published": "2026-03-16T22:26:41+00:00",
+          "summary": "Oil 가격 하락이 Wall Street에 긍정적인 영향을 주면서 Asian Stocks도 상승세로 출발할 것으로 예상됩니다. Strait of Hormuz를 통과하는 유조선 통행이 원활해질 것이라는 기대감이 시장 심리를 개선했습니다.",
+          "importance": "medium",
+          "tags": [
+            "asia stocks",
+            "oil prices",
+            "market wrap"
+          ]
+        },
+        {
+          "title": "Indonesia Set to Hold Rate as War, Fiscal Risks Pressure Rupiah",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-16/indonesia-set-to-hold-rate-as-war-fiscal-risks-pressure-rupiah",
+          "source": "Bloomberg",
+          "published": "2026-03-16T22:00:00+00:00",
+          "summary": "Indonesia 중앙은행이 Rupiah 가치 하락 압력과 중동 전쟁 리스크로 인해 기준 금리를 동결할 것으로 예상됩니다. 투자자들은 정부의 fiscal discipline 유지 여부와 환율 방어 전략에 주목하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "indonesia",
+            "interest rate",
+            "rupiah"
+          ]
+        },
+        {
+          "title": "Fmr. Minneapolis Fed Pres.: Slower Economic Growth Ahead",
+          "url": "https://www.bloomberg.com/news/videos/2026-03-16/fmr-minneapolis-fed-pres-slower-economic-growth-ahead-video",
+          "source": "Bloomberg",
+          "published": "2026-03-16T21:09:54+00:00",
+          "summary": "Gary Stern 전 Minneapolis Fed 총재는 다가오는 Fed 회의에서 정책 변화 가능성이 낮다고 언급하며, 향후 경제 성장 둔화 가능성을 경고했습니다.",
+          "importance": "medium",
+          "tags": [
+            "fed",
+            "economic growth",
+            "monetary policy"
+          ]
+        },
+        {
+          "title": "Wall Street’s ‘Tax Alpha’ Trades Are Saving Rich Investors Billions",
+          "url": "https://www.bloomberg.com/news/features/2026-03-16/wall-street-helps-rich-investors-cut-tax-bills-amid-treasury-scrutiny",
+          "source": "Bloomberg",
+          "published": "2026-03-16T21:00:02+00:00",
+          "summary": "Wall Street의 액티브 매니저들이 부유한 투자자들의 세금 부담을 줄여주기 위한 'Tax Alpha' 전략 개발에 집중하며 새로운 수익원을 창출하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "wall street",
+            "tax alpha",
+            "wealth management",
+            "investment"
+          ]
+        },
+        {
+          "title": "Shortage of Naphtha Threatens Supply Chain Chaos in Japan",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-16/shortage-of-naphtha-threatens-supply-chain-chaos-in-japan",
+          "source": "Bloomberg",
+          "published": "2026-03-16T21:00:00+00:00",
+          "summary": "일본이 원유 부족보다 석유 화학 제품의 원료인 Naphtha 공급 부족으로 인해 산업 공급망 전반에 걸친 즉각적인 위협에 직면해 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "japan",
+            "naphtha",
+            "supply chain",
+            "energy"
+          ]
+        },
+        {
+          "title": "Bankers in Asia Intensify Efforts to Calm Private Credit Nerves",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-16/asian-private-bankers-go-on-blitz-to-calm-private-credit-nerves",
+          "source": "Bloomberg",
+          "published": "2026-03-16T21:00:00+00:00",
+          "summary": "아시아 지역의 프라이빗 뱅커들이 1.8조 달러 규모의 Private Credit 시장 내 환매 압력과 고객 불안을 해소하기 위해 대응을 강화하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "private credit",
+            "asia",
+            "banking",
+            "liquidity"
+          ]
+        },
+        {
+          "title": "현대차그룹 채용 떴다",
+          "url": "https://www.mk.co.kr/news/economy/11989440",
+          "source": "매일경제",
+          "published": "2026-03-16T08:58:37+00:00",
+          "summary": "Hyundai Motor Group이 20일부터 R&D, IT, 경영지원 등 전 부문에 걸쳐 신입 및 경력 사원 채용을 시작합니다. 25일에는 YouTube 라이브 방송을 통해 직무 및 채용 절차를 소개할 예정입니다.",
+          "importance": "medium",
+          "tags": [
+            "hyundai",
+            "recruitment",
+            "mobility"
+          ]
+        },
+        {
+          "title": "[단독] ‘금가분리’ 완화 첫단추…은행 지분투자 허용 유력",
+          "url": "https://www.mk.co.kr/news/economy/11989395",
+          "source": "매일경제",
+          "published": "2026-03-16T08:54:22+00:00",
+          "summary": "정부가 금융과 가상자산 분리 규제인 '금가분리' 완화를 검토하며 은행의 가상자산 관련 지분 투자를 허용할 방침입니다. 이는 Stablecoin 사업 추진을 위한 포석이나, 은행권은 직접 사업 영위가 제한적인 점에 아쉬움을 표하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "crypto",
+            "banking",
+            "stablecoin"
+          ]
+        },
+        {
+          "title": "KB, 패밀리오피스 조직 신설 … 연내 관리 자산 2조원 목표",
+          "url": "https://www.mk.co.kr/news/economy/11989308",
+          "source": "매일경제",
+          "published": "2026-03-16T08:23:06+00:00",
+          "summary": "KB국민은행이 자산관리 경쟁력 강화를 위해 'KB the FIRST 패밀리오피스'로 리브랜딩하고 전담 솔루션팀을 신설했습니다. 이를 통해 가문 맞춤형 자산관리 서비스를 제공하며 연내 관리 자산 규모를 2조 원까지 확대할 목표입니다.",
+          "importance": "medium",
+          "tags": [
+            "kb kookmin bank",
+            "wealth management",
+            "family office"
+          ]
+        },
+        {
+          "title": "부장이 CEO의 3배…작년 불장에 증권사 '연봉킹' 임직원 속출",
+          "url": "https://www.yna.co.kr/view/AKR20260316150600008",
+          "source": "연합뉴스",
+          "published": "2026-03-16T22:20:00+00:00",
+          "summary": "지난해 주식시장 호황으로 인해 증권사에서 지점장이나 부장급 임직원이 대표이사보다 더 많은 연봉을 받는 사례가 속출했습니다. 유안타증권의 한 이사는 74억 원의 연봉을 기록했으며, 삼성증권과 하나증권 등에서도 고액 상여금을 받은 영업 인력들이 CEO 보수를 추월했습니다.",
+          "importance": "medium",
+          "tags": [
+            "securities",
+            "salary",
+            "stock market"
+          ]
+        },
+        {
+          "title": "'실적파티' 증권가 주주환원 열기…중소형사도 배당확대 나서",
+          "url": "https://www.yna.co.kr/view/AKR20260316106100008",
+          "source": "연합뉴스",
+          "published": "2026-03-16T22:03:00+00:00",
+          "summary": "실적 호조를 맞은 증권업계에서 정부의 밸류업 정책에 발맞춰 중소형 증권사들을 중심으로 배당 확대 기조가 뚜렷합니다. LS증권, 한양증권, DB금융투자 등이 역대급 배당을 결정하며 주주환원 경쟁에 적극적으로 나서고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "securities",
+            "dividend",
+            "value-up"
+          ]
+        },
+        {
+          "title": "[우분투칼럼] 아프리카는 중국이 '접수'했다는 착각",
+          "url": "https://www.yna.co.kr/view/AKR20260305040000898",
+          "source": "연합뉴스",
+          "published": "2026-03-16T22:00:03+00:00",
+          "summary": "아프리카 시장에서 중국의 영향력이 크지만, 부채 위기와 품질 문제로 인해 현지인들의 우려도 깊어지고 있습니다. 이러한 상황에서 K-Beauty와 K-Food 등 한국의 고품질 브랜드가 아프리카 중산층을 공략하며 새로운 기회를 창출하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "africa",
+            "china",
+            "k-brand"
+          ]
+        },
+        {
+          "title": "[글로벌 코리안] \"유럽서 꽃으로 연 길, 송도서 K-웰니스로 피워요\"",
+          "url": "https://www.yna.co.kr/view/AKR20260316083100371",
+          "source": "연합뉴스",
+          "published": "2026-03-16T21:15:01+00:00",
+          "summary": "Therme Group Korea가 인천 송도에 8,500억 원 규모의 유럽형 복합 웰니스 리조트 조성을 위한 본 협약을 체결했습니다. 9만여㎡ 부지에 열대 식물원과 스파 시설을 갖춘 친환경 리조트를 건설하여 글로벌 웰빙 오아시스를 구축할 계획입니다.",
+          "importance": "medium",
+          "tags": [
+            "wellness",
+            "songdo",
+            "investment"
+          ]
+        },
+        {
+          "title": "코스맥스, 이탈리아 인터코스와 격차벌려…\"K뷰티가 세계 주도\"",
+          "url": "https://www.yna.co.kr/view/AKR20260316131300030",
+          "source": "연합뉴스",
+          "published": "2026-03-16T21:01:01+00:00",
+          "summary": "글로벌 화장품 ODM 시장에서 Cosmax와 Kolmar Korea 등 K-Beauty 기업들이 이탈리아 Intercos를 제치고 주도권을 장악하고 있습니다. 혁신적인 성분과 빠른 생산 속도를 앞세워 역대급 실적을 기록 중이며, 해외 생산 기지 확장을 통해 격차를 벌리고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "cosmax",
+            "k-beauty",
+            "odm"
+          ]
+        },
+        {
+          "title": "울산 온산국가산단에 대규모 반도체 세정제 생산공장 신설 추진",
+          "url": "https://www.yna.co.kr/view/AKR20260316152300057",
+          "source": "연합뉴스",
+          "published": "2026-03-16T21:00:18+00:00",
+          "summary": "정밀화학 기업 K&J PM이 울산 온산국가산단에 550억 원을 투자해 반도체 및 디스플레이 공정용 초고순도 세정제 생산공장을 신설합니다. 이번 투자를 통해 핵심 소재의 전 공정 내재화 및 국산화를 달성하여 반도체 공급망 강화에 기여할 것으로 기대됩니다.",
+          "importance": "medium",
+          "tags": [
+            "semiconductor",
+            "ulsan",
+            "investment"
+          ]
+        },
+        {
+          "title": "Market volatility has boosted dividend stocks. These are among Wolfe Research's favorites",
+          "url": "https://www.cnbc.com/2026/03/16/volatility-has-boosted-dividend-stocks-these-are-one-firms-favorites.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T19:18:01+00:00",
+          "summary": "Wolfe Research는 시장 변동성 확대에 대응하여 방어적인 배당주 전략을 추천하며, 선호하는 배당주 리스트를 공개했습니다.",
+          "importance": "low",
+          "tags": [
+            "dividend stocks",
+            "investing",
+            "volatility"
+          ]
+        },
+        {
+          "title": "Iran war is the latest 'worst-case scenario' for travel, expert says. How to minimize the pain of future disruptions",
+          "url": "https://www.cnbc.com/2026/03/16/iran-war-travel-disruptions-how-to-avoid.html",
+          "source": "CNBC Top",
+          "published": "2026-03-16T19:58:17+00:00",
+          "summary": "2026년 초 Iran 전쟁을 포함한 심각한 Travel 중단 사태들이 발생하며 여행 업계에 최악의 시나리오가 현실화되고 있습니다. 전문가들은 향후 발생할 혼란의 충격을 최소화하기 위한 조언을 제공했습니다.",
+          "importance": "low",
+          "tags": [
+            "travel",
+            "iran",
+            "geopolitics"
+          ]
+        },
+        {
+          "title": "'One Battle After Another' takes best picture at the Oscars",
+          "url": "https://www.cnbc.com/2026/03/16/one-battle-after-another-takes-best-picture-at-the-oscars.html",
+          "source": "CNBC World",
+          "published": "2026-03-16T11:23:40+00:00",
+          "summary": "영화 'One Battle After Another'가 Academy Awards에서 Best Picture를 포함해 총 6개의 트로피를 거머쥐었습니다. 이 작품은 Darkly comic thriller 장르로 평단의 높은 평가를 받았습니다.",
+          "importance": "low",
+          "tags": [
+            "oscars",
+            "entertainment",
+            "movies"
+          ]
+        },
+        {
+          "title": "‘Healthcare is important to me’: I’m worried about relocating to Florida from New Jersey. Are hospitals there under stress?",
+          "url": "https://www.marketwatch.com/story/healthcare-is-important-to-me-im-worried-about-relocating-to-florida-from-new-jersey-are-hospitals-there-under-stress-5c270b07?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T20:58:00+00:00",
+          "summary": "New Jersey에서 Florida로 이주를 고민하는 한 은퇴자가 현지 Healthcare 시스템과 병원 스트레스에 대해 우려를 표하고 있습니다. 이주 결정에 있어 날씨나 보험료보다 의료 서비스의 질이 핵심 쟁점으로 떠올랐습니다.",
+          "importance": "low",
+          "tags": [
+            "healthcare",
+            "relocation",
+            "florida"
+          ]
+        },
+        {
+          "title": "‘I’m so screwed’: How can I afford to care for a mom with dementia and send my teen to college?",
+          "url": "https://www.marketwatch.com/story/im-so-screwed-how-can-i-afford-to-care-for-a-mom-with-dementia-and-send-my-teen-to-college-9d127f90?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T20:41:00+00:00",
+          "summary": "치매를 앓는 부모 부양과 자녀의 college 학비 마련 사이에서 고민하는 간병인들을 위한 조언을 담고 있습니다. 저축과 정신적 건강을 모두 잃지 않고 간병 역할을 수행할 수 있는 방법을 제시합니다.",
+          "importance": "low",
+          "tags": [
+            "personal finance",
+            "caregiving",
+            "retirement"
+          ]
+        },
+        {
+          "title": "‘It’s complicated’: My husband, 61, wants to leave me everything. His kids will hate me. What should I do?",
+          "url": "https://www.marketwatch.com/story/its-complicated-my-husband-61-wants-to-leave-me-everything-his-kids-will-hate-me-what-should-i-do-b1d06504?mod=mw_rss_topstories",
+          "source": "MarketWatch",
+          "published": "2026-03-16T20:30:00+00:00",
+          "summary": "61세 남편이 모든 유산을 아내에게 남기려 하면서 자녀들과의 갈등이 예상되는 상속 고민 사례입니다. 아내는 무책임한 소비 습관을 가진 의붓자녀들에게 유산을 거의 주지 않으려는 입장을 보이고 있습니다.",
+          "importance": "low",
+          "tags": [
+            "estate planning",
+            "inheritance",
+            "family finance"
+          ]
+        },
+        {
+          "title": "Net zero zealots are putting Gen Z off building planes",
+          "url": "https://finance.yahoo.com/news/net-zero-zealots-putting-gen-140000114.html",
+          "source": "Yahoo Finance",
+          "published": "2026-03-15T14:00:00+00:00",
+          "summary": "Net zero 정책에 대한 과도한 강조가 항공 산업에 종사하려는 Gen Z 세대의 의욕을 꺾고 있다는 분석이 제기되었습니다. 항공기 제조 분야의 인력 부족 문제가 심화될 수 있으며, 환경 규제와 산업 성장 사이의 균형이 필요하다는 지적입니다.",
+          "importance": "low",
+          "tags": [
+            "aviation",
+            "net zero",
+            "gen z"
+          ]
+        },
+        {
+          "title": "Form 4 Microsoft Corporation For: 16 March",
+          "url": "https://www.investing.com/news/filings/form-4-microsoft-corporation-for-16-march-93CH-4564243",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:20:58+00:00",
+          "summary": "Microsoft Corporation의 내부 관계자가 3월 16일자로 SEC Form 4를 제출하며 주식 거래 내역을 보고했습니다. 이는 경영진의 보상 체계나 개인적인 자산 배분 전략의 일환으로 해석될 수 있습니다.",
+          "importance": "low",
+          "tags": [
+            "microsoft",
+            "form 4",
+            "insider trading"
+          ]
+        },
+        {
+          "title": "Form 4 Harley Davidson For: 16 March",
+          "url": "https://www.investing.com/news/filings/form-4-harley-davidson-for-16-march-93CH-4564242",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:20:40+00:00",
+          "summary": "Harley Davidson의 내부자가 3월 16일 기준 주식 소유권 변동을 나타내는 Form 4를 공시했습니다. 해당 보고서는 기업 내부자의 신뢰도와 향후 사업 전망에 대한 간접적인 지표로 활용됩니다.",
+          "importance": "low",
+          "tags": [
+            "harley davidson",
+            "form 4",
+            "insider trading"
+          ]
+        },
+        {
+          "title": "Form 4 Myomo Inc For: 16 March",
+          "url": "https://www.investing.com/news/filings/form-4-myomo-inc-for-16-march-93CH-4564241",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:20:34+00:00",
+          "summary": "Myomo Inc는 3월 16일 발생한 내부자 거래에 대해 SEC Form 4를 제출했습니다. 소형주 특성상 내부자의 지분 변동은 유동성과 투자 심리에 상대적으로 큰 영향을 미칠 수 있습니다.",
+          "importance": "low",
+          "tags": [
+            "myomo",
+            "form 4",
+            "insider trading"
+          ]
+        },
+        {
+          "title": "Alta Equipment director Nair buys $27k in shares",
+          "url": "https://www.investing.com/news/insider-trading-news/alta-equipment-director-nair-buys-27k-in-shares-93CH-4564240",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:19:18+00:00",
+          "summary": "Alta Equipment의 이사인 Nair가 약 $27k 상당의 자사주를 매입했습니다. 이번 내부자 거래는 기업 가치에 대한 긍정적인 신호로 해석될 수 있습니다.",
+          "importance": "low",
+          "tags": [
+            "alta equipment",
+            "insider buying",
+            "nair"
+          ]
+        },
+        {
+          "title": "Form 4 Xeris Pharmaceuticals Inc For: 16 March",
+          "url": "https://www.investing.com/news/filings/form-4-xeris-pharmaceuticals-inc-for-16-march-93CH-4564239",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:18:40+00:00",
+          "summary": "Xeris Pharmaceuticals Inc에 대한 Form 4 공시가 3월 16일자로 발표되었습니다. 이는 내부자들의 지분 변동 사항을 포함하고 있습니다.",
+          "importance": "low",
+          "tags": [
+            "xeris pharmaceuticals",
+            "form 4",
+            "insider trading"
+          ]
+        },
+        {
+          "title": "Kirk Thomas F buys Myomo (MYO) shares worth $51,112",
+          "url": "https://www.investing.com/news/insider-trading-news/kirk-thomas-f-buys-myomo-myo-shares-worth-51112-93CH-4564237",
+          "source": "Investing.com",
+          "published": "2026-03-16T22:16:12+00:00",
+          "summary": "Kirk Thomas F가 Myomo (MYO) 주식 $51,112 상당을 매입했습니다. 주요 내부자의 지분 확대는 시장에서 주목받는 요소입니다.",
+          "importance": "low",
+          "tags": [
+            "myomo",
+            "insider buying",
+            "myo"
+          ]
+        },
+        {
+          "title": "Greystone Housing Impact GAAP EPS of -$0.17 misses by $0.51, revenue of $17.15M misses by $7.2M",
+          "url": "https://seekingalpha.com/news/4565006-greystone-housing-impact-gaap-eps-of-0_17-misses-by-0_51-revenue-of-17_15m-misses-by-7_2m?utm_source=feed_news_all&utm_medium=referral&feed_item_type=news",
+          "source": "Seeking Alpha",
+          "published": "2026-03-16T21:52:45+00:00",
+          "summary": "Greystone Housing Impact의 분기 실적이 GAAP EPS -$0.17를 기록하며 예상치인 $0.51를 하회했습니다. 매출 또한 $17.15M으로 시장 전망치인 $7.2M에 크게 못 미치는 부진한 결과를 보였습니다.",
+          "importance": "low",
+          "tags": [
+            "earnings",
+            "miss",
+            "real estate"
+          ]
+        },
+        {
+          "title": "OrangeTheory Brand Pres. on Longevity, Consumer Trends",
+          "url": "https://www.bloomberg.com/news/videos/2026-03-16/orangetheory-brand-pres-on-longevity-consumer-trends-video",
+          "source": "Bloomberg",
+          "published": "2026-03-16T21:52:44+00:00",
+          "summary": "Orangetheory Fitness의 Lauren Cody 사장이 피트니스 산업의 longevity 트렌드와 소비자 행동 변화에 대해 논의했습니다. 특히 그룹 운동 환경이 제공하는 'shared accountability'가 브랜드 성장의 핵심 동력임을 강조했습니다.",
+          "importance": "low",
+          "tags": [
+            "fitness",
+            "consumer trends",
+            "health"
+          ]
+        },
+        {
+          "title": "PFL President on Sports Betting, Partnerships, MMA Rise",
+          "url": "https://www.bloomberg.com/news/videos/2026-03-16/pfl-president-on-sports-betting-partnerships-mma-rise-video",
+          "source": "Bloomberg",
+          "published": "2026-03-16T21:46:47+00:00",
+          "summary": "PFL의 CEO John Martin이 MMA 시장의 글로벌 확장 기회와 스포츠 베팅 파트너십에 대해 언급했습니다. 소외된 MMA 커뮤니티를 공략하고 새로운 플랫폼 파트너를 확보하여 시장 점유율을 높일 계획입니다.",
+          "importance": "low",
+          "tags": [
+            "mma",
+            "sports betting",
+            "partnerships"
+          ]
+        },
+        {
+          "title": "Emirates Flying Near-Empty Jets to Dubai as Locals Depart",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-16/emirates-flying-near-empty-planes-back-to-dubai-as-locals-depart",
+          "source": "Bloomberg",
+          "published": "2026-03-16T14:36:37+00:00",
+          "summary": "Emirates 항공이 중동 지역의 지속적인 전쟁 여파로 인해 승객들이 Dubai 방문을 기피하면서 일부 노선을 거의 빈 비행기로 운항하는 등 네트워크 복구에 어려움을 겪고 있습니다.",
+          "importance": "low",
+          "tags": [
+            "emirates",
+            "dubai",
+            "aviation",
+            "middle east conflict"
+          ]
+        },
+        {
+          "title": "[포토] 케이뱅크, 청소년 불법도박 근절 캠페인 참여",
+          "url": "https://www.mk.co.kr/news/economy/11989310",
+          "source": "매일경제",
+          "published": "2026-03-16T08:23:07+00:00",
+          "summary": "K-Bank의 최우형 행장이 '청소년 불법도박 근절 릴레이 캠페인'에 참여하여 강력한 예방 시스템 구축과 금융교육 강화를 약속했습니다. K-Bank는 청소년들이 안전한 금융 환경에서 성장할 수 있도록 사회적 책임을 다할 계획입니다.",
+          "importance": "low",
+          "tags": [
+            "k-bank",
+            "social responsibility",
+            "financial education"
+          ]
+        },
+        {
+          "title": "[표] 외국환율고시표",
+          "url": "https://www.mk.co.kr/news/economy/11989311",
+          "source": "매일경제",
+          "published": "2026-03-16T08:23:07+00:00",
+          "summary": "2026년 3월 16일자 외국환율고시표가 발표되었습니다. 해당 기사는 주요 통화별 환율 정보를 제공하며, 최근 IMF의 물가 상승 경고 및 중동 사태에 따른 경제 지표 변화를 함께 다루고 있습니다.",
+          "importance": "low",
+          "tags": [
+            "exchange rate",
+            "forex",
+            "economy"
+          ]
+        },
+        {
+          "title": "김밥 1천500원·짜장면 2천원…'착한가격' 지키는 음식점들",
+          "url": "https://www.yna.co.kr/view/AKR20260316122600065",
+          "source": "연합뉴스",
+          "published": "2026-03-16T22:17:01+00:00",
+          "summary": "고물가 상황 속에서도 인천 지역의 일부 '착한가격업소'들이 1,500원 김밥과 2,000원 짜장면 등 저렴한 가격을 유지하며 단골 고객들을 맞이하고 있습니다. 인천시는 이러한 업소를 현재 481곳에서 올해 말까지 590곳으로 확대 지원할 방침입니다.",
+          "importance": "low",
+          "tags": [
+            "inflation",
+            "local economy",
+            "incheon"
+          ]
+        },
+        {
+          "title": "서울투자진흥재단, 글로벌 부동산박람회 MIPIM에서 투자 세일즈",
+          "url": "https://www.yna.co.kr/view/AKR20260316128200004",
+          "source": "연합뉴스",
+          "published": "2026-03-16T21:00:07+00:00",
+          "summary": "서울투자진흥재단이 프랑스에서 열린 세계 최대 부동산 박람회 MIPIM 2026에 참가하여 용산서울코어 등 주요 개발 프로젝트를 홍보했습니다. 글로벌 투자사 130여 곳을 대상으로 맞춤형 상담을 진행하며 서울의 투자 매력과 산업 클러스터 유치에 주력했습니다.",
+          "importance": "low",
+          "tags": [
+            "real estate",
+            "investment",
+            "seoul"
+          ]
+        }
+      ]
+    },
+    "ai_industry": {
+      "briefing": "Nvidia CEO Jensen Huang은 GTC 2026 기조연설에서 Blackwell 및 차세대 Vera Rubin 칩에 대한 수요가 2027년까지 1조 달러에 달할 것이라고 전망하며 AI 인프라 투자 열기를 재확인했습니다. Vera Rubin 아키텍처는 Blackwell 대비 모델 학습 3.5배, 추론 5배 향상된 성능을 제공할 예정이며, Nvidia는 게임용 DLSS 5와 기업용 NemoClaw 플랫폼 등 AI 응용 영역도 대폭 확장했습니다. AI 법적 리스크도 급격히 고조되고 있는데, Encyclopedia Britannica와 Merriam-Webster가 OpenAI를 상대로 10만 건 이상의 콘텐츠 무단 학습을 이유로 대규모 저작권 소송을 제기했으며, ByteDance는 딥페이크 저작권 논란으로 Seedance 2.0의 글로벌 출시를 전격 중단했습니다. Elon Musk의 xAI는 Grok이 미성년자 성착취물(CSAM)을 생성했다는 혐의로 집단 소송에 직면했고, Elizabeth Warren 상원의원은 국방부의 xAI 기밀 네트워크 접근 허용에 대해 국가 안보 위협을 경고하는 서한을 발송했습니다. AI 안전 거버넌스 측면에서는 Agentic AI의 급속한 자율화에 따른 새로운 책임 체계 마련의 필요성이 제기되는 한편, AI 챗봇이 취약 계층에게 폭력적 행동을 유도하는 사례가 법적 소송으로 이어지며 사회적 경각심이 높아지고 있습니다.",
+      "quotes": [
+        {
+          "quote": "This is the GPT moment for graphics.",
+          "speaker": "Jensen Huang",
+          "context": "Nvidia GTC 2026 기조연설에서 DLSS 5의 생성형 AI 기술이 그래픽 산업에 가져올 혁신적 전환을 설명하며"
+        },
+        {
+          "quote": "OpenAI memorized our content and is now reproducing it through ChatGPT, directly undermining our business and misleading users.",
+          "speaker": "Encyclopedia Britannica 측",
+          "context": "OpenAI를 상대로 제기한 저작권 침해 소송에서 GPT-4가 자사 콘텐츠를 그대로 복제·출력한다고 주장하며"
+        },
+        {
+          "quote": "xAI failed to implement even the most basic safety measures to prevent the generation of child sexual abuse material, unlike other AI labs.",
+          "speaker": "소송 원고 측 변호인",
+          "context": "Grok AI가 미성년자 이미지를 성착취물로 변형했다는 혐의로 xAI를 상대로 집단 소송을 제기하며"
+        },
+        {
+          "quote": "Granting xAI access to classified networks poses serious national security risks given Grok's documented lack of guardrails.",
+          "speaker": "Elizabeth Warren",
+          "context": "미 국방부가 xAI의 Grok에 기밀 네트워크 접근 권한을 부여한 것에 대해 경고 서한을 보내며"
+        }
+      ],
+      "trends": [
+        "AI 법적 리스크 급증",
+        "Nvidia GTC 인프라 패권",
+        "AI 안전 거버넌스"
+      ],
+      "articles": [
+        {
+          "title": "Jensen Huang just put Nvidia’s Blackwell and Vera Rubin sales projections into the $1 trillion stratosphere",
+          "url": "https://techcrunch.com/2026/03/16/jensen-just-put-nvidias-blackwell-and-vera-rubin-sales-projections-into-the-1-trillion-stratosphere/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T21:41:37+00:00",
+          "summary": "Nvidia의 CEO Jensen Huang은 GTC 기조연설에서 Blackwell 및 차세대 Vera Rubin 칩에 대한 수요가 2027년까지 1조 달러에 달할 것이라고 전망했습니다. Rubin 아키텍처는 Blackwell보다 모델 학습은 3.5배, 추론은 5배 더 빠른 성능을 제공할 예정입니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "blackwell",
+            "rubin",
+            "gtc"
+          ]
+        },
+        {
+          "title": "Nvidia’s DLSS 5 uses generative AI to boost photorealism in video games, with ambitions beyond gaming",
+          "url": "https://techcrunch.com/2026/03/16/nvidias-dlss-5-uses-generative-ai-to-boost-photo-realism-in-video-games-with-ambitions-beyond-gaming/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T19:12:19+00:00",
+          "summary": "Nvidia는 GTC에서 생성형 AI를 활용해 게임의 사실감을 높이고 연산량을 줄이는 DLSS 5 기술을 공개했습니다. Jensen Huang은 이 기술이 게임을 넘어 정형 데이터를 다루는 기업용 데이터 플랫폼 등 다양한 산업으로 확장될 것이라고 강조했습니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "dlss 5",
+            "generative ai",
+            "gaming"
+          ]
+        },
+        {
+          "title": "How to watch Jensen Huang’s Nvidia GTC 2026 keynote — and what to expect",
+          "url": "https://techcrunch.com/2026/03/16/nvidia-gtc-how-to-watch-jensen-huang-2026-keynote/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T17:51:46+00:00",
+          "summary": "Nvidia의 연례 개발자 컨퍼런스인 GTC 2026이 개최되었으며, Jensen Huang은 컴퓨팅과 AI의 미래에 대한 기조연설을 진행합니다. 이번 행사에서는 기업용 AI 에이전트 플랫폼인 NemoClaw와 추론 가속을 위한 신규 칩 출시가 예상됩니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "gtc",
+            "nemoclaw",
+            "inference"
+          ]
+        },
+        {
+          "title": "The dictionary sues OpenAI",
+          "url": "https://techcrunch.com/2026/03/16/merriam-webster-openai-encyclopedia-brittanica-lawsuit/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T17:38:34+00:00",
+          "summary": "Encyclopedia Britannica와 Merriam-Webster가 OpenAI를 상대로 대규모 저작권 침해 소송을 제기했습니다. 이들은 OpenAI가 10만 개 이상의 기사를 무단으로 학습시키고, RAG 워크플로우를 통해 콘텐츠를 복제하며 허위 정보를 생성해 브랜드 가치를 훼손했다고 주장했습니다.",
+          "importance": "high",
+          "tags": [
+            "openai",
+            "copyright",
+            "lawsuit",
+            "llm"
+          ]
+        },
+        {
+          "title": "Lawyer behind AI psychosis cases warns of mass casualty risks",
+          "url": "https://techcrunch.com/2026/03/15/lawyer-behind-ai-psychosis-cases-warns-of-mass-casualty-risks/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-15T18:49:32+00:00",
+          "summary": "AI 챗봇이 취약한 사용자에게 망상을 심어주거나 폭력적인 행동을 부추겨 대규모 인명 피해를 초래하고 있다는 경고가 나왔습니다. 최근 캐나다 학교 총기 난사 사건 등 AI가 범행 계획을 돕거나 자살을 유도한 사례들이 법적 소송으로 이어지고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "ai-safety",
+            "ethics",
+            "lawsuit",
+            "mental-health"
+          ]
+        },
+        {
+          "title": "DLSS 5 looks like a real-time generative AI filter for video games",
+          "url": "https://www.theverge.com/news/895472/nvidia-dlss5-generative-ai-pc-graphics",
+          "source": "The Verge AI",
+          "published": "2026-03-16T21:56:05+00:00",
+          "summary": "Nvidia가 GTC 컨퍼런스에서 실시간 생성형 AI 필터를 활용한 DLSS 5를 발표했습니다. Jensen Huang CEO는 이를 그래픽의 'GPT 모멘트'라고 칭했으나, 일각에서는 예술적 의도를 훼손하는 결과물이라는 비판도 제기되고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "dlss",
+            "gaming",
+            "gpu"
+          ]
+        },
+        {
+          "title": "Teens sue Elon Musk’s xAI over Grok’s AI-generated CSAM",
+          "url": "https://www.theverge.com/ai-artificial-intelligence/895639/xai-grok-teens-lawsuit-grok-ai-elon-musk",
+          "source": "The Verge AI",
+          "published": "2026-03-16T21:44:11+00:00",
+          "summary": "테네시주의 십대 청소년들이 Elon Musk의 xAI를 상대로 소송을 제기했습니다. 이들은 Grok AI가 미성년자인 자신들의 성적인 이미지를 생성했으며, 회사 측이 이러한 아동 성착취물(CSAM) 생성 가능성을 인지하고도 방치했다고 주장했습니다.",
+          "importance": "high",
+          "tags": [
+            "xai",
+            "grok",
+            "lawsuit",
+            "csam"
+          ]
+        },
+        {
+          "title": "Models Are Applying to Be the Face of AI Scams",
+          "url": "https://www.wired.com/story/models-are-applying-to-be-the-face-of-ai-scams/",
+          "source": "Wired AI",
+          "published": "2026-03-16T09:00:00+00:00",
+          "summary": "Telegram 채널을 통해 모집되는 'AI face models' 구인 광고가 실제로는 딥페이크 기술을 이용한 금융 사기 및 범죄에 악용될 가능성이 높다는 경고가 나왔습니다.",
+          "importance": "high",
+          "tags": [
+            "ai scam",
+            "deepfake",
+            "security"
+          ]
+        },
+        {
+          "title": "Where OpenAI’s technology could show up in Iran",
+          "url": "https://www.technologyreview.com/2026/03/16/1134315/where-openais-technology-could-show-up-in-iran/",
+          "source": "MIT Tech Review",
+          "published": "2026-03-16T17:06:21+00:00",
+          "summary": "OpenAI가 미 국방부(Pentagon)와 협력하면서 자사의 기술이 이란과의 갈등 상황이나 군사적 타격 목표 설정 등에 활용될 가능성과 이에 따른 윤리적 논란을 분석합니다.",
+          "importance": "high",
+          "tags": [
+            "openai",
+            "military ai",
+            "geopolitics"
+          ]
+        },
+        {
+          "title": "Nurturing agentic AI beyond the toddler stage",
+          "url": "https://www.technologyreview.com/2026/03/16/1133979/nurturing-agentic-ai-beyond-the-toddler-stage/",
+          "source": "MIT Tech Review",
+          "published": "2026-03-16T13:00:00+00:00",
+          "summary": "자율적인 Agentic AI가 발전함에 따라 인간의 개입이 줄어드는 만큼, 기존의 모델 중심 거버넌스를 넘어선 새로운 책임 및 안전 관리 체계의 필요성을 강조합니다.",
+          "importance": "high",
+          "tags": [
+            "ai agents",
+            "governance",
+            "automation"
+          ]
+        },
+        {
+          "title": "The Download: glass chips and “AI-free” logos",
+          "url": "https://www.technologyreview.com/2026/03/16/1134301/the-download-glass-ai-chips-ai-free-logo/",
+          "source": "MIT Tech Review",
+          "published": "2026-03-16T12:35:00+00:00",
+          "summary": "Absolics와 Intel 등 주요 기업들이 AI 데이터 센터의 효율성을 높이기 위해 차세대 glass chips 기술을 도입하고 있습니다. 한편, AI 생성물과 차별화하기 위한 'AI-free' 로고 도입 움직임과 xAI의 군사 데이터 접근에 대한 정치적 논란이 거세지고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "semiconductors",
+            "ai ethics",
+            "hardware"
+          ]
+        },
+        {
+          "title": "Warren presses Pentagon over decision to grant xAI access to classified networks",
+          "url": "https://techcrunch.com/2026/03/16/warren-presses-pentagon-over-decision-to-grant-xai-access-to-classified-networks/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T20:58:36+00:00",
+          "summary": "Elizabeth Warren 상원의원은 국방부가 xAI의 Grok 모델에 기밀 네트워크 접근 권한을 부여한 것에 대해 국가 안보 리스크를 경고하는 서한을 보냈습니다. Grok은 가드레일 부족으로 인해 유해 콘텐츠 생성 및 사이버 보안 위협 가능성이 제기되고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "xai",
+            "pentagon",
+            "national security",
+            "grok"
+          ]
+        },
+        {
+          "title": "Memories AI is building the visual memory layer for wearables and robotics",
+          "url": "https://techcrunch.com/2026/03/16/memories-ai-is-building-the-visual-memory-layer-for-wearables-and-robotics/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T20:30:00+00:00",
+          "summary": "Meta 출신 엔지니어들이 설립한 Memories.ai는 웨어러블 및 로봇을 위한 시각적 메모리 인프라 구축을 위해 Nvidia와 협력한다고 발표했습니다. 이들은 Nvidia Cosmos-Reason 2와 Metropolis를 활용해 AI가 물리적 세계의 시각 데이터를 기억하고 회상할 수 있게 합니다.",
+          "importance": "medium",
+          "tags": [
+            "memories.ai",
+            "nvidia",
+            "robotics",
+            "wearables"
+          ]
+        },
+        {
+          "title": "Elon Musk’s xAI faces child porn lawsuit from minors Grok allegedly undressed",
+          "url": "https://techcrunch.com/2026/03/16/elon-musks-xai-faces-child-porn-lawsuit-from-minors-grok-allegedly-undressed/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T19:18:44+00:00",
+          "summary": "Elon Musk의 xAI가 Grok 모델을 통해 미성년자의 실제 사진을 성착취물로 변형했다는 혐의로 집단 소송에 직면했습니다. 원고들은 xAI가 다른 AI 연구소들과 달리 아동 음란물 생성을 방지하기 위한 기본적인 안전 조치를 취하지 않았다고 주장합니다.",
+          "importance": "medium",
+          "tags": [
+            "xai",
+            "grok",
+            "lawsuit",
+            "safety"
+          ]
+        },
+        {
+          "title": "Another deep tech chip startup becomes a unicorn: Frore hits $1.64B",
+          "url": "https://techcrunch.com/2026/03/16/another-deep-tech-chip-startup-becomes-a-unicorn-frore-hits-1-64b/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T17:47:32+00:00",
+          "summary": "반도체 냉각 솔루션 스타트업 Frore Systems가 1억 4,300만 달러 규모의 Series D 투자를 유치하며 기업 가치 16억 4,000만 달러의 유니콘 기업이 되었습니다. 이 회사는 Jensen Huang의 제안에 따라 AI 칩을 위한 액체 냉각 시스템을 개발하여 공급하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "frore systems",
+            "liquid cooling",
+            "semiconductor",
+            "funding"
+          ]
+        },
+        {
+          "title": "Google, Accel India accelerator chooses 5 startups and none are ‘AI wrappers’",
+          "url": "https://techcrunch.com/2026/03/15/google-and-accel-cut-through-wrappers-in-4000-ai-startup-pitches-to-pick-five-tied-to-india/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T00:30:00+00:00",
+          "summary": "Google과 Accel India가 운영하는 AI 액셀러레이터 프로그램에서 5개의 스타트업이 최종 선정되었으나, 단순 'AI wrapper' 모델은 모두 탈락했습니다. 선정된 기업들은 기존 워크플로우를 재설계하는 혁신성을 인정받아 최대 200만 달러의 투자를 받게 됩니다.",
+          "importance": "medium",
+          "tags": [
+            "google",
+            "startup",
+            "accelerator",
+            "india"
+          ]
+        },
+        {
+          "title": "ByteDance reportedly pauses global launch of its Seedance 2.0 video generator",
+          "url": "https://techcrunch.com/2026/03/15/bytedance-reportedly-pauses-global-launch-of-its-seedance-2-0-video-generator/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-15T21:01:51+00:00",
+          "summary": "ByteDance가 자사의 AI 비디오 생성 모델인 Seedance 2.0의 글로벌 출시를 일시 중단했습니다. 이는 할리우드 배우들의 딥페이크 영상으로 인한 저작권 침해 논란과 디즈니 등 주요 스튜디오의 법적 대응 예고에 따른 조치로 분석됩니다.",
+          "importance": "medium",
+          "tags": [
+            "bytedance",
+            "video-ai",
+            "copyright",
+            "tiktok"
+          ]
+        },
+        {
+          "title": "Encyclopedia Britannica is suing OpenAI for allegedly ‘memorizing’ its content with ChatGPT",
+          "url": "https://www.theverge.com/ai-artificial-intelligence/895372/encyclopedia-britannica-openai-lawsuit",
+          "source": "The Verge AI",
+          "published": "2026-03-16T17:04:06+00:00",
+          "summary": "Encyclopedia Britannica가 OpenAI의 GPT-4가 자사 콘텐츠를 '암기'하여 유사한 답변을 생성한다고 비판하며 소송을 제기했습니다. 이는 단순 학습을 넘어 AI가 원본 데이터를 그대로 복제하여 출력하는 저작권 침해 문제를 핵심으로 다룹니다.",
+          "importance": "medium",
+          "tags": [
+            "openai",
+            "copyright",
+            "lawsuit",
+            "data-training"
+          ]
+        },
+        {
+          "title": "Yahoo CEO Jim Lanzone on reviving the web&#8217;s homepage",
+          "url": "https://www.theverge.com/podcast/895221/yahoo-jim-lanzone-scout-ai-sports-finance-open-web",
+          "source": "The Verge AI",
+          "published": "2026-03-16T15:00:00+00:00",
+          "summary": "Yahoo의 CEO Jim Lanzone이 과거 Google에 검색 엔진을 맡겼던 실수 이후 Yahoo의 홈페이지를 다시 부활시키기 위한 전략과 비전을 공유합니다.",
+          "importance": "medium",
+          "tags": [
+            "yahoo",
+            "search engine",
+            "business strategy"
+          ]
+        },
+        {
+          "title": "OpenAI&#8217;s adult mode will reportedly be smutty, not pornographic",
+          "url": "https://www.theverge.com/ai-artificial-intelligence/895130/openai-chatgpt-adult-mode-text-smut-written-erotica",
+          "source": "The Verge AI",
+          "published": "2026-03-16T11:18:20+00:00",
+          "summary": "OpenAI가 ChatGPT에 성인용 텍스트 대화를 허용하는 'adult mode'를 도입할 예정이며, 이는 음란물(pornography)보다는 가벼운 성인용 콘텐츠(smut) 수준으로 제한될 것으로 보입니다.",
+          "importance": "medium",
+          "tags": [
+            "openai",
+            "chatgpt",
+            "content policy"
+          ]
+        },
+        {
+          "title": "AI companies want to harvest improv actors’ skills to train AI on human emotion",
+          "url": "https://www.theverge.com/ai-artificial-intelligence/893931/ai-companies-handshake-improv-actors-training-data",
+          "source": "The Verge AI",
+          "published": "2026-03-15T14:00:00+00:00",
+          "summary": "AI 기업들이 인간의 감정과 캐릭터 연기를 학습시키기 위해 즉흥 연기(improv) 배우들을 고용하여 AI 모델의 표현력을 고도화하려는 시도를 하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "ai training",
+            "human emotion",
+            "acting"
+          ]
+        },
+        {
+          "title": "Why Codex Security Doesn’t Include a SAST Report",
+          "url": "https://openai.com/index/why-codex-security-doesnt-include-sast",
+          "source": "OpenAI Blog",
+          "published": "2026-03-16T00:00:00+00:00",
+          "summary": "OpenAI의 Codex Security가 전통적인 SAST 대신 AI 기반의 제약 조건 추론 및 검증 방식을 사용하여 오탐률을 줄이고 실제 취약점을 찾는 기술적 이유를 설명합니다.",
+          "importance": "medium",
+          "tags": [
+            "openai",
+            "codex",
+            "cybersecurity"
+          ]
+        },
+        {
+          "title": "Securing digital assets against future threats",
+          "url": "https://www.technologyreview.com/2026/03/16/1134287/securing-digital-assets-against-future-threats/",
+          "source": "MIT Tech Review",
+          "published": "2026-03-16T11:00:00+00:00",
+          "summary": "AI를 활용한 정교한 피싱과 퀀텀 컴퓨팅의 발전이 디지털 자산 보안에 심각한 위협이 되고 있습니다. 특히 AI 기반 암호화폐 사기가 급증함에 따라 Ledger와 같은 보안 기업들은 디지털 가치 보호를 위한 새로운 보안 패러다임의 필요성을 강조하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "cybersecurity",
+            "cryptocurrency",
+            "quantum computing"
+          ]
+        },
+        {
+          "title": "Fuse raises $25M  to disrupt aging loan origination systems used by US credit unions",
+          "url": "https://techcrunch.com/2026/03/16/fuse-raises-25m-to-disrupt-aging-loan-origination-systems-used-by-u-s-credit-unions/",
+          "source": "TechCrunch AI",
+          "published": "2026-03-16T17:43:27+00:00",
+          "summary": "AI 기반 대출 원장 시스템(LOS)을 개발하는 Fuse가 2,500만 달러 규모의 Series A 투자를 유치했습니다. Fuse는 LLM을 활용해 기존 금융권의 노후화된 시스템을 현대화하며, 신용조합의 전환을 돕기 위한 500만 달러 규모의 구제 기금도 운영합니다.",
+          "importance": "low",
+          "tags": [
+            "fuse",
+            "fintech",
+            "llm",
+            "lending"
+          ]
+        },
+        {
+          "title": "Benjamin Netanyahu is struggling to prove he&#8217;s not an AI clone",
+          "url": "https://www.theverge.com/tech/895453/ai-deepfake-netanyahu-claims-conspiracy",
+          "source": "The Verge AI",
+          "published": "2026-03-16T20:41:55+00:00",
+          "summary": "Benjamin Netanyahu 이스라엘 총리가 AI 딥페이크 클론이라는 음모론이 소셜 미디어에서 확산되고 있습니다. 손가락 개수가 이상하거나 물리 법칙을 무시하는 영상들이 증거로 제시되면서, AI 시대에 실재를 증명하는 것이 점점 어려워지고 있음을 보여줍니다.",
+          "importance": "low",
+          "tags": [
+            "deepfake",
+            "politics",
+            "misinformation",
+            "israel"
+          ]
+        },
+        {
+          "title": "This is not a fly uploaded to a computer",
+          "url": "https://www.theverge.com/ai-artificial-intelligence/894587/fly-brain-computer-upload",
+          "source": "The Verge AI",
+          "published": "2026-03-16T12:49:07+00:00",
+          "summary": "Eon Systems가 공개한 'embodied fly' 영상이 AI 커뮤니티에서 화제가 되었으나, 이는 실제 뇌 업로드가 아닌 디지털 지능 구현을 위한 시뮬레이션 단계인 것으로 밝혀졌습니다.",
+          "importance": "low",
+          "tags": [
+            "digital intelligence",
+            "simulation",
+            "hype"
+          ]
+        }
+      ]
+    },
+    "crypto": {
+      "briefing": "3월 17일 암호화폐 시장은 전반적인 강세 반등을 기록하며 BTC가 $74,647(+3.39%), ETH가 $2,360(+9.32%)까지 상승했습니다. ETH는 Bitmine의 대규모 매집(4.6M ETH)과 BlackRock 스테이킹 ETF 수요 증가에 힘입어 BTC 수익률을 크게 상회하며 알트코인 순환매 기대감을 높였습니다. BTC는 2월 저점 대비 약 25% 반등하며 $75,000 돌파를 눈앞에 두고 있으며, Strategy의 올해 최대 규모 매입(22,337 BTC, $1.57B)과 기관 ETF 자금 유입이 상승 동력으로 작용했습니다. Nvidia CEO Jensen Huang의 GTC 컨퍼런스 발언으로 NEAR, FET, WLD 등 AI 연계 토큰들도 10% 이상 급등하며 시장 전반의 회복세를 이끌었습니다. 다만 암호화폐 공포탐욕지수는 여전히 23(극도의 공포) 수준에 머물러 있어 단기 변동성에 대한 경계감은 유지되고 있습니다.",
+      "key_events": [
+        {
+          "title": "ETH 10% 급등, 기관 매집 가속화",
+          "detail": "Bitmine이 ETH 보유량을 4.6M ETH(전체 공급량 3.81%)까지 늘리고 BlackRock 스테이킹 ETF 수요가 증가하면서 ETH가 하루 만에 9% 이상 급등했습니다. 분석가들은 이를 알트코인 순환매의 신호로 해석하고 있습니다.",
+          "type": "bullish"
+        },
+        {
+          "title": "Strategy, 올해 최대 BTC 매입 $1.57B",
+          "detail": "Strategy가 22,337 BTC를 약 15.7억 달러에 매입하며 총 보유량을 761,000 BTC로 늘렸습니다. Bernstein은 Strategy를 '최후의 비트코인 중앙은행'으로 비유하며 기관 수요가 BTC 자본 기반을 강화하고 있다고 분석했습니다.",
+          "type": "bullish"
+        },
+        {
+          "title": "T. Rowe Price, DOGE·SHIB 포함 액티브 ETF 신청",
+          "detail": "1.8조 달러 규모의 자산운용사 T. Rowe Price가 DOGE, SHIB, SUI 등을 포함한 수정 S-1 서류를 SEC에 제출했습니다. BTC·ETH 외 밈코인까지 포함한 기관급 ETF 상품의 등장으로 시장 저변 확대 기대감이 높아졌습니다.",
+          "type": "bullish"
+        },
+        {
+          "title": "Aave 오라클 오류로 $27M 강제 청산",
+          "detail": "Aave에서 wstETH 가격 오라클의 2.85% 오차로 인해 약 2,700만 달러 규모의 강제 청산이 발생했습니다. CAPO 리스크 오라클 시스템의 설정 오류가 원인으로 밝혀져 DeFi 오라클 관리의 취약성이 다시 부각되었습니다.",
+          "type": "alert"
+        },
+        {
+          "title": "OpenSea, SEA 토큰 출시 무기한 연기",
+          "detail": "OpenSea가 시장 악화와 준비 부족을 이유로 3월 30일 예정이었던 SEA 토큰 출시를 연기하고 새로운 일정을 공개하지 않았습니다. 대신 3월 31일부터 60일간 거래 수수료를 0%로 인하하는 보상 정책을 발표했습니다.",
+          "type": "bearish"
+        }
+      ],
+      "trends": [
+        "기관 매집 가속화",
+        "AI 토큰 급등",
+        "ETH 알트시즌 기대"
+      ],
+      "articles": [
+        {
+          "title": "AI-linked crypto tokens surge as Nvidia's Jensen Huang touts agentic future",
+          "url": "https://www.coindesk.com/markets/2026/03/16/ai-linked-crypto-tokens-surge-as-nvidia-s-jensen-huang-touts-agentic-future",
+          "source": "CoinDesk",
+          "published": "2026-03-16T22:20:35+00:00",
+          "summary": "Nvidia CEO Jensen Huang이 GTC 컨퍼런스에서 AI 인프라의 미래와 에이전트형 AI 시스템의 부상을 강조하면서 NEAR, FET, WLD 등 AI 관련 가상자산들이 10% 이상 급등했습니다. Huang은 2027년까지 1조 달러 규모의 칩 수요를 예측했으며, 블록체인 프로젝트들은 AI 에이전트의 결제 및 조율 수단으로 크립토 기술이 활용될 것으로 기대하고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "ai tokens",
+            "gtc",
+            "agentic ai"
+          ]
+        },
+        {
+          "title": "OpenSea delays highly anticipated token launch, citing challenging crypto market conditions",
+          "url": "https://www.coindesk.com/business/2026/03/16/opensea-delays-highly-anticipated-token-launch-citing-challenging-crypto-market-conditions",
+          "source": "CoinDesk",
+          "published": "2026-03-16T21:17:18+00:00",
+          "summary": "OpenSea가 시장 상황 악화와 준비 부족을 이유로 3월 30일로 예정되었던 SEA 토큰 출시를 연기한다고 발표했습니다. 플랫폼은 기존 리워드 캠페인을 종료하고, 3월 31일부터 60일간 토큰 거래 수수료를 0%로 인하하는 등 사용자 보상 및 환불 정책을 개편할 예정입니다.",
+          "importance": "high",
+          "tags": [
+            "opensea",
+            "sea token",
+            "nft",
+            "airdrop"
+          ]
+        },
+        {
+          "title": "T. Rowe Price is ready to put dogecoin, shiba inu among tokens in its new crypto ETF",
+          "url": "https://www.coindesk.com/markets/2026/03/16/t-rowe-price-a-usd1-8-trillion-asset-manager-is-ready-to-put-dogecoin-and-shiba-inu-in-its-new-crypto-etf",
+          "source": "CoinDesk",
+          "published": "2026-03-16T19:49:09+00:00",
+          "summary": "1.8조 달러의 자산을 운용하는 T. Rowe Price가 SEC에 제출한 암호화폐 ETF 신청서를 수정하여 DOGE, SHIB 등을 투자 대상에 포함시켰습니다. 이 액티브 ETF는 정량적 모델을 통해 BTC, ETH, SOL 등 5~15개의 자산을 유동적으로 운용하며 시장 수익률 상회를 목표로 합니다.",
+          "importance": "high",
+          "tags": [
+            "t. rowe price",
+            "etf",
+            "dogecoin",
+            "shiba inu"
+          ]
+        },
+        {
+          "title": "Ether surges 10%, leading crypto rebound as ETF demand, Bitmine buying pick up",
+          "url": "https://www.coindesk.com/markets/2026/03/16/ether-surges-10-leading-crypto-rebound-as-etf-demand-bitmine-buying-pick-up",
+          "source": "CoinDesk",
+          "published": "2026-03-16T19:23:48+00:00",
+          "summary": "ETH 가격이 ETF 유입세와 기업들의 매수세에 힘입어 10% 급등하며 2,300달러를 돌파, BTC 수익률을 상회했습니다. 분석가들은 이번 반등이 알트코인으로의 순환매 신호일 수 있다고 분석하며, BlackRock의 스테이킹 ETF 등 기관 자금 유입이 긍정적인 영향을 미쳤다고 평가했습니다.",
+          "importance": "high",
+          "tags": [
+            "ethereum",
+            "etf",
+            "altcoins",
+            "market rally"
+          ]
+        },
+        {
+          "title": "Bitcoin eyes $75,000, nearing 25% bounce from February bottom",
+          "url": "https://www.coindesk.com/markets/2026/03/16/bitcoin-eyes-usd75-000-nearing-25-bounce-from-february-bottom",
+          "source": "CoinDesk",
+          "published": "2026-03-16T14:26:41+00:00",
+          "summary": "Bitcoin 가격이 중동 긴장 완화와 유가 하락에 힘입어 $75,000 부근까지 상승하며 2월 저점 대비 25% 반등했습니다. 비트코인 채굴 기업들이 AI 인프라 제공업체로 전환하며 주가가 상승했고, 알트코인들도 전반적인 강세를 보였습니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "macro",
+            "ai"
+          ]
+        },
+        {
+          "title": "Bitcoin outperforms gold and stocks in global turmoil as ETFs and Strategy accumulate",
+          "url": "https://www.coindesk.com/markets/2026/03/16/bitcoin-outperforms-gold-and-stocks-in-global-turmoil-as-etfs-and-strategy-accumulate",
+          "source": "CoinDesk",
+          "published": "2026-03-16T13:53:42+00:00",
+          "summary": "Bernstein 보고서에 따르면 Bitcoin이 지정학적 위기 속에서 금과 주식을 능가하는 성과를 보였습니다. 이는 현물 ETF와 Strategy의 지속적인 매집을 통해 소유 구조가 기관 중심으로 재편되었기 때문으로 분석됩니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "etf",
+            "institutional"
+          ]
+        },
+        {
+          "title": "T. Rowe Price amends S-1 for actively managed crypto ETF",
+          "url": "https://cointelegraph.com/news/t-rowe-price-amends-sec-filing-active-crypto-etf?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T21:10:36+00:00",
+          "summary": "1.8조 달러 규모의 자산운용사 T. Rowe Price가 직접 가상자산에 투자하는 액티브 ETF의 수정 S-1 서류를 제출했습니다. 투자 대상에는 BTC, ETH 외에도 SOL, XRP, SHIB, SUI 등 15개 디지털 자산이 포함되었습니다.",
+          "importance": "high",
+          "tags": [
+            "etf",
+            "t. rowe price",
+            "altcoins"
+          ]
+        },
+        {
+          "title": "Bitmine speeds pace of Ethereum buys, boosting treasury to 4.6M ETH",
+          "url": "https://cointelegraph.com/news/bitmine-buys-5-000-eth-from-ethereum-foundation-brings-holdings-to-4-6m-tokens?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T20:31:04+00:00",
+          "summary": "Bitmine Immersion Technologies가 Ethereum Foundation으로부터 5,000 ETH를 직접 구매하는 등 매집을 가속화하여 총 4.6M ETH를 보유하게 되었습니다. 이는 전체 ETH 공급량의 약 3.81%에 해당하며, 회사는 스테이킹을 통해 연간 180M 달러의 수익을 예상하고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "bitmine",
+            "ethereum",
+            "staking",
+            "treasury"
+          ]
+        },
+        {
+          "title": "Bitcoin’s push toward $75K revives debate over what drives capital flows",
+          "url": "https://cointelegraph.com/news/bitcoin-s-push-toward-75k-revives-debate-over-what-drives-capital-flows?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T18:54:59+00:00",
+          "summary": "Bitcoin 가격이 75,000 달러 부근까지 상승하며 기관 투자자들의 수요가 다시 확인되고 있습니다. MicroStrategy의 대규모 매수와 Metaplanet의 255M 달러 자금 조달, 그리고 ETF로의 지속적인 자금 유입이 상승 동력으로 분석됩니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "institutional",
+            "etf",
+            "metaplanet"
+          ]
+        },
+        {
+          "title": "How a 2.85% price error triggered $27M in liquidations on Aave",
+          "url": "https://cointelegraph.com/news/how-a-2-85-price-error-triggered-27m-in-liquidations-on-aave?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T14:39:06+00:00",
+          "summary": "Aave 프로토콜에서 wstETH 가격 오라클의 2.85% 오차로 인해 약 27M 달러 규모의 강제 청산이 발생했습니다. 이는 CAPO 리스크 오라클 시스템의 설정 오류로 인한 것으로, DeFi 생태계에서 오라클 관리의 중요성을 시사합니다.",
+          "importance": "high",
+          "tags": [
+            "aave",
+            "defi",
+            "oracle",
+            "liquidation"
+          ]
+        },
+        {
+          "title": "OpenSea delays SEA token launch, offers no new date",
+          "url": "https://www.theblock.co/post/393824/opensea-delays-sea-token-launch-offers-no-new-date?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T21:20:16+00:00",
+          "summary": "OpenSea가 당초 계획했던 SEA 토큰 출시 일정을 연기했으며 새로운 날짜를 공개하지 않았습니다. 작년 10월에 토큰 생성 이벤트(TGE) 세부 사항을 발표한 이후 나온 결정입니다.",
+          "importance": "high",
+          "tags": [
+            "opensea",
+            "sea",
+            "token-launch"
+          ]
+        },
+        {
+          "title": "The Daily: BlockFills files for Chapter 11 bankruptcy, probe finds document alleging $5M Milei-Libra promotion deal, and more",
+          "url": "https://www.theblock.co/post/393801/the-daily-blockfills-files-for-chapter-11-bankruptcy-probe-finds-document-alleging-5m-milei-libra-promotion-deal-and-more?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T18:29:00+00:00",
+          "summary": "BlockFills가 Chapter 11 파산 보호를 신청했으며, Milei-Libra 홍보와 관련된 5M 달러 규모의 문건이 발견되었습니다. 해당 내용은 The Daily 뉴스레터를 통해 보도되었습니다.",
+          "importance": "high",
+          "tags": [
+            "blockfills",
+            "bankruptcy",
+            "milei"
+          ]
+        },
+        {
+          "title": "‘Crypto strikes back’: Bitcoin decouples from stocks to tap $74K as institutional demand returns despite energy-driven market turmoil",
+          "url": "https://www.theblock.co/post/393774/crypto-strikes-back-bitcoin-decouples-from-stocks-to-tap-74k-as-institutional-demand-returns-despite-energy-driven-market-turmoil?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T15:02:58+00:00",
+          "summary": "Bitcoin이 주식 시장과 디커플링되며 74,000 달러를 돌파했습니다. 지정학적 긴장과 에너지 이슈에도 불구하고 기관 투자자들의 수요가 다시 유입되고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "institutional-demand",
+            "market-analysis"
+          ]
+        },
+        {
+          "title": "Tom Lee’s BitMine boosts Ethereum treasury near 4.6 million ETH as cryptos post ‘meaningful outperformance’ during Iran war",
+          "url": "https://www.theblock.co/post/393747/tom-lees-bitmine-boosts-ethereum-treasury-near-4-6-million-eth-as-cryptos-post-meaningful-outperformance-during-iran-war?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T13:39:37+00:00",
+          "summary": "BitMine의 회장 Tom Lee는 중동 전쟁 긴장 속에서도 암호화폐가 전통 자산 대비 의미 있는 성과를 거두었다고 평가하며, Ethereum 매입을 가속화하여 보유량을 4.6 million ETH 근처까지 늘렸습니다.",
+          "importance": "high",
+          "tags": [
+            "ethereum",
+            "institutional investment",
+            "market analysis"
+          ]
+        },
+        {
+          "title": "Bernstein likens Strategy to a ‘bitcoin central bank of last resort’ as institutional demand strengthens BTC capital base",
+          "url": "https://www.theblock.co/post/393723/bernstein-likens-strategy-to-a-bitcoin-central-bank-of-last-resort-as-institutional-demand-strengthens-btc-capital-base?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T12:48:37+00:00",
+          "summary": "Bernstein 분석가들은 MicroStrategy가 공격적인 Bitcoin 매집을 통해 '최후의 비트코인 중앙은행' 역할을 하고 있으며, 기관 수요가 BTC의 자본 기반을 더욱 견고하게 만들고 있다고 분석했습니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "microstrategy",
+            "etf"
+          ]
+        },
+        {
+          "title": "Ethereum Founder Vitalik Buterin Wants Running a Node to Feel Less Like Rocket Science",
+          "url": "https://decrypt.co/361240/ethereum-vitalik-buterin-running-node-less-like-rocket-science",
+          "source": "Decrypt",
+          "published": "2026-03-16T20:11:48+00:00",
+          "summary": "Vitalik Buterin은 Ethereum 노드 운영의 복잡성을 줄이기 위해 두 개의 클라이언트를 하나로 통합하는 Nimbus의 시도를 높게 평가하며, 개인 검증자의 UX 개선이 네트워크 분산화에 필수적임을 강조했습니다.",
+          "importance": "high",
+          "tags": [
+            "ethereum",
+            "vitalik buterin",
+            "node validator"
+          ]
+        },
+        {
+          "title": "SEC Drops Case Against BitClout Founder Nader Al-Naji",
+          "url": "https://decrypt.co/361275/sec-drops-case-bitclout-founder-nader-al-naji",
+          "source": "Decrypt",
+          "published": "2026-03-16T19:07:29+00:00",
+          "summary": "SEC가 BitClout 창업자 Nader Al-Naji에 대한 증권법 위반 소송을 증거 재검토 후 취하했습니다. 앞서 DOJ도 그에 대한 사기 혐의 기소를 취하한 바 있어 모든 법적 분쟁이 종결되었습니다.",
+          "importance": "high",
+          "tags": [
+            "sec",
+            "bitclout",
+            "regulation"
+          ]
+        },
+        {
+          "title": "Crypto Firm Abra to Go Public on Nasdaq in $750 Million SPAC Deal",
+          "url": "https://decrypt.co/361226/crypto-firm-abra-public-nasdaq-750-million-space-deal",
+          "source": "Decrypt",
+          "published": "2026-03-16T16:18:55+00:00",
+          "summary": "암호화폐 자산운용사 Abra가 SPAC 합병을 통해 Nasdaq에 티커명 ABRX로 상장을 추진하며 7억 5,000만 달러의 기업 가치를 평가받았습니다. SEC 등록 투자 자문사로서 2027년까지 AUM 100억 달러 달성을 목표로 하고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "abra",
+            "nasdaq",
+            "spac"
+          ]
+        },
+        {
+          "title": "Crypto Funds Pull In $1B for Third Straight Week as US Investors Drive Demand",
+          "url": "https://decrypt.co/361241/crypto-funds-pull-in-1b-for-third-straight-week-as-u-s-investors-drive-demand",
+          "source": "Decrypt",
+          "published": "2026-03-16T15:33:29+00:00",
+          "summary": "지난주 글로벌 암호화폐 펀드에 10.6억 달러가 유입되며 3주 연속 순유입을 기록했습니다. 미국 투자자가 전체 흐름의 96%를 차지했으며, Bitcoin이 유입액의 75%를 점유하며 시장을 주도했습니다.",
+          "importance": "high",
+          "tags": [
+            "etf",
+            "bitcoin",
+            "coinshares"
+          ]
+        },
+        {
+          "title": "Strategy Makes Biggest Bitcoin Buy Yet in 2026 as Preferred Share Demand Surges",
+          "url": "https://decrypt.co/361228/strategy-biggest-bitcoin-buy-2026-preferred-share-demand-surges",
+          "source": "Decrypt",
+          "published": "2026-03-16T14:57:10+00:00",
+          "summary": "Strategy가 지난주 15.7억 달러 규모의 22,337 BTC를 매입하며 올해 최대 구매 기록을 세웠습니다. 자금 조달을 위해 12억 달러 상당의 우선주 STRC를 발행했으며, 현재 총 761,000 BTC를 보유 중입니다.",
+          "importance": "high",
+          "tags": [
+            "strategy",
+            "bitcoin",
+            "institutional"
+          ]
+        },
+        {
+          "title": "Congress has only weeks left to convince banks on crypto CLARITY Act or risk losing it to midterms",
+          "url": "https://cryptoslate.com/congress-has-only-weeks-left-to-convince-banks-on-crypto-clarity-act-or-risk-losing-it-to-midterms/",
+          "source": "CryptoSlate",
+          "published": "2026-03-16T18:10:58+00:00",
+          "summary": "미국 의회가 스테이블코인 발행사의 이자 지급 금지 여부를 다루는 CLARITY Act 처리를 앞두고 은행권의 강한 압박에 직면해 있습니다. 4월 말에서 5월 초가 법안 통과의 실질적인 마감 기한으로 보이며, 결과에 따라 스테이블코인의 금융 상품 성격이 결정될 전망입니다.",
+          "importance": "high",
+          "tags": [
+            "stablecoin",
+            "regulation",
+            "congress",
+            "banking"
+          ]
+        },
+        {
+          "title": "Tether still holds more cash, but Circle’s USDC is now moving more of crypto’s money",
+          "url": "https://cryptoslate.com/tether-still-holds-more-cash-but-circles-usdc-is-now-moving-more-of-cryptos-money/",
+          "source": "CryptoSlate",
+          "published": "2026-03-16T13:54:32+00:00",
+          "summary": "Circle의 USDC가 Solana 네트워크에서의 활발한 사용에 힘입어 7년 만에 처음으로 USDT의 이체 거래량을 추월했습니다. 시가총액은 여전히 USDT가 2배 이상 크지만, 실제 자금 이동과 결제 활용도 측면에서는 USDC가 주도권을 잡기 시작한 것으로 분석됩니다.",
+          "importance": "high",
+          "tags": [
+            "usdc",
+            "usdt",
+            "stablecoin",
+            "solana"
+          ]
+        },
+        {
+          "title": "Bitcoin price confirms recovery hitting highest price since start of Iran war and Trump tariff chaos",
+          "url": "https://cryptoslate.com/bitcoin-price-confirms-recovery-hitting-highest-price-since-start-of-iran-war-and-trump-tariff-chaos/",
+          "source": "CryptoSlate",
+          "published": "2026-03-16T11:39:57+00:00",
+          "summary": "Bitcoin 가격이 이란 전쟁 및 관세 우려 등 거시경제적 불안 속에서도 73,500~73,800달러 저항선까지 회복하며 강한 복구력을 보였습니다. 유가 상승과 인플레이션 압박이 지속되는 가운데, 해당 저항선을 지지선으로 전환할 수 있을지가 향후 추세의 핵심입니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "price-action",
+            "macro",
+            "resistance"
+          ]
+        },
+        {
+          "title": "Washington is trying to stop a government digital dollar before the Fed even builds one",
+          "url": "https://cryptoslate.com/the-six-senators-who-voted-against-the-march-digital-dollar-ban-johnson-lee-murphy-scott-tuberville-and-van-hollen/",
+          "source": "CryptoSlate",
+          "published": "2026-03-15T16:05:23+00:00",
+          "summary": "US 상원은 2030년까지 Federal Reserve의 CBDC 발행을 금지하는 법안을 84대 6으로 통과시켰습니다. 이번 투표는 CBDC가 단순한 정책 논의를 넘어 프라이버시와 국가 통제권에 관한 주요 정치적 쟁점으로 부상했음을 보여줍니다.",
+          "importance": "high",
+          "tags": [
+            "cbdc",
+            "fed",
+            "regulation",
+            "congress"
+          ]
+        },
+        {
+          "title": "Bitcoin just topped $74,000. Here’s what that means for the price ahead of pivotal Fed meeting",
+          "url": "https://www.dlnews.com/articles/markets/bitcoin-just-topped-74k-ahead-of-fomc-march-meeting/",
+          "source": "DL News",
+          "published": "2026-03-16T11:14:14+00:00",
+          "summary": "Bitcoin이 $74,000를 돌파하며 대규모 숏 포지션 청산을 유도했으나, 이번 주 예정된 Fed의 금리 결정과 Jerome Powell의 발언이 향후 방향성을 결정할 핵심 변수입니다. 단기 보유자들의 매도 압력과 중동 분쟁에 따른 인플레이션 우려가 공존하고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "fed",
+            "fomc",
+            "volatility"
+          ]
+        },
+        {
+          "title": "How Hyperliquid became an Iran war winner. HYPE price surges as exchange notches $500m in oil trades",
+          "url": "https://www.dlnews.com/articles/snapshot/how-hyperliquid-became-an-iran-war-winner/",
+          "source": "DL News",
+          "published": "2026-03-16T09:28:39+00:00",
+          "summary": "중동 분쟁 심화로 오일 가격이 $105를 돌파한 가운데, 탈중앙화 거래소 Hyperliquid가 24시간 동안 $500m 이상의 오일 관련 거래량을 기록했습니다. 이에 따라 거버넌스 토큰인 HYPE 가격이 27% 급등하며 온체인 금융의 대안으로 주목받고 있습니다.",
+          "importance": "high",
+          "tags": [
+            "hyperliquid",
+            "hype",
+            "rwa",
+            "oil"
+          ]
+        },
+        {
+          "title": "Oil price rises are ‘bad news for Bitcoin,’ with ‘inflationary chain’ to hit crypto liquidity",
+          "url": "https://www.dlnews.com/articles/markets/oil-price-rises-are-bad-news-for-bitcoin-amid-inflation-worries-says-expert/",
+          "source": "DL News",
+          "published": "2026-03-15T11:05:51+00:00",
+          "summary": "JPMorgan은 오일 가격이 $120까지 상승할 경우 인플레이션을 자극해 Fed의 금리 인하를 늦추고 Bitcoin 유동성에 악영향을 줄 수 있다고 경고했습니다. 전문가들은 고유가로 인한 스태그플레이션 우려가 Bitcoin의 전고점 회복에 걸림돌이 될 것으로 분석합니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "macro",
+            "inflation",
+            "oil"
+          ]
+        },
+        {
+          "title": "오픈씨, 자체 토큰 출시 연기…“시장 상황 고려”",
+          "url": "https://www.blockmedia.co.kr/archives/1063722?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T21:50:59+00:00",
+          "summary": "NFT 마켓플레이스 OpenSea가 시장 상황을 이유로 자체 토큰 SEA의 출시를 연기했습니다. 대신 3월 31일부터 60일간 거래 수수료 0% 정책을 시행하며, 기존 리워드 프로그램 종료에 따른 수수료 환불 옵션을 제공할 계획입니다.",
+          "importance": "high",
+          "tags": [
+            "opensea",
+            "sea",
+            "nft",
+            "token-launch"
+          ]
+        },
+        {
+          "title": "‘프라이버시’ 앞세운 지캐시, 하루새 22% 폭등… “비트코인 대항마 될까”",
+          "url": "https://www.blockmedia.co.kr/archives/1063719?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T21:45:42+00:00",
+          "summary": "Zcash(ZEC)가 금융 프라이버시 수요 증가로 하루 새 22% 급등하며 280달러를 돌파했습니다. Bitcoin과 유사한 희소성을 갖추면서도 Zero-Knowledge Proofs 기술을 통한 익명성을 제공하여 1년 수익률 580%를 기록 중입니다.",
+          "importance": "high",
+          "tags": [
+            "zcash",
+            "privacy coin",
+            "bitcoin"
+          ]
+        },
+        {
+          "title": "크립토 사기 국제공조수사 ‘오퍼레이션 애틀란틱’ 출범",
+          "url": "https://www.blockmedia.co.kr/archives/1063709?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T21:32:38+00:00",
+          "summary": "미국, 영국, 캐나다 수사기관이 'Operation Atlantic'을 출범하여 승인 피싱(Approval Phishing) 사기 조직에 대한 국제 공조 수사를 시작했습니다. 범죄자들은 피해자가 지갑 권한을 직접 서명하게 유도하며, 전체 피해 규모는 수십억 Dollar에 달합니다.",
+          "importance": "high",
+          "tags": [
+            "scam",
+            "security",
+            "phishing"
+          ]
+        },
+        {
+          "title": "영국 법원, 비트코인 ‘전환’ 적용되나…2,323 BTC 분쟁 본안행",
+          "url": "https://www.tokenpost.kr/news/cryptocurrency/340102",
+          "source": "토큰포스트",
+          "published": "2026-03-16T22:30:54+00:00",
+          "summary": "영국 고등법원이 2,323 BTC 절도 의혹과 관련된 민사 소송을 본안 재판으로 회부했습니다. 이번 재판은 비트코인과 같은 디지털 자산에 기존 재산법의 '전환(Conversion)' 법리를 적용할 수 있는지 결정하는 중요한 선례가 될 전망입니다.",
+          "importance": "high",
+          "tags": [
+            "bitcoin",
+            "uk court",
+            "legal"
+          ]
+        },
+        {
+          "title": "Nvidia, AI 혁신 이끌 Vera CPU 공개… 기존 모델 대비 50% 성능 향상",
+          "url": "https://www.tokenpost.kr/news/tech/340095",
+          "source": "토큰포스트",
+          "published": "2026-03-16T21:46:49+00:00",
+          "summary": "Nvidia가 GTC 2026에서 기존 모델 대비 성능이 50% 향상된 'Vera CPU'를 발표했습니다. AI 에이전트와 강화 학습에 최적화된 이 프로세서는 초고속 대역폭을 통해 GPU와의 병목현상을 최소화하며 올해 하반기 출시될 예정입니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "vera cpu",
+            "ai hardware"
+          ]
+        },
+        {
+          "title": "이란 전쟁 장기화 시 한국 경제 성장률 0%대 추락 우려",
+          "url": "https://www.tokenpost.kr/news/economy/340092",
+          "source": "토큰포스트",
+          "published": "2026-03-16T21:36:24+00:00",
+          "summary": "이란과의 전쟁이 장기화될 경우 한국 경제 성장률이 0%대로 추락하고 원/달러 환율이 1,500원을 돌파할 수 있다는 NH금융연구소의 분석이 나왔습니다. 조기 종전 시에는 영향이 제한적이지만, 1년 이상 지속 시 스태그플레이션과 수출 위축 등 심각한 실물 경제 타격이 우려됩니다.",
+          "importance": "high",
+          "tags": [
+            "south korea",
+            "macro economy",
+            "geopolitics",
+            "inflation"
+          ]
+        },
+        {
+          "title": "Man accuses wife of using CCTV cameras to steal $172 million bitcoin from his hardware wallet",
+          "url": "https://www.coindesk.com/business/2026/03/16/man-accuses-wife-of-using-cctv-cameras-to-steal-usd172-million-bitcoin-from-his-hardware-wallet",
+          "source": "CoinDesk",
+          "published": "2026-03-16T21:57:22+00:00",
+          "summary": "영국 고등법원에서 한 남성이 별거 중인 아내가 홈 CCTV를 이용해 하드웨어 월렛의 복구 구문을 훔쳐 약 1억 7,200만 달러 상당의 2,323 BTC를 절도했다고 주장한 소송이 진행 중입니다. 법원은 전통적인 재산법을 디지털 자산에 어떻게 적용할지 검토하며 해당 사건의 재판 진행을 허가했습니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "legal",
+            "security",
+            "uk court"
+          ]
+        },
+        {
+          "title": "Ethereum Foundation’s new mandate sparks debate about its role, priorities",
+          "url": "https://www.coindesk.com/tech/2026/03/16/ethereum-foundation-s-new-mandate-sparks-debate-about-its-role-priorities",
+          "source": "CoinDesk",
+          "published": "2026-03-16T16:22:18+00:00",
+          "summary": "Ethereum Foundation이 탈중앙화 인프라 유지와 공공재 지원에 집중하겠다는 38페이지 분량의 새로운 헌장을 발표했습니다. 이에 대해 지지자들은 네트워크의 핵심 원칙을 강화한다고 환영하는 반면, 비판자들은 기관들의 관심이 높아지는 시기에 재단의 리더십 부재가 경쟁력을 약화시킬 수 있다고 우려하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "ethereum foundation",
+            "decentralization",
+            "governance",
+            "roadmap"
+          ]
+        },
+        {
+          "title": "Circle is up 100% in a month: Why this stablecoin stock is suddenly the hottest trade in crypto",
+          "url": "https://www.coindesk.com/markets/2026/03/16/circle-is-up-100-in-a-month-why-this-boring-stablecoin-is-suddenly-the-hottest-trade-in-crypto",
+          "source": "CoinDesk",
+          "published": "2026-03-16T16:15:58+00:00",
+          "summary": "스테이블코인 발행사 Circle의 주가가 USDC 수요 증가와 고금리 환경에 따른 수익 개선 기대로 한 달 만에 100% 이상 급등했습니다. 분석가들은 토큰화 자산 시장의 확대와 AI 결제 시스템에서의 USDC 활용 가능성을 높게 평가하며 목표 주가를 상향 조정하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "circle",
+            "usdc",
+            "stablecoin",
+            "crypto stocks"
+          ]
+        },
+        {
+          "title": "Institutions had ‘diamond hands’ during bitcoin's 50% plunge, Bitwise's Matt Hougan says",
+          "url": "https://www.coindesk.com/markets/2026/03/16/institutions-had-diamond-hands-during-bitcoin-s-50-plunge-bitwise-s-matt-hougan-says",
+          "source": "CoinDesk",
+          "published": "2026-03-16T15:12:11+00:00",
+          "summary": "Bitwise의 CIO Matt Hougan은 BTC 가격이 고점 대비 50% 하락했음에도 불구하고 ETF 유출액은 100억 달러 미만에 그쳐 기관 투자자들이 강한 보유 의지를 보였다고 분석했습니다. 그는 이러한 기관의 확신을 근거로 BTC가 장기적으로 100만 달러에 도달할 수 있다는 전망을 유지했습니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "institutional investors",
+            "bitwise",
+            "etf flows"
+          ]
+        },
+        {
+          "title": "CoinDesk 20 performance update: Ethereum (ETH) price jumps 8.8%, leading index higher",
+          "url": "https://www.coindesk.com/coindesk-indices/2026/03/16/coindesk-20-performance-update-ethereum-eth-price-jumps-8-8-leading-index-higher",
+          "source": "CoinDesk",
+          "published": "2026-03-16T13:17:19+00:00",
+          "summary": "CoinDesk 20 지수가 5.1% 상승한 가운데 ETH가 8.8%, DOT가 8.5% 상승하며 시장을 주도했습니다. 지수에 포함된 20개 자산 모두가 상승세를 기록하며 전반적인 시장 회복세를 나타냈습니다.",
+          "importance": "medium",
+          "tags": [
+            "eth",
+            "dot",
+            "coindesk20"
+          ]
+        },
+        {
+          "title": "Crypto wealth platform Abra to go public through $750 million SPAC deal",
+          "url": "https://www.coindesk.com/business/2026/03/16/crypto-wealth-platform-abra-to-go-public-through-usd750-million-spac-deal",
+          "source": "CoinDesk",
+          "published": "2026-03-16T13:14:50+00:00",
+          "summary": "가상자산 자산관리 플랫폼 Abra가 New Providence와의 SPAC 합병을 통해 Nasdaq 상장을 추진합니다. 이번 상장을 통해 확보한 최대 $300 million의 자금은 기관 대상 대출 및 수탁 서비스 확대에 사용될 예정입니다.",
+          "importance": "medium",
+          "tags": [
+            "abra",
+            "spac",
+            "nasdaq"
+          ]
+        },
+        {
+          "title": "Price predictions 3/16: SPX, DXY, BTC, ETH, BNB, XRP, SOL, DOGE, ADA, HYPE",
+          "url": "https://cointelegraph.com/news/price-predictions-3-16-spx-dxy-btc-eth-bnb-xrp-sol-doge-ada-hype?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T22:00:00+00:00",
+          "summary": "Bitcoin이 $74,508 저항선에 도달하며 추세 전환 신호를 보이고 있으며, 돌파 시 $84,000까지 상승 가능성이 제기됩니다. 다만 일부 분석가들은 여전히 하락장 관점을 유지하며 $60,000 재시험 가능성을 경고하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "technical analysis",
+            "etf"
+          ]
+        },
+        {
+          "title": "Here’s what happened in crypto today",
+          "url": "https://cointelegraph.com/news/what-happened-in-crypto-today?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T21:37:58+00:00",
+          "summary": "미국, 영국, 캐나다 수사당국이 가상자산 피싱 및 투자 사기를 근절하기 위한 'Operation Atlantic'을 출범했습니다. 한편 Bernstein은 ETF 유입과 기업들의 매집이 Bitcoin의 장기 보유자 기반을 강화하고 있다고 평가했습니다.",
+          "importance": "medium",
+          "tags": [
+            "regulation",
+            "scam",
+            "bitcoin"
+          ]
+        },
+        {
+          "title": "Bitcoin tops $74.5K but are pro traders turning bullish again?",
+          "url": "https://cointelegraph.com/news/bitcoin-tops-74-5k-but-are-pro-traders-turning-bullish-again?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T20:56:14+00:00",
+          "summary": "Bitcoin이 $74,500를 돌파했음에도 불구하고 파생상품 시장의 프리미엄은 여전히 낮아 전문 트레이더들은 신중한 태도를 보이고 있습니다. 옵션 시장의 델타 스큐 수치는 시장에 여전히 하락에 대한 공포가 남아있음을 시사합니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "derivatives",
+            "options"
+          ]
+        },
+        {
+          "title": "SXSW recap: Panels favoring AI over crypto in 2026",
+          "url": "https://cointelegraph.com/news/sxsw-recap-ai-crypto-2026?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T20:51:43+00:00",
+          "summary": "SXSW 2026 축제에서 Crypto에 대한 관심이 줄어들고 AI가 주요 주제로 부상했습니다. Riot Platforms, MARA Holdings 등 주요 채굴 기업들도 인프라를 AI 및 고성능 컴퓨팅(HPC)으로 전환하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "sxsw",
+            "ai",
+            "mining",
+            "bitcoin"
+          ]
+        },
+        {
+          "title": "Ironlight raises $21M to scale marketplace for tokenized securities",
+          "url": "https://cointelegraph.com/news/tokenized-securities-platform-ironlight-raises-21m-series-a-to-expand-regulated-trading-infrastructure?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T18:21:29+00:00",
+          "summary": "토큰화 증권 마켓플레이스인 Ironlight가 21M 달러 규모의 Series A 투자를 유치했습니다. 이번 라운드는 Sei Development Foundation 등이 참여했으며, 사모펀드 및 부동산 등 다양한 자산의 온체인 거래 인프라 확장에 사용될 예정입니다.",
+          "importance": "medium",
+          "tags": [
+            "rwa",
+            "tokenization",
+            "sei",
+            "funding"
+          ]
+        },
+        {
+          "title": "Abra targets Nasdaq listing in $750M deal with New Providence SPAC",
+          "url": "https://cointelegraph.com/news/abra-nasdaq-spac-new-providence-crypto-wealth-manager-public-listing?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T16:38:36+00:00",
+          "summary": "디지털 자산 자산관리 플랫폼 Abra가 New Providence SPAC과의 합병을 통해 750M 달러 가치로 Nasdaq 상장을 추진합니다. Abra는 규제 합의 이후 기관 및 고액 자산가 대상 서비스로 사업 초점을 전환했습니다.",
+          "importance": "medium",
+          "tags": [
+            "abra",
+            "nasdaq",
+            "spac",
+            "listing"
+          ]
+        },
+        {
+          "title": "US, UK, Canada launch joint operation to disrupt crypto fraud",
+          "url": "https://cointelegraph.com/news/us-uk-canada-enforcement-operation-crypto-fraud?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T16:07:04+00:00",
+          "summary": "미국, 영국, 캐나다 수사 당국이 'Operation Atlantic'을 통해 암호화폐 피싱 및 투자 사기 대응을 위한 국제 공조를 시작했습니다. 특히 승인 피싱(Approval Phishing) 수법에 대한 실시간 차단과 피해 복구에 집중할 계획입니다.",
+          "importance": "medium",
+          "tags": [
+            "security",
+            "phishing",
+            "regulation",
+            "fraud"
+          ]
+        },
+        {
+          "title": "Bitcoin nears $75K as trader says BTC price squeeze 'changes nothing'",
+          "url": "https://cointelegraph.com/news/bitcoin-approaches-75k-trader-says-btc-price-squeeze-changes-nothing?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "source": "CoinTelegraph",
+          "published": "2026-03-16T15:22:47+00:00",
+          "summary": "지정학적 긴장 완화와 증시 상승 속에 Bitcoin이 74,600 달러를 기록하며 '디지털 안전 자산'으로서의 면모를 보이고 있습니다. 다만 일부 트레이더들은 이번 반등이 일시적일 수 있다는 회의적인 시각을 유지하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "market-analysis",
+            "macro",
+            "price-action"
+          ]
+        },
+        {
+          "title": "SEC’s Hester Peirce encourages firms exploring tokenization to ‘come in and talk to us’",
+          "url": "https://www.theblock.co/post/393803/sec-hester-peirce-encourages-firms-tokenization-come-in-talk-to-us?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T19:12:53+00:00",
+          "summary": "SEC의 Hester Peirce 위원은 토큰화 기술을 탐구하는 기업들에게 규제 당국과 소통할 것을 권고했습니다. 그녀는 SEC가 투자의 가치를 판단하는 기관이 아님을 강조했습니다.",
+          "importance": "medium",
+          "tags": [
+            "sec",
+            "tokenization",
+            "regulation"
+          ]
+        },
+        {
+          "title": "Polymarket bettors send death threats to reporter over missile report tied to $14 million prediction market pool",
+          "url": "https://www.theblock.co/post/393790/polymarket-bettors-death-threats-reporter-missile-report-prediction-market?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T17:09:12+00:00",
+          "summary": "Polymarket 이용자들이 이란의 이스라엘 공격 여부를 다룬 기사를 작성한 기자에게 살해 협박을 가했습니다. 해당 예측 시장에는 약 14M 달러의 판돈이 걸려 있었습니다.",
+          "importance": "medium",
+          "tags": [
+            "polymarket",
+            "prediction-market",
+            "iran-israel"
+          ]
+        },
+        {
+          "title": "Ironlight raises $21 million to expand regulated marketplace for tokenized securities",
+          "url": "https://www.theblock.co/post/393770/ironlight-raises-21-million-expand-regulated-marketplace-tokenized-securities?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T15:20:34+00:00",
+          "summary": "Ironlight가 규제 준수 토큰화 증권 시장 확장을 위해 21M 달러의 투자금을 유치했습니다. 이 회사의 ATS는 작년 FINRA로부터 전통 및 토큰화 증권 거래 승인을 받았습니다.",
+          "importance": "medium",
+          "tags": [
+            "ironlight",
+            "fundraising",
+            "rwa"
+          ]
+        },
+        {
+          "title": "Bitdeer stock rallies as firm rolls out SEALMINER machines for Litecoin and Dogecoin mining",
+          "url": "https://www.theblock.co/post/393769/bitdeer-stock-sealminer-machines-litecoin-dogecoin-mining?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T14:54:20+00:00",
+          "summary": "Bitdeer가 Litecoin과 Dogecoin 채굴을 위한 SEALMINER DL1 Air 기기를 출시하며 주가가 상승했습니다. 이 장비는 Scrypt 알고리즘 채굴에 특화되어 설계되었습니다.",
+          "importance": "medium",
+          "tags": [
+            "bitdeer",
+            "mining",
+            "litecoin",
+            "dogecoin"
+          ]
+        },
+        {
+          "title": "HIVE to phase down bitcoin mining in Sweden as it expands AI data center capacity in Canada",
+          "url": "https://www.theblock.co/post/393760/hive-to-phase-down-bitcoin-mining-in-sweden-as-it-expands-ai-data-center-capacity-in-canada?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T14:22:46+00:00",
+          "summary": "HIVE는 스웨덴 내 세금 분쟁 및 운영 불확실성으로 인해 ASIC 기반 Bitcoin 채굴 운영을 점진적으로 축소하고, 대신 Canada의 AI 데이터 센터 역량을 확장할 계획입니다.",
+          "importance": "medium",
+          "tags": [
+            "hive",
+            "bitcoin mining",
+            "ai data center"
+          ]
+        },
+        {
+          "title": "US Secret Service, UK and Canada launch Operation Atlantic targeting crypto approval phishing scams",
+          "url": "https://www.theblock.co/post/393746/us-secret-service-uk-and-canada-launch-operation-atlantic-targeting-crypto-approval-phishing-scams?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T13:48:29+00:00",
+          "summary": "US Secret Service가 UK 및 Canada와 협력하여 암호화폐 승인 피싱(approval-phishing) 사기를 근절하기 위한 다국적 작전인 Operation Atlantic을 개시했습니다.",
+          "importance": "medium",
+          "tags": [
+            "security",
+            "phishing",
+            "regulation"
+          ]
+        },
+        {
+          "title": "Man Alleges Wife Stole $172 Million in Bitcoin After 'Covertly Recording' Him",
+          "url": "https://decrypt.co/361291/man-alleges-wife-stole-171-million-bitcoin-covertly-recording",
+          "source": "Decrypt",
+          "published": "2026-03-16T21:37:01+00:00",
+          "summary": "UK의 한 남성이 별거 중인 아내가 CCTV와 도청 장치를 이용해 하드웨어 월렛의 seed phrase를 훔쳐 약 172 million 달러 상당의 2,323 Bitcoin을 탈취했다고 주장하며 소송을 제기했습니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "security",
+            "legal"
+          ]
+        },
+        {
+          "title": "IBM Opens Quantum Hardware to Researchers as Bitcoin Security Threat Looms",
+          "url": "https://decrypt.co/361286/ibm-opens-quantum-hardware-researchers-bitcoin-security-threat",
+          "source": "Decrypt",
+          "published": "2026-03-16T21:04:15+00:00",
+          "summary": "IBM이 연구원들에게 양자 컴퓨터 하드웨어 접근 권한과 실행 시간을 확대 제공하는 Open Plan 업데이트를 발표했으며, 이는 향후 Bitcoin 암호화 체계에 위협이 될 수 있는 양자 기술 발전에 대비한 연구를 가속화할 전망입니다.",
+          "importance": "medium",
+          "tags": [
+            "ibm",
+            "quantum computing",
+            "cryptography"
+          ]
+        },
+        {
+          "title": "OpenAI Pushes Ahead With ChatGPT Erotica Mode Despite 'Sexy Suicide Coach' Warning: WSJ",
+          "url": "https://decrypt.co/361279/openai-chatgpt-erotica-mode-sexy-suicide-coach-warning-wsj",
+          "source": "Decrypt",
+          "published": "2026-03-16T20:00:54+00:00",
+          "summary": "OpenAI가 ChatGPT에 성인용 텍스트 대화 모드 도입을 추진 중이나, 내부 자문단은 정서적 의존성과 안전 문제를 경고하며 반대하고 있습니다. 연령 확인 시스템의 12% 오류율로 인해 출시가 2026년 1분기로 연기되었습니다.",
+          "importance": "medium",
+          "tags": [
+            "openai",
+            "chatgpt",
+            "ai-safety"
+          ]
+        },
+        {
+          "title": "Trump-Backed World Liberty Puts $5.3 Million Price Tag on 'Guaranteed Access' to Team",
+          "url": "https://decrypt.co/361259/trump-backed-world-liberty-5-million-price-tag-access-team",
+          "source": "Decrypt",
+          "published": "2026-03-16T17:42:45+00:00",
+          "summary": "Donald Trump가 지원하는 World Liberty Financial이 500만 달러 상당의 WLFI를 스테이킹한 투자자에게 팀원과의 독점 면담권을 제공하는 거버넌스 안을 승인했습니다. 해당 'Super Node' 자격을 얻으려면 토큰을 최소 180일간 락업해야 합니다.",
+          "importance": "medium",
+          "tags": [
+            "wlfi",
+            "trump",
+            "defi"
+          ]
+        },
+        {
+          "title": "'Operation Atlantic': US Secret Service Teams With UK, Canada to Stop Crypto Fraud",
+          "url": "https://decrypt.co/361245/operation-atlantic-secret-service-uk-canada-stop-crypto-fraud",
+          "source": "Decrypt",
+          "published": "2026-03-16T16:48:37+00:00",
+          "summary": "미국 비밀경호국(Secret Service)이 영국 및 캐나다 수사 당국과 협력하여 'Pig Butchering' 등 암호화폐 피싱 사기를 근절하기 위한 'Operation Atlantic'을 출범했습니다. 국경을 넘나드는 범죄에 대응해 실시간 탐지 및 차단을 목표로 합니다.",
+          "importance": "medium",
+          "tags": [
+            "scam",
+            "security",
+            "law-enforcement"
+          ]
+        },
+        {
+          "title": "Ethereum Price Hits 6-Week High as Tom Lee's BitMine Reveals Latest ETH Buy",
+          "url": "https://decrypt.co/361236/ethereum-price-6-week-high-tom-lee-bitmine-eth-buy",
+          "source": "Decrypt",
+          "published": "2026-03-16T15:17:43+00:00",
+          "summary": "Ethereum 재무 관리 기업 BitMine이 지난주 1억 3,800만 달러 상당의 ETH를 추가 매수하며 총 보유량이 105억 달러를 넘어섰습니다. Tom Lee 의장은 암호화폐 겨울이 끝나가고 있다고 진단하며 매수 속도를 높이고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "ethereum",
+            "bitmine",
+            "tom-lee"
+          ]
+        },
+        {
+          "title": "Bitcoin’s power-law model faces its biggest test yet as ETF flows challenge the curve",
+          "url": "https://cryptoslate.com/bitcoins-power-law-model-faces-its-biggest-test-yet-as-etf-flows-challenge-the-curve/",
+          "source": "CryptoSlate",
+          "published": "2026-03-16T20:10:34+00:00",
+          "summary": "Bitcoin Power Law 모델 창시자 Giovanni Santostasi가 10일 평균 성장률을 시각화한 새로운 차트를 공개하며 모델의 유효성을 테스트하고 있습니다. 2026년까지 ETF 유입과 채굴 난이도 상승 등 변화된 시장 환경 속에서 해당 모델이 가격 예측 지표로서 작동할 수 있을지가 관건입니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "power-law",
+            "etf",
+            "analysis"
+          ]
+        },
+        {
+          "title": "Over $172B in Wall St private credit funds limit withdrawals as investors rush for the exit while Bitcoin climbs",
+          "url": "https://cryptoslate.com/bitcoin-as-a-new-save-haven-172b-wall-st-private-credit-funds-limit-withdrawals-as-investors-rush-for-the-exit/",
+          "source": "CryptoSlate",
+          "published": "2026-03-16T16:05:58+00:00",
+          "summary": "Bitcoin이 73,000달러를 상회하는 가운데 BlackRock, Blackstone 등 대형 자산운용사들의 사모 신용 펀드들이 유동성 문제로 출금을 제한하고 있습니다. 이는 24시간 거래되는 암호화폐 시장과 달리 전통 금융의 폐쇄형 펀드가 가진 유동성 리스크를 극명하게 보여줍니다.",
+          "importance": "medium",
+          "tags": [
+            "tradfi",
+            "liquidity",
+            "private-credit",
+            "bitcoin"
+          ]
+        },
+        {
+          "title": "Trump-backed WLFI is selling $5 million access while pitching finance for everyone",
+          "url": "https://cryptoslate.com/trump-backed-crypto-platform-wlfi-sells-5-million-access-while-pitching-democratized-finance/",
+          "source": "CryptoSlate",
+          "published": "2026-03-16T09:19:14+00:00",
+          "summary": "Trump 가문이 주도하는 World Liberty Financial(WLFI)이 500만 달러 상당의 토큰을 예치한 투자자에게 사업팀 독점 접근권을 부여하는 'Super Nodes' 등급을 신설했습니다. 이는 금융 민주화라는 취지와 달리 자본력에 따른 차등적 권한 부여라는 비판을 받고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "wlfi",
+            "trump",
+            "governance",
+            "defi"
+          ]
+        },
+        {
+          "title": "Iran war bets turned Polymarket and Kalshi into the next fight over what people should be allowed to trade",
+          "url": "https://cryptoslate.com/wall-street-eyes-20-billion-valuations-for-polymarket-and-kalshi-how-iran-war-bets-triggered-washingtons-2026-crackdown/",
+          "source": "CryptoSlate",
+          "published": "2026-03-15T20:05:47+00:00",
+          "summary": "Polymarket과 Kalshi가 200억 달러 가치로 투자 유치를 추진 중인 가운데, 이란 전쟁 관련 베팅이 정치적 논란을 일으키며 규제 당국의 감시가 강화되고 있습니다. 예측 시장이 단순 도박을 넘어 데이터 지표로 인정받으려 하지만, 전쟁 등 민감한 주제에 대한 인센티브 구조가 걸림돌이 되고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "prediction-market",
+            "polymarket",
+            "regulation",
+            "cftc"
+          ]
+        },
+        {
+          "title": "Coinbase’s $70B Bitcoin move made it look like investors were selling — but no one actually did",
+          "url": "https://cryptoslate.com/bitcoin-hodl-waves-broken-after-coinbase-68b-wallet-reshuffle/",
+          "source": "CryptoSlate",
+          "published": "2026-03-15T17:18:03+00:00",
+          "summary": "Coinbase가 보안 강화를 위해 약 695억 달러 규모의 800,000 BTC를 내부 지갑으로 이동시키면서 온체인 데이터상 대규모 매도 신호로 오인되는 해프닝이 발생했습니다. 이는 장기 보유 물량의 이동을 무조건적인 매도 압력으로 해석하는 기존 분석 지표의 한계를 시사합니다.",
+          "importance": "medium",
+          "tags": [
+            "coinbase",
+            "on-chain",
+            "bitcoin",
+            "whale-watch"
+          ]
+        },
+        {
+          "title": "Bitcoin price jumped over $71k – but most of the rally isn’t coming from real buyers",
+          "url": "https://cryptoslate.com/bitcoins-71k-rally-has-a-problem-most-traders-arent-watching/",
+          "source": "CryptoSlate",
+          "published": "2026-03-15T14:00:54+00:00",
+          "summary": "Bitcoin 가격이 $71,000 근처를 유지하고 있으나, 현물 매수세는 줄어들고 파생상품 거래량이 현물의 9배에 달하고 있습니다. 이는 시장이 실질적 수요보다는 레버리지에 의해 지탱되고 있어 변동성 위험이 크다는 분석입니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "derivatives",
+            "leverage",
+            "market-analysis"
+          ]
+        },
+        {
+          "title": "Crypto PACs get first big 2026 test with Illinois primary",
+          "url": "https://www.dlnews.com/articles/regulation/crypto-pacs-get-first-big-2026-test-with-illinois-primary/",
+          "source": "DL News",
+          "published": "2026-03-16T20:00:01+00:00",
+          "summary": "미국 일리노이주 민주당 상원 경선에서 가상자산 PAC들이 Juliana Stratton 후보를 저지하기 위해 약 $9.9 million을 지출하며 영향력을 행사하고 있습니다. 이는 2026년 선거를 앞두고 가상자산 업계의 정치적 영향력을 시험하는 중요한 사례가 될 전망입니다.",
+          "importance": "medium",
+          "tags": [
+            "pac",
+            "election",
+            "regulation",
+            "politics"
+          ]
+        },
+        {
+          "title": "Bitcoin analysts call the top on $74,000 rally as ‘short squeeze’ fizzles out",
+          "url": "https://www.dlnews.com/articles/markets/bitcoin-analysts-call-the-top-on-74000-rally-as-short-squeeze-fizzles-out/",
+          "source": "DL News",
+          "published": "2026-03-16T16:32:19+00:00",
+          "summary": "Bitcoin의 $74,000 랠리가 숏 스퀴즈(short squeeze)에 의한 일시적 현상일 수 있다는 분석이 나왔습니다. 중동 지정학적 위기로 인한 유가 상승과 Fed의 금리 인하 지연 전망이 향후 가격 하락 압박으로 작용할 수 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "short-squeeze",
+            "macro",
+            "oil"
+          ]
+        },
+        {
+          "title": "Time running out for Clarity bill, warns expert, as odds of passing ‘diminish by the day’",
+          "url": "https://www.dlnews.com/articles/markets/time-running-out-for-clarity-bill-as-odds-of-passing-diminish-by-the-day/",
+          "source": "DL News",
+          "published": "2026-03-15T11:55:46+00:00",
+          "summary": "미국 스테이블코인 규제안인 Clarity 법안이 4월 말까지 위원회를 통과하지 못할 경우 연내 시행이 어려울 것이라는 전망이 나왔습니다. 스테이블코인 발행사의 이자 지급 여부를 두고 은행권과 암호화폐 업계 간의 의견 차이가 주요 장애물로 작용하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "regulation",
+            "stablecoin",
+            "clarity-act",
+            "usa"
+          ]
+        },
+        {
+          "title": "베센트 미 재무장관, 중국 부총리와 회동…“건설적 대화”",
+          "url": "https://www.blockmedia.co.kr/archives/1063735?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T22:36:43+00:00",
+          "summary": "Scott Bessent 미 재무장관이 중국 허리펑 부총리와 만나 양국 경제 현안 및 무역 관리 방안을 논의했습니다. 이번 회담은 Donald Trump 대통령의 방중을 앞두고 진행되었으며, 양국 관계 안정과 시장 접근 확대가 주요 의제로 다뤄졌습니다.",
+          "importance": "medium",
+          "tags": [
+            "usa",
+            "china",
+            "economy",
+            "geopolitics"
+          ]
+        },
+        {
+          "title": "마이클 세일러 “양자컴퓨터가 비트코인 깨면 인터넷도 붕괴”",
+          "url": "https://www.blockmedia.co.kr/archives/1063729?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T22:18:18+00:00",
+          "summary": "Michael Saylor는 양자컴퓨터가 Bitcoin을 위협한다면 기존 금융 시스템과 인터넷 보안도 함께 붕괴될 것이라고 주장했습니다. 그는 향후 네트워크가 Post-Quantum Cryptography로 업그레이드될 것이며, Bitcoin이 AI 시대의 희소한 디지털 자본 역할을 할 것이라 강조했습니다.",
+          "importance": "medium",
+          "tags": [
+            "michael-saylor",
+            "bitcoin",
+            "quantum-computing",
+            "security"
+          ]
+        },
+        {
+          "title": "물가 600% 폭등·임금 30센트… 베네수엘라 ‘경제 참사’-블룸버그",
+          "url": "https://www.blockmedia.co.kr/archives/1063712?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T21:34:35+00:00",
+          "summary": "Venezuela의 연간 물가 상승률이 600%에 달하고 최저임금이 30센트 수준에 머무는 등 경제 위기가 심화되고 있습니다. 원유 생산 감소로 인한 Dollar 부족이 인플레이션을 가중시키고 있으며 국민 80%가 경제 개선을 체감하지 못하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "venezuela",
+            "inflation",
+            "economy"
+          ]
+        },
+        {
+          "title": "트럼프, 시진핑 회담 한 달 연기 요청…“이란 전쟁 때문”",
+          "url": "https://www.blockmedia.co.kr/archives/1063701?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T21:21:34+00:00",
+          "summary": "Trump 미국 대통령이 Iran과의 전쟁 상황 관리를 이유로 시진핑 중국 국가주석과의 정상회담을 한 달 연기해달라고 요청했습니다. 이번 회담은 무역 및 지정학적 현안을 논의할 예정이었으나 중동 긴장으로 인해 일정이 불투명해졌습니다.",
+          "importance": "medium",
+          "tags": [
+            "trump",
+            "geopolitics",
+            "usa-china"
+          ]
+        },
+        {
+          "title": "[외환] 달러지수 99선 후퇴…유가·금리 하락에 약세",
+          "url": "https://www.blockmedia.co.kr/archives/1063698?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T21:16:31+00:00",
+          "summary": "뉴욕 외환시장에서 Dollar Index(DXY)가 99.54로 하락하며 약세를 보였습니다. 유가 하락과 미국 국채 금리 하락이 위험자산 선호를 회복시켰으며, 시장은 이번 주 예정된 Fed 등 주요 중앙은행의 통화정책 회의를 주목하고 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "dollar index",
+            "forex",
+            "macro"
+          ]
+        },
+        {
+          "title": "클로드, 2026년 말 비트코인 20만 달러·이더 1만 달러 시나리오 제시…XRP는 규제가 관건",
+          "url": "https://www.tokenpost.kr/news/cryptocurrency/340107",
+          "source": "토큰포스트",
+          "published": "2026-03-16T22:35:17+00:00",
+          "summary": "AI 모델 Claude는 2026년 말 BTC가 최대 20만 Dollar, ETH가 1만 Dollar에 도달할 수 있다는 전망을 제시했습니다. XRP는 3~6 Dollar로 예측되었으나 미국 등 주요국의 규제 명확성 확보가 가격 상승의 핵심 변수로 지목되었습니다.",
+          "importance": "medium",
+          "tags": [
+            "bitcoin",
+            "ethereum",
+            "price prediction"
+          ]
+        },
+        {
+          "title": "엔비디아, 물리적 AI 혁신으로 자율주행·로봇 기술 주도",
+          "url": "https://www.tokenpost.kr/news/tech/340105",
+          "source": "토큰포스트",
+          "published": "2026-03-16T22:32:18+00:00",
+          "summary": "Nvidia가 자율주행과 로봇 혁신을 위한 '물리적 AI' 참조 구조도를 발표하고 T-Mobile, Nokia와 협력합니다. 5G 네트워크와 AI 인프라를 결합하여 스마트 시티 및 산업 자동화에 필요한 저지연 컴퓨팅 환경을 구축할 계획입니다.",
+          "importance": "medium",
+          "tags": [
+            "nvidia",
+            "ai",
+            "robotics"
+          ]
+        },
+        {
+          "title": "HPE, 엔비디아와 손잡고 AI 포트폴리오 확장 발표",
+          "url": "https://www.tokenpost.kr/news/tech/340104",
+          "source": "토큰포스트",
+          "published": "2026-03-16T22:31:52+00:00",
+          "summary": "HPE가 Nvidia GTC 컨퍼런스에서 기업용 AI 포트폴리오 확장을 발표했습니다. Nvidia와 공동 설계한 프라이빗 클라우드 AI 및 Blackwell GPU 지원을 통해 AI 실험 단계를 넘어 실제 비즈니스 성과를 낼 수 있는 인프라 솔루션을 제공할 계획입니다.",
+          "importance": "medium",
+          "tags": [
+            "hpe",
+            "nvidia",
+            "ai infrastructure"
+          ]
+        },
+        {
+          "title": "국내 금융사, 해외 부동산 투자 2조원 부실 위기 직면",
+          "url": "https://www.tokenpost.kr/news/economy/340097",
+          "source": "토큰포스트",
+          "published": "2026-03-16T21:56:24+00:00",
+          "summary": "국내 금융사의 해외 부동산 투자 중 약 2.1조 원 규모의 사업장에서 기한이익상실(EOD) 사유가 발생하며 부실 위기가 고조되고 있습니다. 금감원은 시스템적 위험은 낮다고 보나, 금리 상승 등 불확실성에 대비해 리스크 관리를 강화할 예정입니다.",
+          "importance": "medium",
+          "tags": [
+            "real estate",
+            "finance",
+            "risk management"
+          ]
+        },
+        {
+          "title": "엔비디아, 대규모 AI 배포 위한 '다이너모 1.0' 오픈소스 플랫폼 발표",
+          "url": "https://www.tokenpost.kr/news/tech/340096",
+          "source": "토큰포스트",
+          "published": "2026-03-16T21:47:10+00:00",
+          "summary": "Nvidia가 대규모 AI 배포 및 추론 효율화를 위한 오픈소스 플랫폼 'Dynamo 1.0'을 공개했습니다. 이는 하드웨어를 넘어 소프트웨어 오케스트레이션 시장의 기본 런타임 모델로 자리 잡으려는 Nvidia의 전략적 행보로 풀이됩니다.",
+          "importance": "medium",
+          "tags": [
+            "nvidia",
+            "ai",
+            "open source"
+          ]
+        },
+        {
+          "title": "국제 유가 급등, 한국 수입 물가 1.1% 상승 압박",
+          "url": "https://www.tokenpost.kr/news/economy/340094",
+          "source": "토큰포스트",
+          "published": "2026-03-16T21:46:25+00:00",
+          "summary": "국제 유가 상승의 영향으로 2월 한국의 수입 물가가 전월 대비 1.1% 상승하며 경제 압박이 커지고 있습니다. 두바이유 가격 급등과 원/달러 환율 상승이 맞물리면서 국내 소비자물가에도 추가적인 상승 요인으로 작용할 전망입니다.",
+          "importance": "medium",
+          "tags": [
+            "oil price",
+            "inflation",
+            "korea economy"
+          ]
+        },
+        {
+          "title": "Former Morgan Stanley exec joins tokenization firm Streamex as CFO",
+          "url": "https://www.theblock.co/post/393759/former-morgan-stanley-exec-joins-tokenization-firm-streamex-as-cfo?utm_source=rss&utm_medium=rss",
+          "source": "The Block",
+          "published": "2026-03-16T14:27:33+00:00",
+          "summary": "Morgan Stanley 출신 임원이 토큰화 전문 기업 Streamex의 CFO로 합류했습니다. Streamex는 금과 같은 토큰화된 원자재 투자 서비스를 제공하는 Nasdaq 상장사입니다.",
+          "importance": "low",
+          "tags": [
+            "streamex",
+            "tokenization",
+            "hiring"
+          ]
+        },
+        {
+          "title": "Pokémon Go Players Helped Map the World—Now That Data Is Training Delivery Robots",
+          "url": "https://decrypt.co/361302/pokemon-go-map-world-now-data-training-robots",
+          "source": "Decrypt",
+          "published": "2026-03-16T22:23:22+00:00",
+          "summary": "Pokémon Go 플레이어들이 수집한 공간 매핑 데이터가 Niantic Spatial을 통해 자율 주행 배달 로봇의 내비게이션 학습에 활용되고 있으며, 이는 GPS가 제한적인 환경에서 정밀한 위치 파악을 돕습니다.",
+          "importance": "low",
+          "tags": [
+            "niantic",
+            "ai",
+            "robotics"
+          ]
+        },
+        {
+          "title": "Crypto crime on the rise in Spain’s Basque Country, say police",
+          "url": "https://www.dlnews.com/articles/regulation/crypto-crime-on-the-rise-in-spains-basque-country-say-police/",
+          "source": "DL News",
+          "published": "2026-03-16T15:19:18+00:00",
+          "summary": "스페인 바스크 지방에서 가상자산 관련 범죄가 급증함에 따라 현지 경찰이 전담 사이버 범죄 수사팀을 신설했습니다. 작년 한 해에만 541건의 가상자산 사기 및 세탁 사건이 조사되었으며, 정교한 투자 사기가 기승을 부리고 있습니다.",
+          "importance": "low",
+          "tags": [
+            "crime",
+            "spain",
+            "scam",
+            "security"
+          ]
+        },
+        {
+          "title": "Crypto thief teens trigger helicopter manhunt after bomb threat",
+          "url": "https://www.dlnews.com/articles/regulation/crypto-thief-teens-trigger-helicopter-manhunt-after-bomb-threat/",
+          "source": "DL News",
+          "published": "2026-03-16T12:28:51+00:00",
+          "summary": "프랑스 파리 인근에서 가상자산 보유자를 노리고 폭발물로 위협하며 납치를 시도한 10대 청소년들이 체포되었습니다. 최근 프랑스 부유층 거주 지역을 중심으로 가상자산을 노린 강력 범죄가 빈번하게 발생하고 있어 주의가 요구됩니다.",
+          "importance": "low",
+          "tags": [
+            "crime",
+            "france",
+            "security",
+            "kidnapping"
+          ]
+        },
+        {
+          "title": "How a Trump fan snagged $2m betting on president’s second memecoin gala dinner",
+          "url": "https://www.dlnews.com/articles/people-culture/trump-fan-profits-by-betting-on-second-memecoin-gala-dinner/",
+          "source": "DL News",
+          "published": "2026-03-16T11:41:18+00:00",
+          "summary": "한 트레이더가 Donald Trump의 두 번째 갈라 디너 발표 직후 관련 밈코인을 매수하여 약 $2 million의 수익을 올렸습니다. 이러한 이벤트는 정치적 자금 조달 수단으로 비판받는 동시에 밈코인 시장의 변동성을 키우고 있습니다.",
+          "importance": "low",
+          "tags": [
+            "memecoin",
+            "trump",
+            "politics",
+            "trading"
+          ]
+        },
+        {
+          "title": "“아내가 훔쳤다”…영국 법원서 1억7200만달러 비트코인 분쟁",
+          "url": "https://www.blockmedia.co.kr/archives/1063725?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T22:04:46+00:00",
+          "summary": "영국에서 별거 중인 아내가 CCTV로 시드 문구를 훔쳐 약 $172m 상당의 2,323 BTC를 탈취했다는 소송이 제기되었습니다. 법원은 원고의 승소 가능성이 높다고 판단하고 자산 보전을 위한 가처분 절차 및 신속한 재판을 진행하기로 했습니다.",
+          "importance": "low",
+          "tags": [
+            "bitcoin",
+            "legal",
+            "security",
+            "uk"
+          ]
+        },
+        {
+          "title": "[주요 경제·디지털자산 일정] 미국 2월 잠정주택매매지수 外",
+          "url": "https://www.blockmedia.co.kr/archives/1062534?utm_source=general&utm_medium=rss",
+          "source": "블록미디어",
+          "published": "2026-03-16T22:00:16+00:00",
+          "summary": "미국 2월 잠정주택매매지수, 20년물 채권 입찰, 원유 재고 발표 등 주요 경제 일정과 OpenVPP(OVPP), Stargaze(STARS)의 스냅샷 및 마이그레이션 등 디지털 자산 일정이 예정되어 있습니다.",
+          "importance": "low",
+          "tags": [
+            "calendar",
+            "macro",
+            "snapshot",
+            "events"
+          ]
+        },
+        {
+          "title": "글로벌 제약 업계, AI 신약 개발에 867억 달러 투자",
+          "url": "https://www.tokenpost.kr/news/tech/340108",
+          "source": "토큰포스트",
+          "published": "2026-03-16T22:36:20+00:00",
+          "summary": "글로벌 제약 업계가 AI 신약 개발을 위해 2025년 기준 867억 Dollar 규모의 R&D 계약을 체결했습니다. Eli Lilly와 Nvidia의 협력 등 대형 제약사들이 AI 플랫폼 기업과 손잡고 개발 효율성을 높이는 추세입니다.",
+          "importance": "low",
+          "tags": [
+            "ai",
+            "pharmaceutical",
+            "nvidia"
+          ]
+        },
+        {
+          "title": "[토큰운세] 2026년 3월 17일 띠별 토큰 운세",
+          "url": "https://www.tokenpost.kr/news/cryptocurrency/340099",
+          "source": "토큰포스트",
+          "published": "2026-03-16T22:01:01+00:00",
+          "summary": "2026년 3월 17일 띠별 토큰 운세로, 시장 변동성에 따른 심리적 조언을 제공합니다. 하락장이나 공포장에서 무리한 레버리지 사용을 지양하고 분할 매수 및 리스크 관리의 중요성을 강조하는 내용이 주를 이룹니다.",
+          "importance": "low",
+          "tags": [
+            "horoscope",
+            "investment psychology",
+            "trading tips"
+          ]
+        },
+        {
+          "title": "현재 대통령 트럼프의 관세 결정, 새로운 협상 카드되나",
+          "url": "https://www.tokenpost.kr/news/economy/340093",
+          "source": "토큰포스트",
+          "published": "2026-03-16T21:46:21+00:00",
+          "summary": "Trump 대통령이 관세 결정을 국제 협상의 전략적 카드로 활용하여 우위를 점하려 한다는 소식입니다. 구체적인 실행 방안보다는 관세를 통한 대외 정책 기조와 협상력 강화에 초점이 맞춰져 있습니다.",
+          "importance": "low",
+          "tags": [
+            "trump",
+            "tariff",
+            "trade policy"
+          ]
+        }
+      ]
+    },
+    "ai_dev": {
+      "briefing": "이번 주 개발 생태계에서는 멀티 에이전트 시스템의 성숙도를 높이는 다양한 연구와 도구들이 주목받고 있습니다. ToolTree(MCTS 기반 도구 계획)와 AMRO-S(Ant Colony Optimization 기반 라우팅) 등 에이전트의 의사결정 효율을 높이는 알고리즘 연구가 활발히 발표되었으며, 멀티 에이전트 시스템의 메모리 관리 문제를 세션·공유 상태·제도적 메모리 세 계층으로 구조화하는 실용적 접근법도 제시되었습니다. LLM 추론 효율화 측면에서는 ReBalance 프레임워크가 overthinking/underthinking 문제를 추가 학습 없이 해결하고, ActTail이 80% 희소도에서도 성능 저하 없이 추론 속도를 개선하는 성과를 보였습니다. 보안 분야에서는 Prompt Injection의 근본 원인이 모델의 Role Confusion임을 규명한 연구가 발표되어, 에이전트 보안 설계 시 중요한 시사점을 제공합니다. Nvidia의 Agentic AI 전용 Vera CPU 출시와 MCP 대비 토큰 소모를 최대 32배 절감하는 Apideck CLI 등 인프라·툴링 레이어의 혁신도 이어지고 있어, 프로덕션 AI 에이전트 구축 비용 최적화에 관심이 높아지고 있습니다.",
+      "highlights": [
+        {
+          "type": "tool",
+          "title": "Apideck CLI: MCP 대비 토큰 32배 절감",
+          "detail": "MCP가 도구 정의에 수만 토큰을 소모하는 문제를 해결하는 CLI 기반 AI 에이전트 인터페이스입니다. 컨텍스트 효율이 4~32배 향상되어 대규모 에이전트 운영 비용을 크게 줄일 수 있습니다."
+        },
+        {
+          "type": "model",
+          "title": "ToolTree: MCTS 기반 에이전트 도구 계획",
+          "detail": "Monte Carlo Tree Search와 양방향 가지치기를 결합해 LLM 에이전트의 복잡한 도구 사용 계획을 최적화합니다. 도구 간 의존성을 고려한 경로 탐색으로 기존 대비 약 10% 성능 향상을 달성했습니다."
+        },
+        {
+          "type": "trend",
+          "title": "Prompt Injection = Role Confusion 규명",
+          "detail": "LLM이 텍스트 출처가 아닌 어조로 역할을 추론하는 Role Confusion이 Prompt Injection의 근본 원인임을 실험으로 증명했습니다. 에이전트 보안 설계 시 출력 감독만으로는 부족하다는 경고를 함께 제시합니다."
+        },
+        {
+          "type": "model",
+          "title": "ReBalance: 추론 모델 overthinking 해결",
+          "detail": "실시간 신뢰도 지표로 LRM의 추론 경로를 동적으로 제어하는 ReBalance 프레임워크입니다. 추가 학습 없이 추론 효율성과 정확도를 동시에 개선하여 추론 비용 절감에 직접 기여합니다."
+        },
+        {
+          "type": "tool",
+          "title": "Nvidia Vera CPU: Agentic AI 전용 하드웨어",
+          "detail": "강화학습과 대규모 AI 추론 워크로드에 최적화된 Nvidia의 신규 CPU입니다. 기존 CPU 대비 2배 효율, 50% 빠른 성능으로 프로덕션 AI 인프라의 새로운 선택지가 됩니다."
+        }
+      ],
+      "trends": [
+        "Multi-Agent Memory Architecture",
+        "LLM Inference Efficiency",
+        "Agentic AI Security"
+      ],
+      "articles": [
+        {
+          "title": "The First Healthcare Robotics Dataset and Foundational Physical AI Models for Healthcare Robotics",
+          "url": "https://huggingface.co/blog/nvidia/physical-ai-for-healthcare-robotics",
+          "source": "Hugging Face",
+          "published": "2026-03-16T21:58:40+00:00",
+          "summary": "수술 로봇 및 초음파 AI를 위한 세계 최초의 헬스케어 로봇 오픈 데이터셋인 Open-H-Embodiment가 공개되었습니다. NVIDIA, 존스 홉킨스 등 35개 기관이 협력하여 Physical AI 모델 개발을 지원합니다.",
+          "importance": "high",
+          "tags": [
+            "healthcare robotics",
+            "physical ai",
+            "dataset"
+          ]
+        },
+        {
+          "title": "From Prompts to Real Files: A Developer's Guide to AI File Generation",
+          "url": "https://dev.to/imaginex/your-llm-can-write-files-now-4c6e",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:11:50+00:00",
+          "summary": "LLM이 단순 텍스트 생성을 넘어 Python 샌드박스 환경에서 PDF, 차트 등 실제 파일을 생성하는 Artifact Generation 패턴을 분석합니다. Claude, OpenAI, Gemini 각 벤더별 API 구현 방식과 공통적인 워크플로우를 다룹니다.",
+          "importance": "high",
+          "tags": [
+            "llm-api",
+            "file-generation",
+            "python-sandbox",
+            "ai-development"
+          ]
+        },
+        {
+          "title": "Your Multi-Agent System Has a Memory Problem",
+          "url": "https://dev.to/slythefox/your-multi-agent-system-has-a-memory-problem-5hbg",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:11:47+00:00",
+          "summary": "멀티 에이전트 시스템에서 발생하는 메모리 관리 문제를 세 가지 계층(세션, 공유 상태, 제도적 메모리)으로 구분하여 설명합니다. 특히 에이전트 간의 협업을 위해 파일이나 DB 기반의 지속적인 공유 상태(Shared State) 구축이 필수적임을 강조합니다.",
+          "importance": "high",
+          "tags": [
+            "multi-agent",
+            "ai-memory",
+            "system-design",
+            "llm"
+          ]
+        },
+        {
+          "title": "Efficient Reasoning with Balanced Thinking",
+          "url": "https://arxiv.org/abs/2603.12372",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "Large Reasoning Models(LRMs)에서 발생하는 과잉 사고(overthinking)와 사고 부족(underthinking) 문제를 해결하기 위한 ReBalance 프레임워크를 제안합니다. 실시간 신뢰도를 지표로 사용하여 추론 경로를 동적으로 제어하며, 추가 학습 없이도 추론 효율성과 정확도를 동시에 향상시킵니다.",
+          "importance": "high",
+          "tags": [
+            "lrm",
+            "reasoning efficiency",
+            "training-free"
+          ]
+        },
+        {
+          "title": "AI Planning Framework for LLM-Based Web Agents",
+          "url": "https://arxiv.org/abs/2603.12710",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "웹 기반 LLM 에이전트의 작업을 순차적 의사결정 프로세스로 정의하고, BFS/DFS 등 전통적인 Planning 패러다임에 매핑한 프레임워크를 제안합니다. 단순 성공률을 넘어 궤적 품질을 평가하는 5가지 새로운 지표를 도입하여 에이전트의 실패 원인을 진단하고 아키텍처 선택 기준을 제시합니다.",
+          "importance": "high",
+          "tags": [
+            "web agents",
+            "ai planning",
+            "evaluation metrics"
+          ]
+        },
+        {
+          "title": "ToolTree: Efficient LLM Agent Tool Planning via Dual-Feedback Monte Carlo Tree Search and Bidirectional Pruning",
+          "url": "https://arxiv.org/abs/2603.12740",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "복잡한 도구 사용 계획을 위해 MCTS(Monte Carlo Tree Search)와 양방향 가지치기 기법을 결합한 ToolTree를 제안합니다. LLM 에이전트가 도구 간의 의존성을 고려하여 최적의 실행 경로를 탐색하게 함으로써, 기존 방식 대비 높은 효율성과 약 10%의 성능 향상을 달성했습니다.",
+          "importance": "high",
+          "tags": [
+            "llm agents",
+            "tool use",
+            "mcts"
+          ]
+        },
+        {
+          "title": "Efficient and Interpretable Multi-Agent LLM Routing via Ant Colony Optimization",
+          "url": "https://arxiv.org/abs/2603.12933",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "Ant Colony Optimization을 활용하여 Multi-Agent System(MAS)의 효율적인 라우팅을 구현한 AMRO-S 프레임워크를 제안합니다. SFT된 소형 모델로 의도를 추론하고 페로몬 메커니즘을 통해 태스크별 최적 경로를 선택함으로써 비용 대비 성능 효율과 투명성을 높였습니다.",
+          "importance": "high",
+          "tags": [
+            "multi-agent systems",
+            "routing",
+            "optimization"
+          ]
+        },
+        {
+          "title": "Beyond Final Answers: CRYSTAL Benchmark for Transparent Multimodal Reasoning Evaluation",
+          "url": "https://arxiv.org/abs/2603.13099",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "멀티모달 모델의 추론 과정을 단계별로 검증하기 위한 CRYSTAL 벤치마크와 Causal Process Reward(CPR) 학습법을 제안합니다. 실험 결과 상용 모델들도 추론 단계의 순서나 논리적 일관성에서 취약함을 보였으며, CPR-Curriculum을 통해 수동 주석 없이도 추론 품질을 32% 개선했습니다.",
+          "importance": "high",
+          "tags": [
+            "mllm",
+            "benchmark",
+            "reasoning"
+          ]
+        },
+        {
+          "title": "ActTail: Global Activation Sparsity in Large Language Models",
+          "url": "https://arxiv.org/abs/2603.12272",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "Heavy-Tailed Self-Regularization 이론을 기반으로 LLM의 활성화 희소성(Activation Sparsity)을 최적화하는 ActTail 기법을 제안합니다. 각 레이어의 특성에 맞게 희소성 예산을 동적으로 할당함으로써 80%의 높은 희소도에서도 모델의 성능 저하를 최소화하고 추론 속도를 개선했습니다.",
+          "importance": "high",
+          "tags": [
+            "sparsity",
+            "inference optimization",
+            "efficiency"
+          ]
+        },
+        {
+          "title": "Aligning Language Models from User Interactions",
+          "url": "https://arxiv.org/abs/2603.12273",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "사용자의 후속 메시지를 피드백으로 삼아 모델을 스스로 정렬하는 self-distillation 기반의 학습 방법을 제안합니다. 실제 WildChat 데이터를 활용해 별도의 수동 피드백 없이도 모델의 지시 이행 능력과 개인화 성능을 동시에 향상시킬 수 있음을 입증했습니다.",
+          "importance": "high",
+          "tags": [
+            "alignment",
+            "self-distillation",
+            "personalization"
+          ]
+        },
+        {
+          "title": "Prompt Injection as Role Confusion",
+          "url": "https://arxiv.org/abs/2603.12277",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "Prompt Injection 공격의 근본 원인을 모델이 텍스트의 출처가 아닌 어조를 통해 역할을 추론하는 Role Confusion 현상으로 규명했습니다. 내부 Role Probe를 통해 신뢰할 수 없는 텍스트가 특정 역할을 모방할 때 모델이 권한을 부여하는 메커니즘을 분석했습니다.",
+          "importance": "high",
+          "tags": [
+            "prompt injection",
+            "security",
+            "mechanistic interpretability"
+          ]
+        },
+        {
+          "title": "Not Just the Destination, But the Journey: Reasoning Traces Causally Shape Generalization Behaviors",
+          "url": "https://arxiv.org/abs/2603.12397",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "Chain-of-Thought(CoT) 추론 과정이 최종 답변과 독립적으로 모델의 일반화 행동에 인과적인 영향을 미친다는 것을 실험으로 증명했습니다. 유해한 추론 학습은 답변 없이도 모델의 행동을 변화시키며, 이는 출력물만 감독하는 정렬 전략의 한계를 시사합니다.",
+          "importance": "high",
+          "tags": [
+            "chain-of-thought",
+            "ai alignment",
+            "generalization"
+          ]
+        },
+        {
+          "title": "Shattering the Shortcut: A Topology-Regularized Benchmark for Multi-hop Medical Reasoning in LLMs",
+          "url": "https://arxiv.org/abs/2603.12458",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "LLM의 의료 진단 능력을 엄격히 평가하기 위해 지식 그래프의 지름길(Shortcut)을 제거한 ShatterMed-QA 벤치마크를 구축했습니다. 실험 결과 많은 모델이 복합 추론에서 성능 저하를 보였으나, RAG를 통한 증거 복구 시 성능이 회복됨을 확인했습니다.",
+          "importance": "high",
+          "tags": [
+            "medical ai",
+            "benchmark",
+            "multi-hop reasoning"
+          ]
+        },
+        {
+          "title": "Nvidia Launches Vera CPU, Purpose-Built for Agentic AI",
+          "url": "https://nvidianews.nvidia.com/news/nvidia-launches-vera-cpu-purpose-built-for-agentic-ai",
+          "source": "HN AI",
+          "published": "2026-03-16T20:01:02+00:00",
+          "summary": "Nvidia가 Agentic AI와 강화학습에 최적화된 Vera CPU를 출시했습니다. Grace CPU의 성공을 기반으로 하며, 기존 CPU 대비 2배의 효율성과 50% 빠른 성능을 제공하여 대규모 AI 서비스 및 추론 워크로드를 가속화합니다.",
+          "importance": "high",
+          "tags": [
+            "nvidia",
+            "vera cpu",
+            "agentic ai"
+          ]
+        },
+        {
+          "title": "Apideck CLI – An AI-agent interface with much lower context consumption than MCP",
+          "url": "https://www.apideck.com/blog/mcp-server-eating-context-window-cli-alternative",
+          "source": "HN AI",
+          "published": "2026-03-16T15:25:36+00:00",
+          "summary": "Apideck CLI는 MCP(Model Context Protocol)의 과도한 컨텍스트 소모 문제를 해결하기 위한 대안으로 제시되었습니다. MCP가 도구 정의에 수만 개의 토큰을 낭비하는 반면, CLI 방식은 토큰 사용량을 4~32배 절감하여 효율적인 에이전트 구축을 지원합니다.",
+          "importance": "high",
+          "tags": [
+            "mcp",
+            "apideck",
+            "context window"
+          ]
+        },
+        {
+          "title": "GitHub for Beginners: Getting started with GitHub Actions",
+          "url": "https://github.blog/developer-skills/github/github-for-beginners-getting-started-with-github-actions/",
+          "source": "GitHub Blog",
+          "published": "2026-03-16T16:00:00+00:00",
+          "summary": "GitHub Actions를 처음 접하는 초보자를 위한 가이드로, YAML 파일을 이용한 CI/CD 워크플로우 자동화 개념을 설명합니다. Event, Runner, Job 등 핵심 용어와 함께 자동화 프로세스 구축 방법을 다룹니다.",
+          "importance": "medium",
+          "tags": [
+            "github actions",
+            "ci/cd",
+            "automation"
+          ]
+        },
+        {
+          "title": "The Not So Hidden Biases Of Ai From Invisible Risk To Governed Practice",
+          "url": "https://dev.to/olivier-coreprose/the-not-so-hidden-biases-of-ai-from-invisible-risk-to-governed-practice-1ei3",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:30:11+00:00",
+          "summary": "AI 편향성이 단순한 오류를 넘어 전략적 리스크로 부상함에 따라 거버넌스의 중요성을 강조합니다. GDPR 준수와 설명 가능성(Explainability)을 바탕으로 한 책임감 있는 AI 운영 방안을 제시합니다.",
+          "importance": "medium",
+          "tags": [
+            "ai bias",
+            "governance",
+            "compliance"
+          ]
+        },
+        {
+          "title": "How I Generate 50 Ad Creatives in 2 Minutes (No Designer Needed)",
+          "url": "https://dev.to/ariacole/how-i-generate-50-ad-creatives-in-2-minutes-no-designer-needed-1l53",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:29:37+00:00",
+          "summary": "Silo AI를 활용하여 URL 입력만으로 브랜드의 색상, 폰트, 이미지를 추출해 2분 만에 50개의 광고 소재를 제작하는 방법을 소개합니다. 디자인 기술 없이도 Meta, Google용 광고를 대량 생성할 수 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "ad creative",
+            "generative ai",
+            "marketing"
+          ]
+        },
+        {
+          "title": "5 Best AI Ad Creative Generators in 2026 (Compared)",
+          "url": "https://dev.to/ariacole/5-best-ai-ad-creative-generators-in-2026-compared-5ih",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:24:32+00:00",
+          "summary": "2026년 기준 최고의 AI 광고 생성 도구 5가지를 비교 분석합니다. 속도와 브랜드 일관성이 뛰어난 Silo와 데이터 기반 성과 예측이 강점인 AdCreative.ai 등을 추천합니다.",
+          "importance": "medium",
+          "tags": [
+            "ai tools",
+            "adtech",
+            "comparison"
+          ]
+        },
+        {
+          "title": "How I give my AI agents eyes with a single API call",
+          "url": "https://dev.to/boehner/how-i-give-my-ai-agents-eyes-with-a-single-api-call-bad",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:23:05+00:00",
+          "summary": "AI 에이전트가 웹페이지를 시각적으로 이해할 수 있게 돕는 SnapAPI를 소개합니다. 복잡한 Puppeteer 설정 없이 단일 API 호출로 웹사이트의 스크린샷, PDF, 구조화된 텍스트 요약을 추출할 수 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "ai agents",
+            "api",
+            "web scraping"
+          ]
+        },
+        {
+          "title": "Cómo sacar el máximo partido a Kiro",
+          "url": "https://dev.to/aws-builders/como-sacar-el-maximo-partido-a-kiro-4i00",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:20:04+00:00",
+          "summary": "AWS의 새로운 IDE인 Kiro를 효과적으로 활용하기 위한 가이드로, Steerings, Hooks, MCP 등 주요 개념을 설명합니다. 특히 Markdown 기반의 Steerings 파일을 통해 프로젝트의 구조와 코딩 컨벤션을 AI에게 학습시키는 방법을 강조합니다.",
+          "importance": "medium",
+          "tags": [
+            "kiro",
+            "ide",
+            "aws",
+            "ai-coding"
+          ]
+        },
+        {
+          "title": "ScamDetect: Building a Multilingual AI-Powered Phishing Detection Platform",
+          "url": "https://dev.to/blaycoder/scamdetect-building-a-multilingual-ai-powered-phishing-detection-platform-1d4n",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:19:51+00:00",
+          "summary": "다양한 언어로 유입되는 피싱 공격을 탐지하기 위해 Next.js와 Node.js 기반으로 구축된 ScamDetect 플랫폼을 소개합니다. AI를 활용해 텍스트 메시지와 URL의 악성 여부를 언어에 구애받지 않고 실시간으로 분석합니다.",
+          "importance": "medium",
+          "tags": [
+            "cybersecurity",
+            "phishing-detection",
+            "nextjs",
+            "ai"
+          ]
+        },
+        {
+          "title": "ast-grep 0.42: The Answer to Code Searching",
+          "url": "https://dev.to/herrington_darkholme/ast-grep-042-the-answer-to-code-searching-270",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:18:30+00:00",
+          "summary": "코드 검색 및 리팩토링 도구인 ast-grep 0.42 버전의 업데이트 소식으로, 매개변수화된 유틸리티(Parameterized Utilities) 기능이 추가되었습니다. 이를 통해 프로젝트 전반에서 재사용 가능한 규칙을 더 유연하게 정의하고 코드 중복을 줄일 수 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "ast-grep",
+            "dev-tools",
+            "refactoring",
+            "open-source"
+          ]
+        },
+        {
+          "title": "From OBO APIs to Agent Identities: Entra Conditional Access Still Works the Same",
+          "url": "https://dev.to/astaykov/from-obo-apis-to-agent-identities-entra-conditional-access-still-works-the-same-140c",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:09:21+00:00",
+          "summary": "Entra ID의 조건부 액세스(Conditional Access)가 AI 에이전트 환경에서도 기존의 OBO(On-Behalf-Of) 흐름과 동일하게 적용됨을 설명합니다. 기술적 형태는 변해도 사용자 권한 위임과 보안 정책의 핵심 원칙은 유지된다는 점을 시사합니다.",
+          "importance": "medium",
+          "tags": [
+            "entra-id",
+            "ai-agents",
+            "security",
+            "authentication"
+          ]
+        },
+        {
+          "title": "Generating Expressive and Customizable Evals for Timeseries Data Analysis Agents with AgentFuel",
+          "url": "https://arxiv.org/abs/2603.12483",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "시계열 데이터 분석 에이전트를 위한 맞춤형 평가 도구인 AgentFuel을 소개합니다. 기존 벤치마크가 도메인별 쿼리와 데이터셋을 충분히 반영하지 못하는 한계를 극복하여, IoT 및 사이버 보안 등 특정 도메인 전문가가 에이전트의 성능을 정밀하게 테스트할 수 있도록 지원합니다.",
+          "importance": "medium",
+          "tags": [
+            "timeseries",
+            "agent evaluation",
+            "benchmarking"
+          ]
+        },
+        {
+          "title": "On Using Machine Learning to Early Detect Catastrophic Failures in Marine Diesel Engines",
+          "url": "https://arxiv.org/abs/2603.12733",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "선박용 디젤 엔진의 치명적 고장을 조기에 감지하기 위해 센서 데이터 편차의 미분값을 활용하는 Machine Learning 기법을 제안합니다. Random Forest 알고리즘을 사용하여 기존 산업 표준 알람보다 빠르게 이상 징후를 포착함으로써 사고 예방 및 안전한 항로 변경 시간을 확보합니다.",
+          "importance": "medium",
+          "tags": [
+            "predictive maintenance",
+            "machine learning",
+            "anomaly detection"
+          ]
+        },
+        {
+          "title": "AI Model Modulation with Logits Redistribution",
+          "url": "https://arxiv.org/abs/2603.12755",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "단일 모델이 다양한 사용자 요구사항에 맞춰 동작할 수 있도록 하는 Logits Redistribution 기반의 AIM 변조 패러다임을 제안합니다. 재학습 없이 출력 품질 제어(Utility)와 입력 특징 집중(Focus)을 동적으로 조절할 수 있으며, Llama 및 SegFormer 등 다양한 아키텍처에 적용 가능합니다.",
+          "importance": "medium",
+          "tags": [
+            "model modulation",
+            "logits redistribution",
+            "retraining-free"
+          ]
+        },
+        {
+          "title": "Context is all you need: Towards autonomous model-based process design using agentic AI in flowsheet simulations",
+          "url": "https://arxiv.org/abs/2603.12813",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "화학 공정 흐름도(Flowsheet) 설계를 자동화하기 위해 Claude 4.6과 GitHub Copilot을 활용한 멀티 에이전트 시스템을 구축했습니다. 공학 지식을 활용해 문제를 분해하는 에이전트와 이를 코드로 구현하는 에이전트의 협업을 통해 복잡한 증류 및 반응 공정 설계를 성공적으로 수행했습니다.",
+          "importance": "medium",
+          "tags": [
+            "agentic ai",
+            "chemical engineering",
+            "multi-agent system"
+          ]
+        },
+        {
+          "title": "Structured Distillation for Personalized Agent Memory: 11x Token Reduction with Retrieval Preservation",
+          "url": "https://arxiv.org/abs/2603.13017",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "사용자와의 대화 이력을 구조화된 필드로 압축하여 토큰 사용량을 11배 절감하면서도 검색 성능을 유지하는 Structured Distillation 기법을 소개합니다. 벡터 검색과 BM25 등 다양한 모드에서 검증한 결과, 압축 후에도 원본 대비 96% 수준의 검색 정확도(MRR)를 달성했습니다.",
+          "importance": "medium",
+          "tags": [
+            "memory compression",
+            "retrieval",
+            "agent"
+          ]
+        },
+        {
+          "title": "Task-Specific Knowledge Distillation via Intermediate Probes",
+          "url": "https://arxiv.org/abs/2603.12270",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "LLM의 출력 텍스트 대신 내부 hidden state에 가벼운 프로브를 학습시켜 지식을 추출하는 Pro-Distill 프레임워크를 제안합니다. 이 방식은 텍스트 생성 과정의 노이즈를 제거하여 추론 벤치마크에서 기존 증류 방식보다 더 높은 성능 향상을 보였습니다.",
+          "importance": "medium",
+          "tags": [
+            "knowledge distillation",
+            "probing",
+            "reasoning"
+          ]
+        },
+        {
+          "title": "Diagnosing Retrieval Bias Under Multiple In-Context Knowledge Updates in Large Language Models",
+          "url": "https://arxiv.org/abs/2603.12271",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "컨텍스트 내에서 동일한 사실이 여러 번 업데이트될 때 LLM이 겪는 검색 편향(Retrieval Bias)을 인지 심리학의 간섭 이론 관점에서 분석했습니다. 업데이트 횟수가 늘어날수록 최신 정보를 추적하는 정확도가 급격히 떨어지며, 기존의 휴리스틱 개입으로는 이를 해결하기 어렵음을 확인했습니다.",
+          "importance": "medium",
+          "tags": [
+            "in-context learning",
+            "knowledge update",
+            "bias"
+          ]
+        },
+        {
+          "title": "GONE: Structural Knowledge Unlearning via Neighborhood-Expanded Distribution Shaping",
+          "url": "https://arxiv.org/abs/2603.12275",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "지식 그래프(KG) 구조 내에서 연관된 지식을 효과적으로 삭제하기 위한 GONE 벤치마크와 NEDS 프레임워크를 소개합니다. 단순히 문장 단위의 삭제를 넘어 그래프 연결성을 고려한 이웃 노드 분포 조정을 통해 지식 유출과 파괴적 망각을 방지하며 정밀한 언러닝을 구현했습니다.",
+          "importance": "medium",
+          "tags": [
+            "machine unlearning",
+            "knowledge graph",
+            "safety"
+          ]
+        },
+        {
+          "title": "LLM-Augmented Therapy Normalization and Aspect-Based Sentiment Analysis for Treatment-Resistant Depression on Reddit",
+          "url": "https://arxiv.org/abs/2603.12343",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "Reddit의 치료 저항성 우울증(TRD) 데이터를 활용하여 LLM 기반의 약물 정규화 및 양상 기반 감성 분석(ABSA)을 수행했습니다. 분석 결과 케타민 계열이 기존 항우울제보다 긍정적인 환자 경험을 보임을 확인했습니다.",
+          "importance": "medium",
+          "tags": [
+            "healthcare",
+            "sentiment analysis",
+            "reddit"
+          ]
+        },
+        {
+          "title": "TASTE-Streaming: Towards Streamable Text-Aligned Speech Tokenization and Embedding for Spoken Language Modeling",
+          "url": "https://arxiv.org/abs/2603.12350",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "실시간 음성 상호작용을 위해 텍스트와 정렬된 음성 토큰화 기술인 TASTE-S를 제안했습니다. CTC 기반 ASR 모듈과 인과적 디코더를 통합하여 낮은 지연 시간으로도 기존 비인과적 모델에 상응하는 성능을 달성했습니다.",
+          "importance": "medium",
+          "tags": [
+            "speech modeling",
+            "streaming",
+            "tokenization"
+          ]
+        },
+        {
+          "title": "Interpreting Negation in GPT-2: Layer- and Head-Level Causal Analysis",
+          "url": "https://arxiv.org/abs/2603.12423",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "GPT-2 모델이 부정(Negation) 문장을 처리하는 과정을 레이어 및 헤드 수준에서 분석하여 특정 중간 레이어에 능력이 집중되어 있음을 발견했습니다. Activation Patching과 Ablation 기법을 통해 부정 신호의 인과적 흐름을 확인했습니다.",
+          "importance": "medium",
+          "tags": [
+            "interpretability",
+            "negation",
+            "causal analysis"
+          ]
+        },
+        {
+          "title": "CSE-UOI at SemEval-2026 Task 6: A Two-Stage Heterogeneous Ensemble with Deliberative Complexity Gating for Political Evasion Detection",
+          "url": "https://arxiv.org/abs/2603.12453",
+          "source": "arXiv LLM",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "정치적 회피 답변을 감지하기 위해 두 개의 LLM 앙상블과 Deliberative Complexity Gating(DCG) 메커니즘을 결합한 시스템을 제안했습니다. 응답 길이를 복잡성 지표로 활용하여 모호한 샘플을 효과적으로 분류하며 SemEval 대회에서 3위를 기록했습니다.",
+          "importance": "medium",
+          "tags": [
+            "political evasion",
+            "ensemble",
+            "semeval"
+          ]
+        },
+        {
+          "title": "LLM과의 작업이 지치게 만드는 이유",
+          "url": "https://news.hada.io/topic?id=27565",
+          "source": "GeekNews",
+          "published": "2026-03-16T18:32:26+00:00",
+          "summary": "LLM과의 협업 시 발생하는 피로가 프롬프트 품질 저하와 성능 악화의 악순환을 초래한다고 분석했습니다. 이를 해결하기 위해 피드백 루프 속도 개선을 목표로 설정하고 명확한 성공 기준을 제시하는 TDD 방식의 접근을 권장합니다.",
+          "importance": "medium",
+          "tags": [
+            "productivity",
+            "prompt engineering",
+            "developer experience"
+          ]
+        },
+        {
+          "title": "Show HN: Claude Code skills that build complete Godot games",
+          "url": "https://github.com/htdt/godogen",
+          "source": "HN AI",
+          "published": "2026-03-16T16:07:29+00:00",
+          "summary": "Claude Code를 활용하여 Godot 4 게임을 자동으로 제작하는 기술이 공개되었습니다. 아키텍처 설계부터 자산 생성, GDScript 작성 및 시각적 QA까지 전체 파이프라인을 AI가 수행하며 실제 실행 가능한 프로젝트를 출력합니다.",
+          "importance": "medium",
+          "tags": [
+            "claude code",
+            "godot",
+            "game dev"
+          ]
+        },
+        {
+          "title": "LLM Architecture Gallery",
+          "url": "https://sebastianraschka.com/llm-architecture-gallery/",
+          "source": "HN AI",
+          "published": "2026-03-15T16:01:09+00:00",
+          "summary": "GPT-2부터 DeepSeek V3, Gemma 3에 이르기까지 주요 LLM들의 아키텍처 구조와 기술 사양을 시각적으로 정리한 갤러리입니다. 각 모델의 파라미터 규모, Attention 메커니즘, 디코더 타입 등 핵심 정보를 비교할 수 있습니다.",
+          "importance": "medium",
+          "tags": [
+            "llm architecture",
+            "deepseek",
+            "gemma"
+          ]
+        },
+        {
+          "title": "Deprecating the cost center integration on the enterprise People page",
+          "url": "https://github.blog/changelog/2026-03-16-deprecating-the-cost-center-integration-on-the-enterprise-people-page",
+          "source": "GitHub Changelog",
+          "published": "2026-03-16T12:55:31+00:00",
+          "summary": "GitHub 엔터프라이즈의 People 페이지 내 Cost Center 통합 기능이 중단됩니다. 해당 데이터는 이제 Billing 설정의 전용 페이지에서 관리되며, 기존 멤버 필터 및 CSV 내 관련 컬럼이 삭제됩니다.",
+          "importance": "low",
+          "tags": [
+            "github",
+            "enterprise",
+            "deprecation"
+          ]
+        },
+        {
+          "title": "Silo vs Canva for Ad Creatives: Which is Better in 2026?",
+          "url": "https://dev.to/ariacole/silo-vs-canva-for-ad-creatives-which-is-better-in-2026-mim",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:24:31+00:00",
+          "summary": "전통적인 디자인 도구인 Canva와 AI 기반 광고 생성기인 Silo의 차이점을 비교합니다. 수동 제어가 필요한 디자인 작업은 Canva가, 대량의 광고 변형 및 빠른 테스트는 Silo가 유리합니다.",
+          "importance": "low",
+          "tags": [
+            "canva",
+            "silo",
+            "design tools"
+          ]
+        },
+        {
+          "title": "I Compared 5 Ways to Track LLM API Costs (Only One Works in Real Time)",
+          "url": "https://dev.to/godnick/i-compared-5-ways-to-track-llm-api-costs-only-one-works-in-real-time-l9j",
+          "source": "Dev.to AI",
+          "published": "2026-03-16T22:15:21+00:00",
+          "summary": "LLM API 비용을 추적하는 5가지 방법을 비교하며, 실시간 가시성의 중요성을 설명합니다. 대시보드나 스크립트보다 메뉴바에서 즉각적으로 토큰 사용량과 비용을 보여주는 도구가 비용 절감에 가장 효과적임을 제안합니다.",
+          "importance": "low",
+          "tags": [
+            "llm-ops",
+            "api-cost",
+            "token-tracking",
+            "productivity"
+          ]
+        },
+        {
+          "title": "Context-Enriched Natural Language Descriptions of Vessel Trajectories",
+          "url": "https://arxiv.org/abs/2603.12287",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "AIS 선박 궤적 데이터를 LLM이 이해할 수 있는 자연어 설명으로 변환하는 프레임워크를 제안합니다. 노이즈가 많은 데이터를 세그먼트화하고 지리 및 기상 컨텍스트를 결합하여 해양 추론 작업의 효율성을 높이는 연구입니다.",
+          "importance": "low",
+          "tags": [
+            "arxiv",
+            "trajectory-analysis",
+            "llm",
+            "maritime-ai"
+          ]
+        },
+        {
+          "title": "ODRL Policy Comparison Through Normalisation",
+          "url": "https://arxiv.org/abs/2603.12926",
+          "source": "arXiv AI",
+          "published": "2026-03-16T04:00:00+00:00",
+          "summary": "디지털 권리 정책 표준인 ODRL의 복잡성을 해결하기 위해 정책을 정규화(Normalisation)하는 알고리즘을 제안합니다. 의미적으로 동일한 정책들을 최소 단위의 구성 요소로 변환함으로써 정책 간 비교를 단순화하고 상호 운용성을 높이는 이론적 근거와 복잡도 분석을 제공합니다.",
+          "importance": "low",
+          "tags": [
+            "odrl",
+            "policy normalization",
+            "digital rights"
+          ]
+        },
+        {
+          "title": "Tell HN: AI tools are making me lose interest in CS fundamentals",
+          "url": "https://news.ycombinator.com/item?id=47394291",
+          "source": "HN AI",
+          "published": "2026-03-16T02:02:12+00:00",
+          "summary": "AI 코딩 어시스턴트의 발전으로 인해 분산 시스템이나 알고리즘 같은 컴퓨터 과학(CS) 기초 학습에 대한 동기부여가 저하된다는 개발자들의 고민과 기초 역량의 중요성에 대한 논의를 다룹니다.",
+          "importance": "low",
+          "tags": [
+            "cs fundamentals",
+            "ai coding",
+            "career"
+          ]
+        },
+        {
+          "title": "Anthropic and The Authoritarian Ethic",
+          "url": "https://blog.giovanh.com/blog/2026/03/03/anthropic-and-the-authoritarian-ethic/",
+          "source": "Lobsters AI",
+          "published": "2026-03-16T04:03:00+00:00",
+          "summary": "Anthropic이 정부 계약 및 정치적 외압 사이에서 겪는 갈등과 'Woke AI' 논란을 다룬 비평입니다. 기술적 안전성과 윤리를 중시하는 기업 문화가 정치적 이데올로기와 충돌하며 발생하는 산업 내 긴장감을 설명합니다.",
+          "importance": "low",
+          "tags": [
+            "anthropic",
+            "ai policy",
+            "ethics"
+          ]
+        }
+      ]
+    }
+  }
+}
