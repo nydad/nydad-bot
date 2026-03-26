@@ -330,33 +330,35 @@ function buildContext(data, patterns) {
   return lines.join("\n");
 }
 
-const SYSTEM_PROMPT = `당신은 헤지펀드 퀀트 애널리스트입니다. 실시간 시장 데이터를 기반으로 투자 인사이트를 제공합니다.
+const SYSTEM_PROMPT = `당신은 헤지펀드 퀀트 트레이더입니다. 사용자는 지금 롱/숏 포지션을 잡으려는 투자자입니다.
+
+## 절대 규칙: 선행적 전망만 말하세요
+- **금지:** "~했다", "~하고 있다", "~인 상황이다" (후행적 설명)
+- **필수:** "~할 것이다", "~될 가능성이 높다", "~에서 반등/하락 예상" (선행적 전망)
+- 데이터는 근거로만 쓰고, 결론은 반드시 **앞으로 어떻게 될 것인지**
+- 예시: ❌ "외국인이 매도하고 있다" → ✅ "외국인 숏 스탠스가 지속되면 5,400 이탈 가능성 높다. 다만 브렌트유 $100 하회 시 숏커버 유입으로 반등 트리거."
 
 ## 핵심 규칙
-1. **사용자 질문에 직접 답하세요.** 삼성전자를 물으면 삼성전자에 대해, KOSPI를 물으면 KOSPI에 대해 답하세요.
-2. **시간대를 반드시 확인하세요.** 한국 장(9:00-15:30) 마감 후면 "내일 전망"을, 장중이면 "남은 시간 전망"을, 장 전이면 "오늘 전망"을 제시하세요.
-3. 반드시 LONG(매수) 또는 SHORT(매도) 방향을 제시하세요. 중립 불가. 51%라도 한쪽 선택.
-4. "시장은 불확실" 같은 뻔한 말 절대 금지. 구체적 수치와 근거를 제시.
-5. 패턴 분석 결과 중 현재 시간대에 유효한 것만 언급하세요. 장 마감 후에 "장중 모멘텀"이나 "갭 반전" 패턴은 무의미합니다.
-6. 특정 종목 질문 시: 해당 종목의 실시간 가격 + 관련 글로벌 종목 연동 + 수급/패턴을 분석하세요.
-7. **수급·파생 포지션 분석 필수:**
-   - 외국인 현물+선물 동반 매도 = "명확한 숏 스탠스" (강한 약세 시그널)
-   - 외국인 현물+선물 동반 매수 = "명확한 롱 스탠스" (강한 강세 시그널)
-   - 현물↓ 선물↑ = "차익거래/베이시스 트레이드" (방향성 약함, 프로그램 매매)
-   - KOSPI > KOSDAQ = 외국인·기관 대형주 매수, KOSDAQ > KOSPI = 개인 주도
-   - 인버스 ETF 급등 = 시장 숏 포지션 증가
-   - EWY 움직임 = 글로벌 외국인 한국 비중 변화
+1. **사용자 질문에 직접 답하세요.** "어떻게 될까?" → 앞으로의 방향을 명확히.
+2. **시간대 확인.** 장 마감 후면 "내일 전망", 장중이면 "남은 시간", 장 전이면 "오늘 전망".
+3. 반드시 LONG 또는 SHORT 방향 제시. 중립 불가. 51%라도 한쪽 선택.
+4. 뻔한 말 절대 금지. 구체적 수치와 핵심 변수를 명시.
+5. 수급·파생 분석으로 외국인 의도를 해석하고, 그 의도가 **앞으로 어떤 결과를 만들지** 전망.
 
-## 응답 스타일 (레퍼런스)
-이런 수준의 분석을 목표로 하세요:
-- "외국인 현물 -7,291억 + 선물 -1,933억 동반 매도 4일 연속 → 명확한 숏 스탠스"
-- "장초반 갭업 후 전량 반납 = 5,550~5,600 상단 매물벽 확인"
-- "개인 이달 26조 역대 최대 순매수 → 외국인 매물을 개인이 받는 구조 = 오버행 위험"
-- "브렌트유 $100 하회 시 숏커버 트리거 / 외국인 선물 순매수 전환 시 방향 바뀜"
-뻔한 "상승할 수도 하락할 수도 있다" 식 금지. 구체적 가격, 수급 수치, 핵심 변수를 명시.
+## 수급 해석 → 전망 연결
+- 외국인 현물+선물 동반 매도 → "추가 하방 압력 예상, X원까지 하락 가능"
+- 외국인 현물+선물 동반 매수 → "상승 모멘텀 확대, X원 돌파 시도 예상"
+- 인버스 급등 → "시장 참여자 숏 강화, 그러나 과매도 시 반등도 빠를 것"
+- KOSDAQ > KOSPI → "개인 주도 장세, 외국인 복귀 전까지 방향성 약할 것"
+
+## 전망 구조 (이 순서로 답하세요)
+1. **방향 콜:** "SHORT 68% — 단기 하방 바이어스" (한 줄)
+2. **근거:** 수급/파생/글로벌 데이터 기반 2-3줄 (구체적 수치)
+3. **핵심 변수:** "X 발생 시 방향 전환" (한 줄)
+4. **레인지:** "지지 X~Y / 저항 X~Y" (있으면)
 
 ## JSON 응답 형식
-{"direction":"long또는short","long_pct":51~85,"short_pct":15~49,"summary":"수급·파생 포지션 분석 포함 3~5줄 한국어. 외국인 현물/선물 스탠스, 핵심 저항/지지, 방향 콜 근거를 구체적 수치로.","key_insight":"핵심 변수 1줄 (예: 브렌트유 $100 하회 시 숏커버 트리거)"}`;
+{"direction":"long또는short","long_pct":51~85,"short_pct":15~49,"summary":"선행적 전망 3~5줄. 앞으로 어떻게 될지 + 근거 + 레인지.","key_insight":"방향 전환 핵심 변수 1줄 (예: 브렌트유 $100 하회 시 숏커버 트리거)"}`;
 
 export default {
   async fetch(request, env) {
@@ -390,6 +392,11 @@ export default {
       let aiResult = null;
 
       let aiError = "";
+      const AI_MODELS = [
+        env.OPENROUTER_MODEL || "anthropic/claude-sonnet-4.6",
+        "openai/gpt-5.4",
+        "google/gemini-3-flash-preview"
+      ];
       if (apiKey && fetched > 3) {
         let context = buildContext(quotes, patterns);
         // Append 오답노트 if provided
@@ -402,40 +409,61 @@ export default {
             context += "\n이 오답노트를 반영하세요. 같은 실수를 반복하지 마세요.";
           }
         } catch(e) {}
-        try {
-          const aiResp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-              "HTTP-Referer": "https://nydad.github.io/nydad-bot",
-              "X-Title": "Nydad Insight"
-            },
-            body: JSON.stringify({
-              model: env.OPENROUTER_MODEL || "anthropic/claude-sonnet-4.6",
-              messages: [
-                { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: `사용자 질문: ${userQuestion}\n\n${context}` }
-              ],
-              temperature: 0.4,
-              max_tokens: 1500,
-              response_format: { type: "json_object" }
-            })
-          });
-          if (aiResp.ok) {
-            const aiData = await aiResp.json();
-            let content = aiData.choices?.[0]?.message?.content || "{}";
-            if (content.startsWith("```")) {
-              content = content.split("\n").slice(1).join("\n");
-              if (content.trimEnd().endsWith("```")) content = content.trimEnd().slice(0, -3);
+        // Try models in order: Sonnet → GPT-5.4 → Gemini Flash
+        for (const aiModel of AI_MODELS) {
+          try {
+            const aiResp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://nydad.github.io/nydad-bot",
+                "X-Title": "Nydad Insight"
+              },
+              body: JSON.stringify({
+                model: aiModel,
+                messages: [
+                  { role: "system", content: SYSTEM_PROMPT },
+                  { role: "user", content: `사용자 질문: ${userQuestion}\n\n${context}` }
+                ],
+                temperature: 0.4,
+                max_tokens: 3000,
+                response_format: { type: "json_object" }
+              })
+            });
+            if (aiResp.ok) {
+              const aiData = await aiResp.json();
+              let content = aiData.choices?.[0]?.message?.content || "{}";
+              if (content.startsWith("```")) {
+                content = content.split("\n").slice(1).join("\n");
+                if (content.trimEnd().endsWith("```")) content = content.trimEnd().slice(0, -3);
+              }
+              // Robust JSON extraction — handle extra text around JSON
+              let parsed;
+              const jsonMatch = content.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                parsed = JSON.parse(jsonMatch[0]);
+              } else {
+                parsed = JSON.parse(content.trim());
+              }
+              aiResult = parsed;
+              aiResult._model = aiModel;
+              break; // Success — stop trying
+            } else if (aiResp.status === 403) {
+              console.error(`Model ${aiModel} region-blocked, trying next...`);
+              continue; // Try next model
+            } else {
+              const errBody = await aiResp.text();
+              aiError = `${aiModel} ${aiResp.status}: ${errBody.substring(0, 100)}`;
+              console.error("AI error:", aiError);
+              continue;
             }
-            aiResult = JSON.parse(content.trim());
-          } else {
-            const errBody = await aiResp.text();
-            aiError = `OpenRouter ${aiResp.status}: ${errBody.substring(0, 200)}`;
-            console.error("AI response error:", aiError);
+          } catch(e) {
+            console.error(`Model ${aiModel} failed:`, e.message);
+            aiError = e.message;
+            continue;
           }
-        } catch(e) { console.error('AI analysis failed:', e.message); aiError = e.message; aiResult = null; }
+        }
       }
 
       // Fallback if AI failed — just show raw data, no forced direction
