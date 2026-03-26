@@ -1,0 +1,44 @@
+name: Deploy Only (No Data Collection)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-deploy"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare deploy directory
+        run: |
+          mkdir -p _site/data
+          if [ -f index-v2.html ]; then
+            cp index-v2.html _site/index.html
+          else
+            cp index.html _site/index.html
+          fi
+          if [ -f app-v2.js ]; then
+            cp app-v2.js _site/app.js
+          else
+            cp app.js _site/app.js
+          fi
+          cp -r data/*.json _site/data/ 2>/dev/null || true
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+      - id: deploy
+        uses: actions/deploy-pages@v4
