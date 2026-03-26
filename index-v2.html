@@ -220,13 +220,18 @@ body::before {
 }
 .tab-bar-inner {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tab-buttons {
+  display: flex;
   gap: 0;
   overflow-x: auto;
   scrollbar-width: none;
-  -ms-overflow-style: none;
-  position: relative;
+  flex: 1;
 }
-.tab-bar-inner::-webkit-scrollbar { display: none; }
+.tab-buttons::-webkit-scrollbar { display: none; }
 
 .tab-btn {
   position: relative;
@@ -256,18 +261,7 @@ body::before {
 }
 .tab-btn.active::after { background: var(--bull); }
 
-/* ── Date Select ── */
-.date-bar {
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-alt);
-}
-.date-bar-inner {
-  padding: 6px 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-.date-bar .date-select { margin: 0; }
+/* ── Date Select (inside tab bar) ── */
 
 /* ══════════════════════════════════════
    MAIN CONTENT
@@ -297,10 +291,10 @@ main { flex: 1; padding: 20px 0 100px; }
 .signal-hero {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border-radius: 0;
   padding: 24px;
+  padding-top: 27px;
   position: relative;
-  overflow: hidden;
   box-shadow: var(--shadow-md);
 }
 .signal-hero::before {
@@ -1395,21 +1389,21 @@ main { flex: 1; padding: 20px 0 100px; }
   </div>
 </header>
 
-<!-- Tab Bar (Desktop) -->
+<!-- Tab Bar (Desktop) + Date Select -->
 <nav class="tab-bar">
   <div class="container tab-bar-inner">
-    <button class="tab-btn active" data-tab="invest">국내 투자</button>
-    <button class="tab-btn" data-tab="crypto">코인 투자</button>
-    <button class="tab-btn" data-tab="ai_industry">AI 업계</button>
-    <button class="tab-btn" data-tab="ai_dev">AI 코딩</button>
-    <button class="tab-btn" data-tab="kbo">KBO</button>
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-tab="invest">국내 투자</button>
+      <button class="tab-btn" data-tab="crypto">코인 투자</button>
+      <button class="tab-btn" data-tab="ai_industry">AI 업계</button>
+      <button class="tab-btn" data-tab="ai_dev">AI 코딩</button>
+      <button class="tab-btn" data-tab="kbo">KBO</button>
+    </div>
+    <div id="date-scroll"></div>
   </div>
 </nav>
 
-<!-- Date Bar -->
-<div class="date-bar">
-  <div class="container date-bar-inner" id="date-scroll"></div>
-</div>
+<!-- Date select is inside tab bar -->
 
 <!-- Main Content -->
 <main class="container" id="app">

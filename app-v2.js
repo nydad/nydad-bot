@@ -253,7 +253,7 @@
   function renderDateBar() {
     var el = document.getElementById("date-scroll");
     if (!el) return;
-    if (dates.length <= 1) { el.parentElement.style.display = "none"; return; }
+    if (dates.length <= 1) return;
     var h = '<select class="date-select" id="date-select">';
     h += '<option value="' + dates[0] + '">오늘 (' + fmtDateShort(dates[0]) + ')</option>';
     for (var i = 1; i < dates.length; i++) {
