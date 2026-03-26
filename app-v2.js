@@ -244,52 +244,46 @@
   function renderDateBar() {
     var el = document.getElementById("date-scroll");
     if (!el) return;
-    // Today chip + select dropdown for past dates
     var today = dates[0];
     var tp = today.split("-");
     var tday = ["일","월","화","수","목","금","토"][new Date(+tp[0], tp[1] - 1, +tp[2]).getDay()];
-    var h = '<button class="date-chip active" data-date="' + today + '">' + parseInt(tp[1]) + '/' + parseInt(tp[2]) + ' ' + tday + ' (오늘)</button>';
+    var h = '<div class="date-display">';
+    h += '<span class="date-main" data-date="' + today + '">' + tp[0] + '년 ' + parseInt(tp[1]) + '월 ' + parseInt(tp[2]) + '일 ' + tday + '요일</span>';
     if (dates.length > 1) {
+      h += '<div class="date-nav">';
       h += '<select class="date-select" id="date-select">';
-      h += '<option value="">이전 날짜</option>';
+      h += '<option value="">지난호 보기</option>';
       for (var i = 1; i < dates.length; i++) {
         var d = dates[i], p = d.split("-");
         var day = ["일","월","화","수","목","금","토"][new Date(+p[0], p[1] - 1, +p[2]).getDay()];
         h += '<option value="' + d + '">' + parseInt(p[1]) + '/' + parseInt(p[2]) + ' ' + day + '</option>';
       }
-      h += '</select>';
+      h += '</select></div>';
     }
+    h += '</div>';
     el.innerHTML = h;
-    // Today chip click
-    el.querySelector(".date-chip").addEventListener("click", function () { selectDate(today); });
+    // Today click
+    var main = el.querySelector(".date-main");
+    if (main) main.addEventListener("click", function () { selectDate(today); var s = document.getElementById("date-select"); if(s) s.value=""; });
     // Select change
     var sel = document.getElementById("date-select");
-    if (sel) {
-      sel.addEventListener("change", function () {
-        if (sel.value) selectDate(sel.value);
-      });
-    }
+    if (sel) sel.addEventListener("change", function () { if (sel.value) selectDate(sel.value); });
   }
 
   function selectDate(date) {
     currentDate = date;
-    // Update today chip active state
-    document.querySelectorAll(".date-chip").forEach(function (c) {
-      c.classList.toggle("active", c.dataset.date === date);
-    });
-    // Reset select if clicking today
-    var sel = document.getElementById("date-select");
-    if (sel && date === dates[0]) sel.value = "";
-    else if (sel && date !== dates[0]) {
-      document.querySelectorAll(".date-chip").forEach(function (c) { c.classList.remove("active"); });
+    var p = date.split("-");
+    var day = ["일","월","화","수","목","금","토"][new Date(+p[0], p[1] - 1, +p[2]).getDay()];
+    // Update main date display
+    var main = document.querySelector(".date-main");
+    if (main) {
+      var isToday = date === dates[0];
+      main.textContent = p[0] + "년 " + parseInt(p[1]) + "월 " + parseInt(p[2]) + "일 " + day + "요일" + (isToday ? "" : " (지난호)");
+      main.style.color = isToday ? "" : "var(--text-3)";
     }
     // Update header date
     var hd = document.querySelector(".header-date");
-    if (hd) {
-      var p = date.split("-");
-      var day = ["일","월","화","수","목","금","토"][new Date(+p[0], p[1] - 1, +p[2]).getDay()];
-      hd.textContent = p[0] + "." + p[1] + "." + p[2] + " " + day;
-    }
+    if (hd) hd.textContent = p[0] + "." + p[1] + "." + p[2] + " " + day;
     loadDigest(date);
   }
 
