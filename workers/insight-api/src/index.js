@@ -200,14 +200,37 @@ function buildContext(data, patterns) {
   lines.push(`\n=== 패턴 분석: 강세 ${bull}개 / 약세 ${bear}개 ===`);
   patterns.forEach(p => lines.push(`  [${p.signal.toUpperCase()}] ${p.name}: ${p.detail}`));
 
-  const kstH = (new Date().getUTCHours() + 9) % 24;
-  const kstDay = new Date(Date.now() + 9*3600000).getDay(); // 0=Sun, 6=Sat
-  const isWeekend = kstDay === 0 || kstDay === 6;
-  lines.push(`\n현재 한국시간: ${kstH}시 (${isWeekend ? "주말 휴장" : kstH < 9 ? "장 시작 전" : kstH < 16 ? "장중" : "장 마감 후"})`);
-  if (isWeekend) lines.push("주말입니다. 월요일 전망을 제시하세요. 야간선물/글로벌 지표 기반.");
-  else if (kstH < 9) lines.push("장 시작 전입니다. 야간선물/글로벌 지표 기반 오늘 전망 제시.");
-  else if (kstH < 16) lines.push("장중입니다. 현재 흐름 기반 남은 시간 전망 제시.");
-  else lines.push("장 마감 후입니다. 내일 전망 제시. 오늘 결과 회고 포함.");
+  const now = new Date();
+  const kstH = (now.getUTCHours() + 9) % 24;
+  const etH = (now.getUTCHours() - 4 + 24) % 24; // US Eastern (EDT = UTC-4)
+  const kstDay = new Date(Date.now() + 9*3600000).getDay();
+  const etDay = new Date(Date.now() - 4*3600000).getDay();
+  const isKrWeekend = kstDay === 0 || kstDay === 6;
+  const isUsWeekend = etDay === 0 || etDay === 6;
+
+  const krStatus = isKrWeekend ? "한국 휴장(주말)" :
+    kstH >= 9 && kstH < 16 ? "한국 정규장 진행중" :
+    kstH >= 8 && kstH < 20 ? "한국 NXT장 진행중" :
+    kstH < 8 ? "한국 장 시작 전" : "한국 장 마감";
+  const usStatus = isUsWeekend ? "미국 휴장(주말)" :
+    etH >= 9 && etH < 16 ? "미국 정규장 진행중" :
+    etH >= 16 && etH < 20 ? "미국 애프터마켓" :
+    etH >= 4 && etH < 9 ? "미국 프리마켓" : "미국 장 마감";
+
+  lines.push(`\n현재 한국시간: ${kstH}시 | 미국동부: ${etH}시`);
+  lines.push(`시장 상태: ${krStatus} / ${usStatus}`);
+
+  if (isKrWeekend && isUsWeekend) {
+    lines.push("주말입니다. 월요일 전망을 제시하세요.");
+  } else if (krStatus.includes("진행중")) {
+    lines.push("한국장 진행중. 현재 흐름 기반 남은 시간 전망 제시.");
+  } else if (usStatus.includes("진행중") || usStatus.includes("프리마켓")) {
+    lines.push("미국장 진행중. 미국 시장 동향이 내일 한국장에 미칠 영향 분석.");
+  } else if (kstH < 9 && !isKrWeekend) {
+    lines.push("한국 장 시작 전. 야간선물/미국 마감 기반 오늘 전망 제시.");
+  } else {
+    lines.push("양국 장 마감. 현재 선물/지표 기반 내일 전망 제시.");
+  }
 
   return lines.join("\n");
 }
