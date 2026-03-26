@@ -120,18 +120,33 @@
   function setupInsightBtn() {
     var btn = document.getElementById("insight-btn");
     var result = document.getElementById("insight-result");
+    var questionInput = document.getElementById("insight-question");
     if (!btn || !result) return;
 
-    btn.addEventListener("click", async function () {
+    function doAnalysis() {
+      var question = questionInput ? questionInput.value.trim() : "";
       btn.disabled = true;
       btn.querySelector("span").textContent = "분석 중...";
       result.classList.remove("hidden");
       result.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-3)"><div class="loading-bar" style="width:40px;margin:0 auto 8px"></div>실시간 데이터 수집 + AI 분석 중...</div>';
 
+      fetchInsight(question);
+    }
+
+    btn.addEventListener("click", doAnalysis);
+    if (questionInput) {
+      questionInput.addEventListener("keypress", function(e) { if (e.key === "Enter") doAnalysis(); });
+    }
+
+    async function fetchInsight(question) {
       try {
         var resp;
         if (INSIGHT_API) {
-          resp = await fetch(INSIGHT_API, { method: "POST", headers: { "Content-Type": "application/json" } });
+          resp = await fetch(INSIGHT_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: question || "오늘 어떻게 마무리될까?" })
+          });
         } else {
           // Fallback: use existing daily data to generate a quick summary
           var d = cache[currentDate];
@@ -160,8 +175,8 @@
         result.innerHTML = '<div style="padding:12px;color:var(--bear);font-size:13px">분석 실패: ' + esc(e.message) + '</div>';
       }
       btn.disabled = false;
-      btn.querySelector("span").textContent = "실시간 인사이트";
-    });
+      btn.querySelector("span").textContent = "분석";
+    }
   }
 
   function renderInsightResult(data) {
@@ -359,14 +374,16 @@
       });
       h += '</div>';
     }
-    h += '</div>';
-
-    // Real-time Insight Button
-    h += '<div class="insight-btn-section reveal">';
+    // Interactive Insight — question input + button
+    h += '<div class="insight-btn-section" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">';
+    h += '<div class="chat-input-wrap" style="display:flex;gap:8px;align-items:center">';
+    h += '<input type="text" class="chat-input" id="insight-question" placeholder="오늘 어떻게 마무리될까?" style="flex:1">';
     h += '<button class="insight-btn" id="insight-btn">';
     h += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
-    h += '<span>실시간 인사이트</span></button>';
+    h += '<span>분석</span></button>';
+    h += '</div>';
     h += '<div class="insight-result hidden" id="insight-result"></div>';
+    h += '</div>';
     h += '</div>';
 
     h += '<hr class="divider">';
@@ -384,15 +401,20 @@
       h += '</div></div></div><hr class="divider">';
     }
 
-    // Correlation Insights
+    // Correlation Insights — show in readable format
     var corr = sig.correlations || tab.correlations || [];
     if (corr.length) {
-      h += '<div class="reveal"><div class="section-label">상관관계 인사이트</div><div class="bento-grid bento-2">';
+      h += '<div class="reveal"><div class="section-label">반도체 상관관계</div><div class="insight-list">';
       corr.forEach(function (c) {
-        var cls = c.coefficient > 0 ? "bull" : "bear";
-        h += '<div class="bento-card"><div class="bento-eyebrow">' + esc(c.pair) + '</div>';
-        h += '<div class="bento-value ' + cls + '">' + (c.coefficient > 0 ? "+" : "") + c.coefficient.toFixed(2) + '</div>';
-        h += '<div class="bento-sub">' + esc(c.implied_move || "") + '</div></div>';
+        var coef = c.coefficient || 0;
+        var strength = Math.abs(coef) > 0.6 ? "강한" : Math.abs(coef) > 0.3 ? "보통" : "약한";
+        var direction = coef > 0 ? "동행" : "역행";
+        var cls = coef > 0 ? "bullish" : "bearish";
+        var pair = c.pair || ((c.us_ticker || "") + " → " + (c.kr_ticker || ""));
+        var move = c.implied_move || c.interpretation || (strength + " " + direction + " 관계");
+        h += '<div class="insight-card"><span class="insight-tag ' + cls + '">' + strength + '</span>';
+        h += '<div class="insight-body"><div class="insight-title">' + esc(pair) + '</div>';
+        h += '<div class="insight-detail">' + esc(move) + '</div></div></div>';
       });
       h += '</div></div><hr class="divider">';
     }
