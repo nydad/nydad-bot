@@ -33,7 +33,7 @@ except ImportError:
 
 # Optional: KBO data collection (may not be ready yet)
 try:
-    from kbo_collect import fetch_kbo_standings, fetch_kbo_games_today, fetch_kbo_news
+    from kbo_collect import fetch_standings as fetch_kbo_standings, fetch_games_today as fetch_kbo_games_today, fetch_kbo_news
     HAS_KBO = True
 except ImportError:
     HAS_KBO = False
@@ -41,7 +41,7 @@ except ImportError:
 # Optional: Domestic market analysis (may not be ready yet)
 try:
     from domestic_analysis import (
-        calculate_correlations,
+        fetch_correlation_data as calculate_correlations,
         fetch_foreign_flow,
     )
     HAS_DOMESTIC = True
