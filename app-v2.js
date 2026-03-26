@@ -181,34 +181,29 @@
 
   function renderInsightResult(data) {
     var dir = data.direction || "neutral";
-    var h = '<div class="signal-hero ' + safeDir(dir) + '" style="margin-top:8px">';
-    h += '<div class="signal-top"><div class="signal-direction-wrap">';
-    h += '<div class="signal-eyebrow">REAL-TIME ANALYSIS</div>';
-    h += '<div class="signal-direction" style="font-size:22px">' + (DIR_KR[dir] || dir) + '</div>';
-    h += '<div class="signal-pct">';
-    h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bull" style="width:' + (data.long_pct || 50) + '%"></div></div>';
-    h += '<span class="signal-pct-label bull">L ' + (data.long_pct || 50) + '%</span></div>';
-    h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bear" style="width:' + (data.short_pct || 50) + '%"></div></div>';
-    h += '<span class="signal-pct-label bear">S ' + (data.short_pct || 50) + '%</span></div>';
-    h += '</div></div></div>';
+    var dirColor = dir === "long" ? "var(--bull)" : "var(--bear)";
+    // Distinct style from daily KOSPI Direction — uses bordered card, not gradient hero
+    var h = '<div style="margin-top:10px;padding:16px;background:var(--surface);border:1px solid var(--border);border-left:3px solid ' + dirColor + ';border-radius:0 var(--radius-lg) var(--radius-lg) 0">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    h += '<div style="display:flex;align-items:center;gap:8px">';
+    h += '<span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--surface);background:' + dirColor + ';padding:2px 8px;border-radius:3px;text-transform:uppercase">LIVE</span>';
+    h += '<span style="font-family:var(--mono);font-size:18px;font-weight:700;color:' + dirColor + '">' + (dir === "long" ? "LONG" : "SHORT") + ' ' + (dir === "long" ? data.long_pct : data.short_pct) + '%</span>';
+    h += '</div>';
+    h += '<span style="font-family:var(--mono);font-size:10px;color:var(--text-4)">' + new Date().toLocaleTimeString("ko-KR") + '</span>';
+    h += '</div>';
     if (data.summary) {
-      h += '<div class="signal-summary">' + esc(data.summary) + '</div>';
+      h += '<div style="font-size:13.5px;line-height:1.75;color:var(--text)">' + esc(data.summary) + '</div>';
     }
     if (data.key_insight) {
-      h += '<div style="padding:10px 14px;background:var(--amber-bg);border-radius:6px;font-size:13px;color:var(--text);margin-top:8px">';
-      h += '<strong style="color:var(--amber)">핵심:</strong> ' + esc(data.key_insight) + '</div>';
+      h += '<div style="margin-top:10px;padding:8px 12px;background:var(--amber-bg);border-radius:4px;font-size:12.5px;color:var(--text)">';
+      h += '<strong style="color:var(--amber)">핵심</strong> ' + esc(data.key_insight) + '</div>';
     }
     if (data.patterns && data.patterns.length) {
-      h += '<div class="signal-factors" style="margin-top:10px">';
+      h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:10px">';
       data.patterns.forEach(function (p) {
-        h += '<span class="factor-tag ' + safeSignal(p.signal) + '">' + esc(p.name || "") + ' ' + esc(p.detail || "").substring(0, 40) + '</span>';
+        h += '<span class="factor-tag ' + safeSignal(p.signal) + '" style="font-size:10px">' + esc(p.name || "") + '</span>';
       });
       h += '</div>';
-    }
-    if (data.source) {
-      h += '<div style="font-size:10px;color:var(--text-4);margin-top:8px;font-family:var(--mono)">';
-      h += data.source === "ai+patterns" ? "AI + 패턴 분석" : data.source === "pattern-only" ? "패턴 분석 (API 키 미설정)" : "일간 데이터 기반";
-      h += ' · ' + new Date().toLocaleTimeString("ko-KR") + '</div>';
     }
     h += '</div>';
     return h;
@@ -333,7 +328,7 @@
 
     h += '<div class="signal-hero ' + safeDir(dir) + ' reveal" style="margin-top:20px">';
     h += '<div class="signal-top"><div class="signal-direction-wrap">';
-    h += '<div class="signal-eyebrow">KOSPI Direction</div>';
+    h += '<div class="signal-eyebrow">오늘의 전망 · KOSPI Direction</div>';
     h += '<div class="signal-direction">' + (DIR_KR[dir] || dir) + '</div>';
     h += '<div class="signal-pct">';
     h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bull" style="width:' + longPct + '%"></div></div>';
