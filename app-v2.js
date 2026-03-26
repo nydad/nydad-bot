@@ -28,7 +28,7 @@
     setupDock();
     setupTheme();
     setupCollapse();
-    setupChat();
+    // setupChat removed — insight button setup happens in renderInvest
     setupReveal();
 
     try {
