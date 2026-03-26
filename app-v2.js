@@ -142,10 +142,16 @@
       try {
         var resp;
         if (INSIGHT_API) {
+          // Include prev_signal_review (오답노트) if available
+          var payload = { question: question || "오늘 어떻게 마무리될까?" };
+          var d = cache[currentDate];
+          if (d && d.prev_signal_review) {
+            payload.prev_review = d.prev_signal_review;
+          }
           resp = await fetch(INSIGHT_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ question: question || "오늘 어떻게 마무리될까?" })
+            body: JSON.stringify(payload)
           });
         } else {
           // Fallback: use existing daily data to generate a quick summary

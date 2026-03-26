@@ -263,7 +263,17 @@ export default {
       let aiResult = null;
 
       if (apiKey && fetched > 3) {
-        const context = buildContext(quotes, patterns);
+        let context = buildContext(quotes, patterns);
+        // Append 오답노트 if provided
+        try {
+          const body = await request.clone().json();
+          if (body.prev_review) {
+            context += "\n\n=== 전일 예측 검증 (오답노트) ===";
+            context += `\n  예측: ${body.prev_review.predicted || "?"} → 실제: ${body.prev_review.actual || "?"} (${body.prev_review.correct ? "적중" : "오답"})`;
+            if (body.prev_review.reason) context += `\n  원인: ${body.prev_review.reason}`;
+            context += "\n이 오답노트를 반영하세요. 같은 실수를 반복하지 마세요.";
+          }
+        } catch(e) {}
         try {
           const aiResp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
