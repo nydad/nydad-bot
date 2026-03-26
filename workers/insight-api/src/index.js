@@ -389,6 +389,7 @@ export default {
       const apiKey = env.OPENROUTER_API_KEY;
       let aiResult = null;
 
+      let aiError = "";
       if (apiKey && fetched > 3) {
         let context = buildContext(quotes, patterns);
         // Append 오답노트 if provided
@@ -429,8 +430,12 @@ export default {
               if (content.trimEnd().endsWith("```")) content = content.trimEnd().slice(0, -3);
             }
             aiResult = JSON.parse(content.trim());
+          } else {
+            const errBody = await aiResp.text();
+            aiError = `OpenRouter ${aiResp.status}: ${errBody.substring(0, 200)}`;
+            console.error("AI response error:", aiError);
           }
-        } catch(e) { console.error('AI analysis failed:', e.message); }
+        } catch(e) { console.error('AI analysis failed:', e.message); aiError = e.message; aiResult = null; }
       }
 
       // Fallback if AI failed — just show raw data, no forced direction
@@ -448,8 +453,9 @@ export default {
       aiResult.short_pct = 100 - aiResult.long_pct;
       aiResult.patterns = patterns;
       aiResult.timestamp = new Date().toISOString();
-      aiResult.source = apiKey && fetched > 3 ? "ai+patterns" : "pattern-only";
+      aiResult.source = (apiKey && fetched > 3 && !aiError) ? "ai+patterns" : "pattern-only";
       aiResult.tickers_fetched = fetched;
+      if (aiError) aiResult.ai_error = aiError;
 
       // Add raw prices for transparency
       aiResult.prices = {};
