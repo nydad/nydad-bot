@@ -53,18 +53,25 @@ async function fetchAllQuotes() {
   return results;
 }
 
-// Pattern analyzers
+// Pattern analyzers — time-aware
 function analyzePatterns(d) {
   const patterns = [];
+  const kstH = (new Date().getUTCHours() + 9) % 24;
+  const kstDay = new Date(Date.now() + 9*3600000).getDay();
+  const isWeekend = kstDay === 0 || kstDay === 6;
+  const isNxtOpen = kstH >= 8 && kstH < 20; // NXT: 08:00-20:00
+  const isRegularOpen = kstH >= 9 && kstH < 16; // 정규장: 09:00-15:30 (buffer 16)
+  const isMarketOpen = !isWeekend && (isRegularOpen || isNxtOpen);
+  const isPreMarket = !isWeekend && kstH < 8;
 
-  // 1. Morning Momentum
-  if (d.kospi) {
+  // 1. Morning Momentum — only during market hours
+  if (d.kospi && isMarketOpen) {
     const chg = d.kospi.changePct;
     if (Math.abs(chg) >= 0.15) {
       patterns.push({
-        name: "오전 모멘텀",
+        name: "장중 모멘텀",
         signal: chg > 0 ? "bullish" : "bearish",
-        detail: `KOSPI ${chg > 0 ? "+" : ""}${chg.toFixed(2)}% → 장중 모멘텀 ${chg > 0 ? "상승" : "하락"} 지속 확률 58%`
+        detail: `KOSPI ${chg > 0 ? "+" : ""}${chg.toFixed(2)}% → ${chg > 0 ? "상승" : "하락"} 모멘텀 지속 확률 58%`
       });
     }
   }
@@ -145,15 +152,27 @@ function analyzePatterns(d) {
     else if (c < -0.05) patterns.push({ name: "금리 하락", signal: "bullish", detail: `미10년 ${p.toFixed(2)}% (${(c*100).toFixed(0)}bp) → 성장주 우호` });
   }
 
-  // 10. Gap Reversal
-  if (d.kospi && d.kospi.prev) {
-    const open = d.kospi.price; // approximate
+  // 10. Gap Reversal — only during market hours
+  if (d.kospi && d.kospi.prev && isMarketOpen) {
     const gap = d.kospi.changePct;
     if (Math.abs(gap) > 0.5) {
       patterns.push({
         name: "갭 반전 가능",
         signal: gap > 0 ? "bearish" : "bullish",
         detail: `KOSPI ${gap > 0 ? "+" : ""}${gap.toFixed(2)}% 갭 → 장중 부분 반전 가능성`
+      });
+    }
+  }
+
+  // 11. After-hours: tomorrow outlook based on US close + futures
+  if (!isMarketOpen && !isPreMarket && d.sp500) {
+    const spChg = d.sp500.changePct;
+    const nqChg = d.nasdaq?.changePct || 0;
+    if (Math.abs(spChg) > 0.3) {
+      patterns.push({
+        name: "미국 장 마감 → 내일 전망",
+        signal: spChg > 0 ? "bullish" : "bearish",
+        detail: `S&P ${spChg >= 0 ? "+" : ""}${spChg.toFixed(2)}%, NASDAQ ${nqChg >= 0 ? "+" : ""}${nqChg.toFixed(2)}% → 내일 KOSPI ${spChg > 0 ? "갭업 가능" : "갭다운 우려"}`
       });
     }
   }
@@ -182,24 +201,29 @@ function buildContext(data, patterns) {
   patterns.forEach(p => lines.push(`  [${p.signal.toUpperCase()}] ${p.name}: ${p.detail}`));
 
   const kstH = (new Date().getUTCHours() + 9) % 24;
-  if (kstH < 9) lines.push("\n장 시작 전. 야간선물 기반 오늘 전망 제시.");
-  else if (kstH < 16) lines.push("\n장중. 남은 시간 흐름 전망 제시.");
-  else lines.push("\n장 마감 후. 내일 전망 제시.");
+  const kstDay = new Date(Date.now() + 9*3600000).getDay(); // 0=Sun, 6=Sat
+  const isWeekend = kstDay === 0 || kstDay === 6;
+  lines.push(`\n현재 한국시간: ${kstH}시 (${isWeekend ? "주말 휴장" : kstH < 9 ? "장 시작 전" : kstH < 16 ? "장중" : "장 마감 후"})`);
+  if (isWeekend) lines.push("주말입니다. 월요일 전망을 제시하세요. 야간선물/글로벌 지표 기반.");
+  else if (kstH < 9) lines.push("장 시작 전입니다. 야간선물/글로벌 지표 기반 오늘 전망 제시.");
+  else if (kstH < 16) lines.push("장중입니다. 현재 흐름 기반 남은 시간 전망 제시.");
+  else lines.push("장 마감 후입니다. 내일 전망 제시. 오늘 결과 회고 포함.");
 
   return lines.join("\n");
 }
 
-const SYSTEM_PROMPT = `당신은 헤지펀드 퀀트 애널리스트입니다.
+const SYSTEM_PROMPT = `당신은 헤지펀드 퀀트 애널리스트입니다. 실시간 시장 데이터를 기반으로 투자 인사이트를 제공합니다.
 
-규칙:
-1. 반드시 LONG 또는 SHORT 방향 제시. 중립 불가. 51%라도 한쪽 선택.
-2. "시장은 불확실" 같은 뻔한 말 절대 금지.
-3. 구체적 수치와 근거 포함. 야간선물/환율/VIX/반도체 데이터 인용.
-4. 패턴 분석을 종합 판단으로 내리세요 (단순 나열 금지).
-5. 상호작용 분석: "SOX 강세 + 원화 강세 = 반도체 효과 2배" 같은 복합 판단.
+## 핵심 규칙
+1. **사용자 질문에 직접 답하세요.** 삼성전자를 물으면 삼성전자에 대해, KOSPI를 물으면 KOSPI에 대해 답하세요.
+2. **시간대를 반드시 확인하세요.** 한국 장(9:00-15:30) 마감 후면 "내일 전망"을, 장중이면 "남은 시간 전망"을, 장 전이면 "오늘 전망"을 제시하세요.
+3. 반드시 LONG(매수) 또는 SHORT(매도) 방향을 제시하세요. 중립 불가. 51%라도 한쪽 선택.
+4. "시장은 불확실" 같은 뻔한 말 절대 금지. 구체적 수치와 근거를 제시.
+5. 패턴 분석 결과 중 현재 시간대에 유효한 것만 언급하세요. 장 마감 후에 "장중 모멘텀"이나 "갭 반전" 패턴은 무의미합니다.
+6. 특정 종목 질문 시: 해당 종목의 실시간 가격 + 관련 글로벌 종목 연동 + 수급/패턴을 분석하세요.
 
-JSON 응답:
-{"direction":"long또는short","long_pct":51~85,"short_pct":15~49,"summary":"핵심 3줄 한국어 (구체적 수치)","key_insight":"남들이 못보는 1줄 인사이트"}`;
+## JSON 응답 형식
+{"direction":"long또는short","long_pct":51~85,"short_pct":15~49,"summary":"핵심 3줄 한국어. 사용자 질문에 직접 답변. 구체적 수치 포함.","key_insight":"남들이 못보는 1줄 인사이트. 시간대에 맞는 내용."}`;
 
 export default {
   async fetch(request, env) {

@@ -244,30 +244,21 @@
   function renderDateBar() {
     var el = document.getElementById("date-scroll");
     if (!el) return;
-    var today = dates[0];
-    var tp = today.split("-");
-    var tday = ["일","월","화","수","목","금","토"][new Date(+tp[0], tp[1] - 1, +tp[2]).getDay()];
-    var h = '<div class="date-display">';
-    h += '<span class="date-main" data-date="' + today + '">' + tp[0] + '년 ' + parseInt(tp[1]) + '월 ' + parseInt(tp[2]) + '일 ' + tday + '요일</span>';
-    if (dates.length > 1) {
-      h += '<div class="date-nav">';
-      h += '<select class="date-select" id="date-select">';
-      h += '<option value="">지난호 보기</option>';
-      for (var i = 1; i < dates.length; i++) {
-        var d = dates[i], p = d.split("-");
-        var day = ["일","월","화","수","목","금","토"][new Date(+p[0], p[1] - 1, +p[2]).getDay()];
-        h += '<option value="' + d + '">' + parseInt(p[1]) + '/' + parseInt(p[2]) + ' ' + day + '</option>';
-      }
-      h += '</select></div>';
+    if (dates.length <= 1) { el.parentElement.style.display = "none"; return; }
+    var h = '<select class="date-select" id="date-select">';
+    h += '<option value="' + dates[0] + '">오늘 (' + fmtDateShort(dates[0]) + ')</option>';
+    for (var i = 1; i < dates.length; i++) {
+      h += '<option value="' + dates[i] + '">' + fmtDateShort(dates[i]) + '</option>';
     }
-    h += '</div>';
+    h += '</select>';
     el.innerHTML = h;
-    // Today click
-    var main = el.querySelector(".date-main");
-    if (main) main.addEventListener("click", function () { selectDate(today); var s = document.getElementById("date-select"); if(s) s.value=""; });
-    // Select change
     var sel = document.getElementById("date-select");
     if (sel) sel.addEventListener("change", function () { if (sel.value) selectDate(sel.value); });
+  }
+  function fmtDateShort(d) {
+    var p = d.split("-");
+    var day = ["일","월","화","수","목","금","토"][new Date(+p[0], p[1] - 1, +p[2]).getDay()];
+    return parseInt(p[1]) + "/" + parseInt(p[2]) + " " + day;
   }
 
   function selectDate(date) {
