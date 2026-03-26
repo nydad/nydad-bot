@@ -1300,6 +1300,59 @@ main { flex: 1; padding: 20px 0 100px; }
 .insight-btn:disabled { opacity: 0.6; cursor: wait; }
 .insight-btn svg { flex-shrink: 0; }
 .insight-result { margin-top: 8px; }
+
+/* ── Live Insight Card ── */
+.insight-live {
+  margin-top: 10px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+.insight-live.long { border-left: 3px solid var(--bull); }
+.insight-live.short { border-left: 3px solid var(--bear); }
+.insight-live-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.insight-live-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.insight-live-badge.long { color: var(--surface); background: var(--bull); }
+.insight-live-badge.short { color: var(--surface); background: var(--bear); }
+.insight-live-direction {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+}
+.insight-live-direction.long { color: var(--bull); }
+.insight-live-direction.short { color: var(--bear); }
+.insight-live-time {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-4);
+}
+.insight-live-summary {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text);
+}
+.insight-key {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--amber-bg);
+  border-radius: 4px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+.insight-key strong { color: var(--amber); }
 </style>
 </head>
 <body>

@@ -181,22 +181,22 @@
 
   function renderInsightResult(data) {
     var dir = data.direction || "neutral";
-    var dirColor = dir === "long" ? "var(--bull)" : "var(--bear)";
+    var dirCls = dir === "long" ? "long" : "short";
     // Distinct style from daily KOSPI Direction — uses bordered card, not gradient hero
-    var h = '<div style="margin-top:10px;padding:16px;background:var(--surface);border:1px solid var(--border);border-left:3px solid ' + dirColor + ';border-radius:0 var(--radius-lg) var(--radius-lg) 0">';
-    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    var h = '<div class="insight-live ' + dirCls + '">';
+    h += '<div class="insight-live-header">';
     h += '<div style="display:flex;align-items:center;gap:8px">';
-    h += '<span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--surface);background:' + dirColor + ';padding:2px 8px;border-radius:3px;text-transform:uppercase">LIVE</span>';
-    h += '<span style="font-family:var(--mono);font-size:18px;font-weight:700;color:' + dirColor + '">' + (dir === "long" ? "LONG" : "SHORT") + ' ' + (dir === "long" ? data.long_pct : data.short_pct) + '%</span>';
+    h += '<span class="insight-live-badge ' + dirCls + '">LIVE</span>';
+    h += '<span class="insight-live-direction ' + dirCls + '">' + (dir === "long" ? "LONG" : "SHORT") + ' ' + (dir === "long" ? data.long_pct : data.short_pct) + '%</span>';
     h += '</div>';
-    h += '<span style="font-family:var(--mono);font-size:10px;color:var(--text-4)">' + new Date().toLocaleTimeString("ko-KR") + '</span>';
+    h += '<span class="insight-live-time">' + new Date().toLocaleTimeString("ko-KR") + '</span>';
     h += '</div>';
     if (data.summary) {
-      h += '<div style="font-size:13.5px;line-height:1.75;color:var(--text)">' + esc(data.summary) + '</div>';
+      h += '<div class="insight-live-summary">' + esc(data.summary) + '</div>';
     }
     if (data.key_insight) {
-      h += '<div style="margin-top:10px;padding:8px 12px;background:var(--amber-bg);border-radius:4px;font-size:12.5px;color:var(--text)">';
-      h += '<strong style="color:var(--amber)">핵심</strong> ' + esc(data.key_insight) + '</div>';
+      h += '<div class="insight-key">';
+      h += '<strong>핵심</strong> ' + esc(data.key_insight) + '</div>';
     }
     if (data.patterns && data.patterns.length) {
       h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:10px">';
@@ -707,9 +707,7 @@
 
   function esc(s) {
     if (!s) return "";
-    var d = document.createElement("div");
-    d.textContent = s;
-    return d.innerHTML;
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
   function safeUrl(s) {

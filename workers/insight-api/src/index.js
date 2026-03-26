@@ -17,39 +17,22 @@ const TICKERS = {
 
 // Fetch via Yahoo Finance v8 chart API (still public)
 async function fetchAllQuotes() {
-  const symbols = Object.entries(TICKERS);
   const results = {};
-
-  // Batch in groups of 5 for parallel fetch
-  for (let i = 0; i < symbols.length; i += 5) {
-    const batch = symbols.slice(i, i + 5);
-    const promises = batch.map(async ([key, symbol]) => {
-      try {
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`;
-        const resp = await fetch(url, {
-          headers: { "User-Agent": "Mozilla/5.0 (compatible; NydadBot/1.0)" }
-        });
-        if (!resp.ok) return;
-        const data = await resp.json();
-        const meta = data?.chart?.result?.[0]?.meta;
-        if (!meta) return;
-        const price = meta.regularMarketPrice;
-        const prev = meta.chartPreviousClose || meta.previousClose;
-        if (!price || !prev) return;
-        const change = price - prev;
-        const changePct = ((change) / prev) * 100;
-        results[key] = {
-          price: price,
-          prev: prev,
-          change: change,
-          changePct: changePct,
-          symbol: symbol,
-          name: key,
-        };
-      } catch(e) { /* skip */ }
-    });
-    await Promise.all(promises);
-  }
+  const entries = Object.entries(TICKERS);
+  await Promise.all(entries.map(async ([key, symbol]) => {
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`;
+      const resp = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; NydadBot/1.0)" } });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const meta = data?.chart?.result?.[0]?.meta;
+      if (!meta) return;
+      const price = meta.regularMarketPrice;
+      const prev = meta.chartPreviousClose || meta.previousClose;
+      if (!price || !prev) return;
+      results[key] = { price, prev, change: price - prev, changePct: ((price - prev) / prev) * 100, symbol, name: key };
+    } catch(e) { console.error(`Ticker ${key} failed:`, e.message); }
+  }));
   return results;
 }
 
@@ -264,7 +247,7 @@ export default {
       try {
         const body = await request.json();
         if (body.question) userQuestion = body.question;
-      } catch(e) { /* no body or not JSON */ }
+      } catch(e) { console.error('Body parse:', e.message); }
 
       // 1. Fetch real-time data
       const quotes = await fetchAllQuotes();
@@ -310,7 +293,7 @@ export default {
             }
             aiResult = JSON.parse(content.trim());
           }
-        } catch(e) { /* AI failed, use pattern fallback */ }
+        } catch(e) { console.error('AI analysis failed:', e.message); }
       }
 
       // Fallback if AI failed

@@ -38,12 +38,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL_FAST: ${{ vars.OPENROUTER_MODEL_FAST || 'google/gemini-3-flash-preview' }}
           OPENROUTER_MODEL_QUALITY: ${{ vars.OPENROUTER_MODEL_QUALITY || 'anthropic/claude-sonnet-4.6' }}
-        run: |
-          if [ -f scripts/collect_v2.py ]; then
-            python scripts/collect_v2.py
-          else
-            python scripts/collect_news.py
-          fi
+        run: python scripts/collect_v2.py
 
       - name: Commit data
         run: |

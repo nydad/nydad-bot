@@ -17,6 +17,7 @@ Pipeline:
 import os, sys, json, hashlib, logging, math, re, time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import feedparser
 import requests
@@ -768,8 +769,14 @@ def fetch_tab_feeds(feeds, tab_name):
     cutoff = datetime.now(timezone.utc) - timedelta(hours=AGE_HOURS)
     articles = []
     log.info("--- %s feeds ---", tab_name)
-    for f in feeds:
-        articles.extend(_fetch_rss(f, cutoff))
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = {executor.submit(_fetch_rss, f, cutoff): f for f in feeds}
+        for future in as_completed(futures):
+            try:
+                articles.extend(future.result())
+            except Exception as e:
+                log.warning("Feed failed: %s", e)
+    # deduplicate
     seen = set()
     unique = []
     for a in articles:
@@ -916,7 +923,6 @@ def summarize_tab(articles, tab_id):
         for j, a in enumerate(batch):
             content = extract_content(a["url"]) or a.get("description", "")
             parts.append(f"---ARTICLE {j+1}---\nTitle: {a['title']}\nSource: {a['source']}\nContent:\n{content[:2000]}\n")
-            time.sleep(0.15)
         user = f"Summarize {len(batch)} articles.\n\n" + "\n".join(parts)
         ai = _call_api(MODEL_FAST, SUMMARY_PROMPTS.get(tab_id, SUMMARY_PROMPTS["invest"]), user)
         ai_list = ai.get("articles", []) if ai else []
@@ -1234,14 +1240,6 @@ def build_digest():
     log.info("Phase 5: Editorial (%s)", MODEL_QUALITY)
     log.info("=" * 50)
 
-    log.info("--- invest editorial ---")
-    invest_ed = generate_invest_editorial(market, signal, fg, invest_articles,
-                                          correlations, foreign_flow)
-
-    log.info("--- ai editorial ---")
-    ai_ed = generate_editorial(EDITORIAL_AI, ai_articles)
-
-    log.info("--- crypto editorial ---")
     crypto_ctx = ""
     if crypto_prices:
         lines = ["=== CRYPTO PRICES ==="]
@@ -1250,13 +1248,21 @@ def build_digest():
         if fg.get("crypto"):
             lines.append(f"\nCrypto F&G: {fg['crypto']['score']} ({fg['crypto']['rating']})")
         crypto_ctx = "\n".join(lines)
-    crypto_ed = generate_editorial(EDITORIAL_CRYPTO, crypto_articles, crypto_ctx)
 
-    log.info("--- dev editorial ---")
-    dev_ed = generate_editorial(EDITORIAL_DEV, dev_articles)
+    log.info("--- editorial generation (parallel) ---")
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        invest_ed_future = executor.submit(generate_invest_editorial, market, signal, fg, invest_articles,
+                                           correlations, foreign_flow)
+        ai_ed_future = executor.submit(generate_editorial, EDITORIAL_AI, ai_articles)
+        crypto_ed_future = executor.submit(generate_editorial, EDITORIAL_CRYPTO, crypto_articles, crypto_ctx)
+        dev_ed_future = executor.submit(generate_editorial, EDITORIAL_DEV, dev_articles)
+        kbo_ed_future = executor.submit(generate_kbo_editorial, kbo_data, kbo_articles)
 
-    log.info("--- kbo editorial ---")
-    kbo_ed = generate_kbo_editorial(kbo_data, kbo_articles)
+    invest_ed = invest_ed_future.result() or {}
+    ai_ed = ai_ed_future.result() or {}
+    crypto_ed = crypto_ed_future.result() or {}
+    dev_ed = dev_ed_future.result() or {}
+    kbo_ed = kbo_ed_future.result() or {}
 
     # Merge sector analysis from AI editorial with signal sectors
     if invest_ed.get("sector_analysis"):
