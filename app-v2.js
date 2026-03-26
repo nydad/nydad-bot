@@ -7,6 +7,7 @@
   "use strict";
 
   var dates = [], currentDate = "", currentTab = "invest", cache = {};
+  var INSIGHT_API = ""; // Set after Cloudflare Worker deployed
 
   // ── Korean labels ──
   var INSIGHT_KR = { bullish: "강세", bearish: "약세", neutral: "중립", alert: "주의" };
@@ -114,23 +115,88 @@
   }
 
   // ══════════════════════════════════════
-  // CHATBOT UI
+  // REAL-TIME INSIGHT BUTTON
   // ══════════════════════════════════════
-  function setupChat() {
-    var input = document.getElementById("chat-input");
-    var send = document.getElementById("chat-send");
-    var response = document.getElementById("chat-response");
-    if (!input || !send || !response) return;
+  function setupInsightBtn() {
+    var btn = document.getElementById("insight-btn");
+    var result = document.getElementById("insight-result");
+    if (!btn || !result) return;
 
-    function showResponse() {
-      if (input.value.trim()) {
-        response.classList.add("visible");
+    btn.addEventListener("click", async function () {
+      btn.disabled = true;
+      btn.querySelector("span").textContent = "분석 중...";
+      result.classList.remove("hidden");
+      result.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-3)"><div class="loading-bar" style="width:40px;margin:0 auto 8px"></div>실시간 데이터 수집 + AI 분석 중...</div>';
+
+      try {
+        var resp;
+        if (INSIGHT_API) {
+          resp = await fetch(INSIGHT_API, { method: "POST", headers: { "Content-Type": "application/json" } });
+        } else {
+          // Fallback: use existing daily data to generate a quick summary
+          var d = cache[currentDate];
+          if (d) {
+            var sig = d.investment_signal || d.kospi_signal || {};
+            result.innerHTML = renderInsightResult({
+              direction: sig.direction || "neutral",
+              long_pct: sig.long_pct || 50,
+              short_pct: sig.short_pct || 50,
+              summary: sig.summary || sig.key_insight || "데이터 기반 분석 결과입니다.",
+              key_insight: sig.key_insight || "실시간 분석을 위해 Cloudflare Worker를 설정하세요.",
+              patterns: (sig.factors || []).map(function(f) { return { name: f.name, signal: f.signal, detail: f.detail }; }),
+              source: "daily-data"
+            });
+            btn.disabled = false;
+            btn.querySelector("span").textContent = "실시간 인사이트";
+            return;
+          }
+          throw new Error("No data");
+        }
+
+        if (!resp.ok) throw new Error("API " + resp.status);
+        var data = await resp.json();
+        result.innerHTML = renderInsightResult(data);
+      } catch (e) {
+        result.innerHTML = '<div style="padding:12px;color:var(--bear);font-size:13px">분석 실패: ' + esc(e.message) + '</div>';
       }
-    }
-    send.addEventListener("click", showResponse);
-    input.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") showResponse();
+      btn.disabled = false;
+      btn.querySelector("span").textContent = "실시간 인사이트";
     });
+  }
+
+  function renderInsightResult(data) {
+    var dir = data.direction || "neutral";
+    var h = '<div class="signal-hero ' + safeDir(dir) + '" style="margin-top:8px">';
+    h += '<div class="signal-top"><div class="signal-direction-wrap">';
+    h += '<div class="signal-eyebrow">REAL-TIME ANALYSIS</div>';
+    h += '<div class="signal-direction" style="font-size:22px">' + (DIR_KR[dir] || dir) + '</div>';
+    h += '<div class="signal-pct">';
+    h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bull" style="width:' + (data.long_pct || 50) + '%"></div></div>';
+    h += '<span class="signal-pct-label bull">L ' + (data.long_pct || 50) + '%</span></div>';
+    h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bear" style="width:' + (data.short_pct || 50) + '%"></div></div>';
+    h += '<span class="signal-pct-label bear">S ' + (data.short_pct || 50) + '%</span></div>';
+    h += '</div></div></div>';
+    if (data.summary) {
+      h += '<div class="signal-summary">' + esc(data.summary) + '</div>';
+    }
+    if (data.key_insight) {
+      h += '<div style="padding:10px 14px;background:var(--amber-bg);border-radius:6px;font-size:13px;color:var(--text);margin-top:8px">';
+      h += '<strong style="color:var(--amber)">핵심:</strong> ' + esc(data.key_insight) + '</div>';
+    }
+    if (data.patterns && data.patterns.length) {
+      h += '<div class="signal-factors" style="margin-top:10px">';
+      data.patterns.forEach(function (p) {
+        h += '<span class="factor-tag ' + safeSignal(p.signal) + '">' + esc(p.name || "") + ' ' + esc(p.detail || "").substring(0, 40) + '</span>';
+      });
+      h += '</div>';
+    }
+    if (data.source) {
+      h += '<div style="font-size:10px;color:var(--text-4);margin-top:8px;font-family:var(--mono)">';
+      h += data.source === "ai+patterns" ? "AI + 패턴 분석" : data.source === "pattern-only" ? "패턴 분석 (API 키 미설정)" : "일간 데이터 기반";
+      h += ' · ' + new Date().toLocaleTimeString("ko-KR") + '</div>';
+    }
+    h += '</div>';
+    return h;
   }
 
   // ══════════════════════════════════════
@@ -163,22 +229,45 @@
   function renderDateBar() {
     var el = document.getElementById("date-scroll");
     if (!el) return;
-    el.innerHTML = dates.map(function (d) {
-      var p = d.split("-"), label = parseInt(p[1]) + "/" + parseInt(p[2]);
-      var day = ["일","월","화","수","목","금","토"][new Date(+p[0], p[1] - 1, +p[2]).getDay()];
-      return '<button class="date-chip" data-date="' + d + '">' + label + " " + day + "</button>";
-    }).join("");
-    el.addEventListener("click", function (e) {
-      var c = e.target.closest(".date-chip");
-      if (c) selectDate(c.dataset.date);
-    });
+    // Today chip + select dropdown for past dates
+    var today = dates[0];
+    var tp = today.split("-");
+    var tday = ["일","월","화","수","목","금","토"][new Date(+tp[0], tp[1] - 1, +tp[2]).getDay()];
+    var h = '<button class="date-chip active" data-date="' + today + '">' + parseInt(tp[1]) + '/' + parseInt(tp[2]) + ' ' + tday + ' (오늘)</button>';
+    if (dates.length > 1) {
+      h += '<select class="date-select" id="date-select">';
+      h += '<option value="">이전 날짜</option>';
+      for (var i = 1; i < dates.length; i++) {
+        var d = dates[i], p = d.split("-");
+        var day = ["일","월","화","수","목","금","토"][new Date(+p[0], p[1] - 1, +p[2]).getDay()];
+        h += '<option value="' + d + '">' + parseInt(p[1]) + '/' + parseInt(p[2]) + ' ' + day + '</option>';
+      }
+      h += '</select>';
+    }
+    el.innerHTML = h;
+    // Today chip click
+    el.querySelector(".date-chip").addEventListener("click", function () { selectDate(today); });
+    // Select change
+    var sel = document.getElementById("date-select");
+    if (sel) {
+      sel.addEventListener("change", function () {
+        if (sel.value) selectDate(sel.value);
+      });
+    }
   }
 
   function selectDate(date) {
     currentDate = date;
+    // Update today chip active state
     document.querySelectorAll(".date-chip").forEach(function (c) {
       c.classList.toggle("active", c.dataset.date === date);
     });
+    // Reset select if clicking today
+    var sel = document.getElementById("date-select");
+    if (sel && date === dates[0]) sel.value = "";
+    else if (sel && date !== dates[0]) {
+      document.querySelectorAll(".date-chip").forEach(function (c) { c.classList.remove("active"); });
+    }
     // Update header date
     var hd = document.querySelector(".header-date");
     if (hd) {
@@ -192,13 +281,13 @@
   async function loadDigest(date) {
     show("loading");
     hideAllTabs();
-    if (cache[date]) { render(cache[date]); return; }
+    if (cache[date]) { try { render(cache[date]); } catch(e) { console.error("Render error:", e); showError(date); } return; }
     try {
       var r = await fetch("./data/" + date + ".json");
-      if (!r.ok) throw 0;
+      if (!r.ok) throw new Error("HTTP " + r.status);
       cache[date] = await r.json();
-      render(cache[date]);
-    } catch (e) { showError(date); }
+      try { render(cache[date]); } catch(e) { console.error("Render error:", e); showError(date); }
+    } catch (e) { console.error("Load error:", e); showError(date); }
   }
 
   // ══════════════════════════════════════
@@ -272,15 +361,28 @@
     }
     h += '</div>';
 
-    // Chatbot section (static UI — real integration via Cloudflare Workers later)
-    h += '<div class="chat-section reveal"><div class="chat-input-wrap">';
-    h += '<input type="text" class="chat-input" id="chat-input" placeholder="오늘 어떻게 마무리될까?">';
-    h += '<button class="chat-send" id="chat-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
-    h += '</div><div class="chat-response" id="chat-response">';
-    h += '<div class="chat-response-header"><span class="chat-ai-badge">AI Analysis</span></div>';
-    h += '<div class="chat-response-text">챗봇 기능은 곧 출시됩니다.</div></div></div>';
+    // Real-time Insight Button
+    h += '<div class="insight-btn-section reveal">';
+    h += '<button class="insight-btn" id="insight-btn">';
+    h += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
+    h += '<span>실시간 인사이트</span></button>';
+    h += '<div class="insight-result hidden" id="insight-result"></div>';
+    h += '</div>';
 
     h += '<hr class="divider">';
+
+    // 오답노트: Previous day signal accuracy check
+    if (d.prev_signal_review) {
+      var rev = d.prev_signal_review;
+      h += '<div class="reveal"><div class="section-label">전일 인사이트 검증 (오답노트)</div>';
+      var correct = rev.correct;
+      h += '<div class="insight-card" style="border-left:3px solid var(--' + (correct ? "bull" : "bear") + ')">';
+      h += '<span class="insight-tag ' + (correct ? "bullish" : "bearish") + '">' + (correct ? "적중" : "오답") + '</span>';
+      h += '<div class="insight-body">';
+      h += '<div class="insight-title">전일 예측: ' + esc(rev.predicted || "") + ' → 실제: ' + esc(rev.actual || "") + '</div>';
+      h += '<div class="insight-detail">' + esc(rev.reason || "") + '</div>';
+      h += '</div></div></div><hr class="divider">';
+    }
 
     // Correlation Insights
     var corr = sig.correlations || tab.correlations || [];
@@ -354,7 +456,7 @@
 
     el.innerHTML = h;
     setupCollapse();
-    setupChat();
+    setupInsightBtn();
   }
 
   function renderMarketSection(cat, items) {

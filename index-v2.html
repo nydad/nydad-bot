@@ -1285,6 +1285,52 @@ main { flex: 1; padding: 20px 0 100px; }
   }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* ── Date Select Dropdown ── */
+.date-select {
+  flex-shrink: 0;
+  padding: 5px 28px 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--sans);
+  color: var(--text-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%239E9891' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+  transition: all var(--dur-fast);
+}
+.date-select:hover { border-color: var(--border-strong); color: var(--text-2); }
+.date-select:focus { outline: none; border-color: var(--bull); box-shadow: 0 0 0 2px var(--bull-bg); }
+
+/* ── Insight Button ── */
+.insight-btn-section { margin-top: 12px; }
+.insight-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--surface);
+  background: var(--bull);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+  font-family: var(--sans);
+}
+.insight-btn:hover { background: #0a7a58; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.insight-btn:active { transform: translateY(0); }
+.insight-btn:disabled { opacity: 0.6; cursor: wait; }
+.insight-btn svg { flex-shrink: 0; }
+.insight-result { margin-top: 8px; }
 </style>
 </head>
 <body>

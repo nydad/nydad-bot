@@ -1263,13 +1263,68 @@ def build_digest():
         signal["sectors"] = invest_ed["sector_analysis"]
 
     # ------------------------------------------------------------------
+    # Phase 5.5: Previous Signal Review (오답노트)
+    # ------------------------------------------------------------------
+    prev_review = None
+    try:
+        yesterday = (NOW_KST - timedelta(days=1)).strftime("%Y-%m-%d")
+        prev_file = DATA_DIR / f"{yesterday}.json"
+        if prev_file.exists():
+            with open(prev_file, "r", encoding="utf-8") as pf:
+                prev_data = json.load(pf)
+            prev_sig = prev_data.get("investment_signal", prev_data.get("kospi_signal", {}))
+            prev_dir = prev_sig.get("direction", "")
+            # Check actual KOSPI result
+            kospi_items = market.get("kr_indices", [])
+            kospi_actual = None
+            for item in kospi_items:
+                if "KOSPI" in item["name"] and "200" not in item["name"]:
+                    kospi_actual = item
+                    break
+            if prev_dir and kospi_actual:
+                actual_change = kospi_actual.get("change_pct", 0)
+                actual_dir = "long" if actual_change > 0 else "short"
+                correct = prev_dir == actual_dir
+                predicted_str = f"{prev_dir.upper()} {prev_sig.get('long_pct', '?')}% / {prev_sig.get('short_pct', '?')}%"
+                actual_str = f"KOSPI {actual_change:+.2f}% ({'상승' if actual_change > 0 else '하락'})"
+
+                # Generate reason if wrong
+                reason = ""
+                if not correct:
+                    reason_parts = []
+                    if prev_dir == "long" and actual_change < 0:
+                        reason_parts.append("롱 예측이었으나 실제 하락")
+                    elif prev_dir == "short" and actual_change > 0:
+                        reason_parts.append("숏 예측이었으나 실제 상승")
+                    # Check what factors might have been wrong
+                    for f in prev_sig.get("factors", []):
+                        if f.get("signal") == ("bullish" if prev_dir == "long" else "bearish"):
+                            reason_parts.append(f"'{f['name']}' 시그널이 기대와 다르게 작용")
+                            break
+                    reason = ". ".join(reason_parts) if reason_parts else "예상과 반대 방향으로 시장 전개"
+                else:
+                    reason = "예측 방향과 실제 방향 일치. 인사이트가 유효했음."
+
+                prev_review = {
+                    "date": yesterday,
+                    "predicted": predicted_str,
+                    "actual": actual_str,
+                    "correct": correct,
+                    "reason": reason,
+                }
+                log.info("  Previous signal review: %s -> %s (%s)",
+                         predicted_str, actual_str, "CORRECT" if correct else "WRONG")
+    except Exception as e:
+        log.warning("  Previous signal review failed: %s", e)
+
+    # ------------------------------------------------------------------
     # Phase 6: Build JSON
     # ------------------------------------------------------------------
     log.info("=" * 50)
     log.info("Phase 6: Build JSON")
     log.info("=" * 50)
 
-    return {
+    result = {
         "date": TODAY,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "market_data": market,
@@ -1326,6 +1381,12 @@ def build_digest():
             },
         },
     }
+
+    # Add previous signal review if available
+    if prev_review:
+        result["prev_signal_review"] = prev_review
+
+    return result
 
 
 def update_index():
