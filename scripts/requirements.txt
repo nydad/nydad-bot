@@ -3,3 +3,7 @@ trafilatura>=1.12
 requests>=2.31
 python-dotenv>=1.0
 yfinance>=0.2.36
+beautifulsoup4>=4.12
+lxml>=5.0
+numpy>=1.26
+pandas>=2.1
