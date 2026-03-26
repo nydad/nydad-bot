@@ -54,9 +54,9 @@
   /* Layout */
   --max-w: 960px;
   --gutter: 16px;
-  --radius: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  --radius: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
 
   /* Elevation */
   --shadow-sm: 0 1px 2px rgba(26,26,26,0.04);
@@ -262,10 +262,12 @@ body::before {
   background: var(--surface-alt);
 }
 .date-bar-inner {
-  padding: 7px 0;
+  padding: 6px 0;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 }
+.date-bar .date-select { margin: 0; }
 
 /* ══════════════════════════════════════
    MAIN CONTENT
@@ -1267,7 +1269,7 @@ main { flex: 1; padding: 20px 0 100px; }
   color: var(--text-3);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 4px;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
@@ -1303,58 +1305,77 @@ main { flex: 1; padding: 20px 0 100px; }
 .insight-btn svg { flex-shrink: 0; }
 .insight-result { margin-top: 8px; }
 
-/* ── Live Insight Card ── */
-.insight-live {
+/* ── Live Insight Card (distinct from daily hero) ── */
+.live-card {
   margin-top: 10px;
-  padding: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background: var(--bg-warm);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
-.insight-live.long { border-left: 3px solid var(--bull); }
-.insight-live.short { border-left: 3px solid var(--bear); }
-.insight-live-header {
+.live-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  padding: 10px 14px;
 }
-.insight-live-badge {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 3px;
-  text-transform: uppercase;
+.live-topbar.long { background: var(--bull); }
+.live-topbar.short { background: var(--bear); }
+.live-topbar-left { display: flex; align-items: center; gap: 8px; }
+.live-pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #fff; animation: pulse-live 1.5s ease-in-out infinite;
 }
-.insight-live-badge.long { color: var(--surface); background: var(--bull); }
-.insight-live-badge.short { color: var(--surface); background: var(--bear); }
-.insight-live-direction {
-  font-family: var(--mono);
-  font-size: 18px;
-  font-weight: 700;
-}
-.insight-live-direction.long { color: var(--bull); }
-.insight-live-direction.short { color: var(--bear); }
-.insight-live-time {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text-4);
-}
-.insight-live-summary {
-  font-size: 13.5px;
-  line-height: 1.75;
+@keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.live-label { font-family: var(--mono); font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.08em; }
+.live-time { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.6); }
+.live-direction { font-family: var(--mono); font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+.live-summary {
+  padding: 14px 14px 0;
+  font-family: var(--serif);
+  font-size: 14.5px;
+  line-height: 1.8;
   color: var(--text);
 }
-.insight-key {
-  margin-top: 10px;
+.live-highlight {
+  margin: 10px 14px;
   padding: 8px 12px;
   background: var(--amber-bg);
-  border-radius: 4px;
+  border-left: 2px solid var(--amber);
+  border-radius: 0;
   font-size: 12.5px;
+  font-weight: 500;
   color: var(--text);
 }
-.insight-key strong { color: var(--amber); }
+.live-details { padding: 0 14px 14px; }
+.live-details-toggle {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 6px 0;
+  list-style: none;
+}
+.live-details-toggle::marker { display: none; content: ""; }
+.live-details-toggle::before { content: "▸ "; }
+.live-details[open] .live-details-toggle::before { content: "▾ "; }
+.live-patterns { margin-top: 6px; }
+.live-pattern-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.live-pattern-row:last-child { border-bottom: none; }
+.live-pattern-ico { font-family: var(--mono); font-weight: 700; width: 12px; text-align: center; flex-shrink: 0; }
+.live-pattern-row.bullish .live-pattern-ico { color: var(--bull); }
+.live-pattern-row.bearish .live-pattern-ico { color: var(--bear); }
+.live-pattern-row.neutral .live-pattern-ico { color: var(--text-4); }
+.live-pattern-name { font-weight: 600; color: var(--text-2); flex-shrink: 0; }
+.live-pattern-detail { color: var(--text-3); flex: 1; }
 </style>
 </head>
 <body>

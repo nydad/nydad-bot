@@ -182,28 +182,42 @@
   function renderInsightResult(data) {
     var dir = data.direction || "neutral";
     var dirCls = dir === "long" ? "long" : "short";
-    // Distinct style from daily KOSPI Direction — uses bordered card, not gradient hero
-    var h = '<div class="insight-live ' + dirCls + '">';
-    h += '<div class="insight-live-header">';
-    h += '<div style="display:flex;align-items:center;gap:8px">';
-    h += '<span class="insight-live-badge ' + dirCls + '">LIVE</span>';
-    h += '<span class="insight-live-direction ' + dirCls + '">' + (dir === "long" ? "LONG" : "SHORT") + ' ' + (dir === "long" ? data.long_pct : data.short_pct) + '%</span>';
+    var pct = dir === "long" ? (data.long_pct || 50) : (data.short_pct || 50);
+
+    var h = '<div class="live-card">';
+    // Header bar
+    h += '<div class="live-topbar ' + dirCls + '">';
+    h += '<div class="live-topbar-left">';
+    h += '<span class="live-pulse"></span>';
+    h += '<span class="live-label">실시간 분석</span>';
+    h += '<span class="live-time">' + new Date().toLocaleTimeString("ko-KR", {hour:"2-digit",minute:"2-digit"}) + '</span>';
     h += '</div>';
-    h += '<span class="insight-live-time">' + new Date().toLocaleTimeString("ko-KR") + '</span>';
+    h += '<div class="live-direction ' + dirCls + '">' + (dir === "long" ? "LONG" : "SHORT") + " " + pct + '%</div>';
     h += '</div>';
+
+    // AI summary — clean sentence
     if (data.summary) {
-      h += '<div class="insight-live-summary">' + esc(data.summary) + '</div>';
+      h += '<div class="live-summary">' + esc(data.summary) + '</div>';
     }
+
+    // Key insight
     if (data.key_insight) {
-      h += '<div class="insight-key">';
-      h += '<strong>핵심</strong> ' + esc(data.key_insight) + '</div>';
+      h += '<div class="live-highlight">' + esc(data.key_insight) + '</div>';
     }
+
+    // Patterns as collapsible detail
     if (data.patterns && data.patterns.length) {
-      h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:10px">';
+      h += '<details class="live-details"><summary class="live-details-toggle">패턴 상세 (' + data.patterns.length + '개 시그널)</summary>';
+      h += '<div class="live-patterns">';
       data.patterns.forEach(function (p) {
-        h += '<span class="factor-tag ' + safeSignal(p.signal) + '" style="font-size:10px">' + esc(p.name || "") + '</span>';
+        var ico = p.signal === "bullish" ? "+" : p.signal === "bearish" ? "-" : "·";
+        h += '<div class="live-pattern-row ' + safeSignal(p.signal) + '">';
+        h += '<span class="live-pattern-ico">' + ico + '</span>';
+        h += '<span class="live-pattern-name">' + esc(p.name || "") + '</span>';
+        h += '<span class="live-pattern-detail">' + esc(p.detail || "") + '</span>';
+        h += '</div>';
       });
-      h += '</div>';
+      h += '</div></details>';
     }
     h += '</div>';
     return h;
