@@ -7,7 +7,7 @@
   "use strict";
 
   var dates = [], currentDate = "", currentTab = "invest", cache = {};
-  var INSIGHT_API = ""; // Set after Cloudflare Worker deployed
+  var INSIGHT_API = "https://nydad-insight-api.nydad.workers.dev";
 
   // ── Korean labels ──
   var INSIGHT_KR = { bullish: "강세", bearish: "약세", neutral: "중립", alert: "주의" };
