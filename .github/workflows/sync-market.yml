@@ -48,7 +48,7 @@ jobs:
       - name: Prepare deploy directory
         run: |
           mkdir -p _site/data
-          cp index.html style.css app.js _site/
+          cp index.html app.js _site/
           cp -r data/*.json _site/data/ 2>/dev/null || true
 
       - uses: actions/configure-pages@v5

@@ -8,13 +8,12 @@
 
 ```
 nydad-bot/
-├── index-v2.html          # 프론트엔드 (Paper Ledger 테마, 인라인 CSS)
-├── app-v2.js              # 프론트엔드 JS (5탭 렌더링, 인사이트 버튼)
+├── index.html             # 프론트엔드 (Paper Ledger 테마, 인라인 CSS)
+├── app.js                 # 프론트엔드 JS (5탭 렌더링, 인사이트 버튼)
 ├── scripts/
-│   ├── collect_v2.py      # 메인 파이프라인 (5탭 데이터 수집 + AI 생성)
+│   ├── collect_news.py    # 메인 파이프라인 (5탭 데이터 수집 + AI 생성)
 │   ├── domestic_analysis.py  # 국내 투자 분석 (상관관계, 외국인 수급, AI 인사이트)
 │   ├── kbo_collect.py     # KBO 순위/경기/뉴스 스크래핑
-│   ├── collect_news.py    # v1 파이프라인 (폴백용)
 │   ├── sync_market.py     # 실시간 시세 동기화
 │   └── requirements.txt   # Python 의존성
 ├── workers/
@@ -101,7 +100,7 @@ npx wrangler secret put OPENROUTER_API_KEY  # OpenRouter 키 입력
 npx wrangler deploy
 ```
 
-배포 후 `app-v2.js`의 `INSIGHT_API` 변수에 Worker URL 설정:
+배포 후 `app.js`의 `INSIGHT_API` 변수에 Worker URL 설정:
 ```js
 var INSIGHT_API = "https://nydad-insight-api.nydad.workers.dev";
 ```
@@ -110,7 +109,7 @@ var INSIGHT_API = "https://nydad-insight-api.nydad.workers.dev";
 ```bash
 pip install -r scripts/requirements.txt
 echo "OPENROUTER_API_KEY=sk-or-..." > .env
-python scripts/collect_v2.py  # 전체 다이제스트 생성
+python scripts/collect_news.py  # 전체 다이제스트 생성
 python scripts/kbo_collect.py --json  # KBO만 테스트
 ```
 

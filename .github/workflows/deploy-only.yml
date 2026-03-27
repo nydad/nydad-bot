@@ -24,16 +24,7 @@ jobs:
       - name: Prepare deploy directory
         run: |
           mkdir -p _site/data
-          if [ -f index-v2.html ]; then
-            cp index-v2.html _site/index.html
-          else
-            cp index.html _site/index.html
-          fi
-          if [ -f app-v2.js ]; then
-            cp app-v2.js _site/app.js
-          else
-            cp app.js _site/app.js
-          fi
+          cp index.html app.js _site/
           cp -r data/*.json _site/data/ 2>/dev/null || true
 
       - uses: actions/configure-pages@v5

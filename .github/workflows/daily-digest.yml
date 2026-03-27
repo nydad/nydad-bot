@@ -38,7 +38,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL_FAST: ${{ vars.OPENROUTER_MODEL_FAST || 'google/gemini-3-flash-preview' }}
           OPENROUTER_MODEL_QUALITY: ${{ vars.OPENROUTER_MODEL_QUALITY || 'anthropic/claude-sonnet-4.6' }}
-        run: python scripts/collect_v2.py
+        run: python scripts/collect_news.py
 
       - name: Commit data
         run: |
@@ -55,18 +55,7 @@ jobs:
       - name: Prepare deploy directory
         run: |
           mkdir -p _site/data
-          # Use v2 files if they exist, otherwise fallback to v1
-          if [ -f index-v2.html ]; then
-            cp index-v2.html _site/index.html
-          else
-            cp index.html _site/index.html
-          fi
-          if [ -f app-v2.js ]; then
-            cp app-v2.js _site/app.js
-          else
-            cp app.js _site/app.js
-          fi
-          # Copy any additional assets
+          cp index.html app.js _site/
           cp -r data/*.json _site/data/ 2>/dev/null || true
 
       - uses: actions/configure-pages@v5
