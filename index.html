@@ -124,6 +124,7 @@ body {
   color: var(--text);
   background: var(--bg);
   line-height: 1.6;
+  min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -131,6 +132,7 @@ body {
 }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+input, select, button, textarea { font-variant-numeric: tabular-nums lining-nums; }
 img { display: block; max-width: 100%; }
 .hidden { display: none !important; }
 
@@ -568,7 +570,7 @@ main { flex: 1; padding: 20px 0 100px; }
 }
 .market-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 1px;
   background: var(--border);
   border-radius: var(--radius-lg);
