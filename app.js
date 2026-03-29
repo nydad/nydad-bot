@@ -148,11 +148,15 @@
           if (d && d.prev_signal_review) {
             payload.prev_review = d.prev_signal_review;
           }
+          var controller = new AbortController();
+          var fetchTimeout = setTimeout(function() { controller.abort(); }, 30000);
           resp = await fetch(INSIGHT_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
           });
+          clearTimeout(fetchTimeout);
         } else {
           // Fallback: use existing daily data to generate a quick summary
           var d = cache[currentDate];
@@ -187,8 +191,9 @@
 
   function renderInsightResult(data) {
     var dir = data.direction || "neutral";
-    var dirCls = dir === "long" ? "long" : "short";
-    var pct = dir === "long" ? (data.long_pct || 50) : (data.short_pct || 50);
+    var dirCls = dir === "long" ? "long" : dir === "short" ? "short" : "neutral";
+    var dirLabel = dir === "long" ? "LONG" : dir === "short" ? "SHORT" : "NEUTRAL";
+    var pct = dir === "long" ? (data.long_pct || 50) : dir === "short" ? (data.short_pct || 50) : 50;
 
     var h = '<div class="live-card">';
     // Header bar
@@ -198,7 +203,7 @@
     h += '<span class="live-label">실시간 분석</span>';
     h += '<span class="live-time">' + new Date().toLocaleTimeString("ko-KR", {hour:"2-digit",minute:"2-digit"}) + '</span>';
     h += '</div>';
-    h += '<div class="live-direction ' + dirCls + '">' + (dir === "long" ? "LONG" : "SHORT") + " " + pct + '%</div>';
+    h += '<div class="live-direction ' + dirCls + '">' + dirLabel + " " + pct + '%</div>';
     h += '</div>';
 
     // AI summary — clean sentence
@@ -342,31 +347,34 @@
 
     // Hero Signal Card
     var dir = sig.direction || "neutral";
-    var longPct = sig.long_pct || (dir === "long" ? 62 : dir === "short" ? 38 : 50);
+    var longPct = sig.long_pct || 50;
     var shortPct = sig.short_pct || (100 - longPct);
     var conf = sig.confidence || 0;
 
     h += '<div class="signal-hero ' + safeDir(dir) + ' reveal" style="margin-top:20px">';
+    // Verdict first (Bloomberg/Robinhood: large direction call is the hero)
     h += '<div class="signal-top"><div class="signal-direction-wrap">';
     h += '<div class="signal-eyebrow">오늘의 전망 · KOSPI Direction</div>';
     h += '<div class="signal-direction">' + (DIR_KR[dir] || dir) + '</div>';
-    h += '<div class="signal-pct">';
-    h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bull" style="width:' + longPct + '%"></div></div>';
-    h += '<span class="signal-pct-label bull">L ' + longPct + '%</span></div>';
-    h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bear" style="width:' + shortPct + '%"></div></div>';
-    h += '<span class="signal-pct-label bear">S ' + shortPct + '%</span></div>';
-    h += '</div></div>';
+    h += '</div>';
     h += '<div class="signal-confidence"><div class="signal-conf-label">Confidence</div>';
     h += '<div class="signal-conf-value">' + Math.round(conf * 100) + '%</div>';
     h += '<div class="signal-conf-meter"><div class="signal-conf-fill" style="width:' + Math.round(conf * 100) + '%"></div></div></div>';
     h += '</div>';
 
-    // Summary
+    // Thesis second (summary before bars — what matters, then evidence)
     if (sig.summary || tab.briefing) {
       h += '<div class="signal-summary">' + esc(sig.summary || tab.briefing) + '</div>';
     }
 
-    // Factors
+    // Evidence: pct bars + factors
+    h += '<div class="signal-evidence">';
+    h += '<div class="signal-pct">';
+    h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bull" style="width:' + longPct + '%"></div></div>';
+    h += '<span class="signal-pct-label bull">L ' + longPct + '%</span></div>';
+    h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bear" style="width:' + shortPct + '%"></div></div>';
+    h += '<span class="signal-pct-label bear">S ' + shortPct + '%</span></div>';
+    h += '</div>';
     if (sig.factors && sig.factors.length) {
       h += '<div class="signal-factors">';
       sig.factors.forEach(function (f) {
@@ -374,6 +382,7 @@
       });
       h += '</div>';
     }
+    h += '</div>';
     // Interactive Insight — question input + button
     h += '<div class="insight-btn-section" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">';
     h += '<div class="chat-input-wrap" style="display:flex;gap:8px;align-items:center">';
@@ -620,7 +629,7 @@
       h += '<table class="standings-table"><thead><tr>';
       h += '<th></th><th>팀</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>차</th><th>연속</th></tr></thead><tbody>';
       tab.standings.forEach(function (t, i) {
-        var streakCls = (t.streak || "").includes("승") ? "win" : "lose";
+        var streakCls = !t.streak ? "" : t.streak.includes("승") ? "win" : "lose";
         h += '<tr><td><span class="standings-rank">' + (i + 1) + '</span></td>';
         h += '<td class="standings-team">' + esc(t.team) + '</td>';
         h += '<td>' + t.wins + '</td><td>' + t.losses + '</td><td>' + (t.draws || 0) + '</td>';
@@ -670,12 +679,24 @@
     if (!articles || !articles.length) return "";
     var h = '<div class="reveal"><div class="section-label">' + label + ' <span style="font-weight:400;color:var(--text-4)">' + articles.length + '</span></div>';
     h += '<div class="news-list">';
+    var SAFE_IMP = { high: 1, medium: 1, low: 1 };
+    var leadDone = false;
     articles.forEach(function (a) {
-      var imp = a.importance || "medium";
-      h += '<div class="news-item"><span class="news-importance ' + imp + '"></span>';
-      h += '<div class="news-body"><div class="news-title"><a href="' + safeUrl(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + '</a></div>';
-      h += '<div class="news-meta"><span class="news-source">' + esc(a.source) + '</span><span>·</span><span>' + timeAgo(a.published) + '</span></div>';
-      h += '</div></div>';
+      var imp = SAFE_IMP[a.importance] ? a.importance : "medium";
+      // FT pattern: first high-importance article gets lead treatment
+      if (!leadDone && imp === "high") {
+        leadDone = true;
+        h += '<div class="news-item news-lead"><span class="news-importance ' + imp + '"></span>';
+        h += '<div class="news-body"><div class="news-title news-title-lead"><a href="' + safeUrl(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + '</a></div>';
+        if (a.summary) h += '<div class="news-excerpt">' + esc(a.summary).substring(0, 120) + '</div>';
+        h += '<div class="news-meta"><span class="news-source">' + esc(a.source) + '</span><span>·</span><span>' + timeAgo(a.published) + '</span></div>';
+        h += '</div></div>';
+      } else {
+        h += '<div class="news-item"><span class="news-importance ' + imp + '"></span>';
+        h += '<div class="news-body"><div class="news-title"><a href="' + safeUrl(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + '</a></div>';
+        h += '<div class="news-meta"><span class="news-source">' + esc(a.source) + '</span><span>·</span><span>' + timeAgo(a.published) + '</span></div>';
+        h += '</div></div>';
+      }
     });
     h += '</div></div>';
     return h;
