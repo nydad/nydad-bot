@@ -285,13 +285,6 @@
     currentDate = date;
     var p = date.split("-");
     var day = ["일","월","화","수","목","금","토"][new Date(+p[0], p[1] - 1, +p[2]).getDay()];
-    // Update main date display
-    var main = document.querySelector(".date-main");
-    if (main) {
-      var isToday = date === dates[0];
-      main.textContent = p[0] + "년 " + parseInt(p[1]) + "월 " + parseInt(p[2]) + "일 " + day + "요일" + (isToday ? "" : " (지난호)");
-      main.style.color = isToday ? "" : "var(--text-3)";
-    }
     // Update header date
     var hd = document.querySelector(".header-date");
     if (hd) hd.textContent = p[0] + "." + p[1] + "." + p[2] + " " + day;
@@ -688,7 +681,7 @@
         leadDone = true;
         h += '<div class="news-item news-lead"><span class="news-importance ' + imp + '"></span>';
         h += '<div class="news-body"><div class="news-title news-title-lead"><a href="' + safeUrl(a.url) + '" target="_blank" rel="noopener">' + esc(a.title) + '</a></div>';
-        if (a.summary) h += '<div class="news-excerpt">' + esc(a.summary).substring(0, 120) + '</div>';
+        if (a.summary) h += '<div class="news-excerpt">' + esc(a.summary.substring(0, 120)) + '</div>';
         h += '<div class="news-meta"><span class="news-source">' + esc(a.source) + '</span><span>·</span><span>' + timeAgo(a.published) + '</span></div>';
         h += '</div></div>';
       } else {

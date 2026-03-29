@@ -154,7 +154,6 @@ body::before {
    HEADER
    ══════════════════════════════════════ */
 .header {
-  background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
@@ -426,6 +425,9 @@ main { flex: 1; padding: 20px 0 100px; }
 .signal-evidence {
   padding-top: 14px;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .signal-factors {
@@ -469,9 +471,6 @@ main { flex: 1; padding: 20px 0 100px; }
 /* ══════════════════════════════════════
    CHATBOT INPUT
    ══════════════════════════════════════ */
-.chat-section {
-  margin-top: 12px;
-}
 .chat-input-wrap {
   position: relative;
 }
@@ -494,125 +493,6 @@ main { flex: 1; padding: 20px 0 100px; }
   border-color: var(--bull);
   box-shadow: 0 0 0 3px rgba(13,138,99,0.08);
 }
-.chat-send {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--text-4);
-  transition: all var(--dur-fast);
-}
-.chat-send:hover { color: var(--bull); background: var(--bull-bg); }
-.chat-send svg { width: 16px; height: 16px; }
-
-.chat-response {
-  margin-top: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  display: none;
-}
-.chat-response.visible { display: block; }
-.chat-response-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.chat-ai-badge {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--bull);
-  background: var(--bull-bg);
-  padding: 2px 8px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.chat-response-signal {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 10px;
-}
-.chat-signal-item {
-  font-family: var(--mono);
-  font-size: 18px;
-  font-weight: 700;
-}
-.chat-signal-item.bull { color: var(--bull); }
-.chat-signal-item.bear { color: var(--bear); }
-.chat-response-text {
-  font-size: 13.5px;
-  line-height: 1.75;
-  color: var(--text-2);
-}
-
-/* ══════════════════════════════════════
-   BENTO GRID — Correlation / Flow
-   ══════════════════════════════════════ */
-.bento-grid {
-  display: grid;
-  gap: 10px;
-}
-.bento-2 { grid-template-columns: 1fr 1fr; }
-.bento-3 { grid-template-columns: 1fr 1fr 1fr; }
-
-.bento-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px;
-  transition: box-shadow var(--dur-fast);
-}
-.bento-card:hover { box-shadow: var(--shadow-md); }
-
-.bento-eyebrow {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-4);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 6px;
-}
-.bento-value {
-  font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-.bento-value.bull { color: var(--bull); }
-.bento-value.bear { color: var(--bear); }
-.bento-sub {
-  font-size: 12px;
-  color: var(--text-3);
-  margin-top: 4px;
-}
-
-/* Sparkline */
-.sparkline {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 24px;
-  margin-top: 8px;
-}
-.spark-bar {
-  flex: 1;
-  border-radius: 1px 1px 0 0;
-  min-height: 2px;
-  transition: height var(--dur-slow) var(--ease);
-}
-.spark-bar.up { background: var(--bull); opacity: 0.6; }
-.spark-bar.down { background: var(--bear); opacity: 0.6; }
-
 /* ── Foreign Investor Flow ── */
 .flow-bar-wrap {
   background: var(--surface);
@@ -857,13 +737,6 @@ main { flex: 1; padding: 20px 0 100px; }
   align-items: center;
   gap: 16px;
 }
-.fg-arc {
-  position: relative;
-  width: 80px;
-  height: 48px;
-  flex-shrink: 0;
-}
-.fg-arc svg { width: 80px; height: 48px; }
 .fg-score-big {
   font-family: var(--mono);
   font-size: 24px;
@@ -1114,7 +987,10 @@ main { flex: 1; padding: 20px 0 100px; }
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: -0.02em;
+  display: -webkit-box;
   -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .news-excerpt {
   font-size: 13px;
@@ -1185,24 +1061,6 @@ main { flex: 1; padding: 20px 0 100px; }
 .stagger > .reveal:nth-child(6) { transition-delay: 200ms; }
 .stagger > .reveal:nth-child(7) { transition-delay: 240ms; }
 .stagger > .reveal:nth-child(8) { transition-delay: 280ms; }
-
-/* Number count-up */
-.count-up {
-  display: inline-block;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Skeleton */
-.skeleton {
-  background: linear-gradient(90deg, var(--surface-alt) 25%, var(--surface-hover) 50%, var(--surface-alt) 75%);
-  background-size: 200% 100%;
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-  border-radius: var(--radius);
-}
-@keyframes skeleton-pulse {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
 
 /* Loading state */
 .loading-state {
