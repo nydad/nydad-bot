@@ -1,5 +1,5 @@
 /**
- * nydad Daily Digest v2.0
+ * NYD Daily Digest v2.0
  * 5-tab dashboard: 국내 투자 | 코인 투자 | AI 업계 | AI 코딩 | KBO
  * Paper Ledger design — connects to real JSON data from /data/
  */
