@@ -387,10 +387,6 @@ def fetch_foreign_flow() -> dict:
     except Exception as e:
         log.warning("Naver Finance foreign flow failed: %s", e)
 
-    # Attempt 3: KRX retry (already tried as #1, skip)
-    except Exception as e:
-        log.warning("KRX foreign flow failed: %s", e)
-
     # Attempt 3: Fallback — estimate from ETF flows
     try:
         result = _estimate_foreign_flow_from_etf()
@@ -704,16 +700,32 @@ def build_analysis_context(
             sections.append(f"[{cat_name}]")
             sections.extend(cat_entries)
 
-    # --- Correlation Data ---
-    sections.append("\n=== CORRELATION ANALYSIS (20-day rolling) ===")
+    # --- Correlation Data (강도순 정렬, 약한 상관은 필터) ---
+    sections.append("\n=== CORRELATION ANALYSIS (20-day rolling, lag-1) ===")
+    sections.append("  ※ r > 0.6 = 신뢰 가능, r 0.3~0.6 = 참고, r < 0.3 = 무시 권장")
+    strong_corrs = []
+    weak_corrs = []
     for corr in correlations.get("correlations", []):
         implied = f", implied move: {corr['implied_move']:+.2f}%" if corr.get("implied_move") is not None else ""
-        sections.append(
-            f"  {corr['pair']}: r={corr['coefficient']:+.4f} ({corr['strength']}){implied}"
-        )
+        abs_corr = abs(corr['coefficient'])
+        if abs_corr >= 0.5:
+            tag = "★" if abs_corr >= 0.7 else ""
+            strong_corrs.append(
+                f"  {tag}{corr['pair']}: r={corr['coefficient']:+.4f} ({corr['strength']}){implied}"
+            )
+        else:
+            weak_corrs.append(
+                f"  {corr['pair']}: r={corr['coefficient']:+.4f} (약함 — 방향 근거로 사용 비권장){implied}"
+            )
+    if strong_corrs:
+        sections.append("[HIGH CONFIDENCE PAIRS]")
+        sections.extend(strong_corrs)
+    if weak_corrs:
+        sections.append("[LOW CONFIDENCE PAIRS — 참고만]")
+        sections.extend(weak_corrs)
 
     if correlations.get("top_correlations"):
-        sections.append("\nTOP 3 STRONGEST CORRELATIONS:")
+        sections.append("\nTOP 3 STRONGEST CORRELATIONS (핵심 판단 근거):")
         for i, tc in enumerate(correlations["top_correlations"], 1):
             implied = f", implied move: {tc['implied_move']:+.2f}%" if tc.get("implied_move") is not None else ""
             sections.append(
@@ -729,9 +741,9 @@ def build_analysis_context(
         if foreign_flow.get("consecutive_days"):
             sections.append(f"  Consecutive days: {foreign_flow['consecutive_days']}")
         if foreign_flow.get("institutional") is not None:
-            sections.append(f"  Institutional net: {foreign_flow['institutional']} billion KRW")
+            sections.append(f"  Institutional net: {foreign_flow['institutional']} {unit}")
         if foreign_flow.get("retail") is not None:
-            sections.append(f"  Retail net: {foreign_flow['retail']} billion KRW")
+            sections.append(f"  Retail net: {foreign_flow['retail']} {unit}")
         sections.append(f"  Source: {foreign_flow.get('source', 'unknown')}")
     else:
         sections.append("  Data unavailable — consider this as neutral/unknown factor")
@@ -763,15 +775,15 @@ def build_analysis_context(
         if dxy:
             sections.append(f"  Dollar Index: {dxy['current']} ({dxy['change_pct']:+.2f}%)")
 
-    # --- Oil & Gold ---
+    # --- Oil & Gold (참고용 — KOSPI 방향 예측력 없음, 백테스트 확인) ---
     oil = prices.get("CL=F")
     gold = prices.get("GC=F")
     if oil or gold:
-        sections.append("\n=== COMMODITIES DETAIL ===")
+        sections.append("\n=== COMMODITIES (참고용 — KOSPI 방향 예측력 없음) ===")
         if oil:
-            sections.append(f"  WTI Crude: ${oil['current']} ({oil['change_pct']:+.2f}%)")
+            sections.append(f"  WTI Crude: ${oil['current']} ({oil['change_pct']:+.2f}%) [KOSPI 상관 없음]")
         if gold:
-            sections.append(f"  Gold: ${gold['current']} ({gold['change_pct']:+.2f}%)")
+            sections.append(f"  Gold: ${gold['current']} ({gold['change_pct']:+.2f}%) [KOSPI 상관 없음]")
 
     # --- Recent news headlines ---
     if articles:
@@ -816,82 +828,41 @@ def build_analysis_context(
 # ---------------------------------------------------------------------------
 # Phase 4: LLM-Driven Investment Insights
 # ---------------------------------------------------------------------------
-ANALYSIS_SYSTEM_PROMPT = """You are a hedge fund quant analyst. Provide actionable directional insight for a Korean retail investor checking markets at 7 AM KST (pre-market).
+ANALYSIS_SYSTEM_PROMPT = """헤지펀드 퀀트 애널리스트. 오전 7시(장전) 한국 개인 투자자용 방향 인사이트 제공.
 
-## CRITICAL RULE: "Expected gap-down" ≠ "SHORT recommendation"
-This analysis is generated at 7 AM KST, BEFORE the Korean market opens.
-- An expected gap-down is ALREADY PRICED IN. SHORT means betting on FURTHER decline beyond the gap.
-- If a gap-down open is expected but intraday reversal is likely → LONG is correct.
-- If a gap-up open is expected but selling pressure is likely → SHORT is correct.
-- **You are predicting the CLOSING direction**, not the opening direction.
-- Overnight futures decline = "likely gap-down open", NOT "short is favorable".
+## 핵심 규칙
+1. 반드시 LONG 또는 SHORT. 중립 금지. 51%라도 한쪽 선택.
+2. 뻔한 말 금지. 구체적 수치와 상관계수 근거 필수.
+3. "갭다운 예상" ≠ "숏 추천". 갭은 이미 반영된 정보. 종가 방향을 예측하라.
+4. 뉴스는 이미 야간선물 가격에 반영됨 — 뉴스+선물 이중 카운트 금지.
 
-## Morning watch-point: 11 AM 60-min candle (backtested)
-- Bullish 11 AM candle → afternoon rally 71% of the time (significant signal)
-- Bearish 11 AM candle → afternoon decline only 42% (reversal frequent — low reliability)
-- Mention as a **scenario pivot condition**, NOT as directional evidence.
+## 판단 원칙
+- NQ/SOX/ES 야간선물이 KOSPI 시가의 최강 선행지표 (NQ 상관 r≈0.85)
+- 상승 시그널은 매우 강하지만 (88~95%), 하락 시그널은 단일 팩터로 약함 (59~65%)
+- 하락 판단은 반드시 복수 팩터 동시 확인 필요 (SOX+VIX+환율 등)
+- 갭 방향은 종가 방향과 거의 일치하나, 장중 확장은 보장 안 됨
+- 금/유가는 KOSPI 방향 예측력 없음 — 참고만 하고 방향 시그널로 사용 금지
+- 데이터에 상관계수와 implied move가 포함됨 — 이를 근거로 섹터별 방향 판단
 
-## Core rules
-1. You MUST pick LONG or SHORT. Neutral is forbidden. Pick a side even at 51%.
-2. NO platitudes ("markets are uncertain", "exercise caution", "volatility ahead"). Banned.
-3. Include specific numbers. Not "may rise" but "SOX +2.3% + MU +1.8% implies Samsung +1.5%".
-4. Use correlation data actively:
-   - MU/WDC ↔ SK Hynix has the highest lag-1 correlation among Korean single stocks (r ≈ 0.65~0.80 lagged)
-   - SOX index is the broadest semiconductor sentiment proxy (r ≈ 0.75 lagged to Samsung)
-   - Prioritize pairs with high implied moves
-5. Use foreign investor flow data as a key directional input when available.
-6. key_insight must be non-obvious — derived from THIS specific data combination only.
+## 시가 전망 표현 (summary에 사용)
+- ES/NQ > +1%: "강한 상승 출발 예상" → 종가 방향 별도 제시
+- ES/NQ +0.3~1%: "상승 출발 예상"
+- ES/NQ ±0.3%: "보합 출발 예상"
+- ES/NQ < -0.3%: "하락 출발 예상"
 
-## Sector correlation framework (lagged 1-day, backtested)
-Recommend sectors based on US leader performance:
-- **Memory/Semis**: WDC(r=0.80), MU(r=0.74), LRCX(r=0.72), SOX(r=0.75) → Samsung, SK Hynix
-- **2nd Battery/EV**: TSLA(r=0.69), SQM(r=0.69), ALB → LG Energy, Samsung SDI
-- **Defense/Space**: LMT, RTX, RKLB → Hanwha Aerospace, KAI
-- **Power Grid**: NRG(r=0.72), VST(r=0.70) → HD Hyundai Electric
-- **Robotics**: ISRG(r=0.47), ROK → Korean robotics stocks
-- Each sector transmits with ~1 day lag from US close to Korean open.
-
-## Opening outlook expression guide (for summary field)
-Use these opening outlook phrases in the summary based on overnight data:
-- ES/NQ futures > +1%: "강한 상승 출발 예상" (strong gap-up expected)
-- ES/NQ futures +0.3~1%: "상승 출발 예상" (gap-up expected)
-- ES/NQ futures -0.3~+0.3%: "보합 출발 예상" (flat open expected)
-- ES/NQ futures -0.3~-1%: "하락 출발 예상" (gap-down expected)
-- ES/NQ futures < -1%: "강한 하락 출발 예상" (strong gap-down expected)
-Then separately state your CLOSING direction prediction (which may differ from the opening).
-
-## Response format (JSON)
-All text fields (summary, detail, key_insight, reason) must be in KOREAN.
+## 응답 형식 (JSON, 모든 텍스트 한국어)
 {
-  "direction": "long" or "short" (NEVER "neutral"),
-  "long_pct": integer 51~85,
-  "short_pct": integer 15~49 (long_pct + short_pct = 100),
-  "confidence": float 0.5~0.9,
-  "summary": "3 sentences IN KOREAN. Closing direction forecast + evidence + sectors. Numbers required.",
-  "factors": [
-    {"name": "factor name in Korean", "signal": "bullish/bearish", "detail": "specific numbers in Korean"}
-  ],
-  "correlations": [
-    {"pair": "Micron <-> SK Hynix", "coefficient": 0.65, "implied_move": "+1.2%"}
-  ],
+  "direction": "long" or "short",
+  "long_pct": 51~85,
+  "short_pct": 15~49,
+  "confidence": 0.5~0.9,
+  "summary": "3문장. 종가 방향 + 핵심 근거(상관계수/선물) + 유망 섹터. 수치 필수.",
+  "factors": [{"name": "팩터명", "signal": "bullish/bearish", "detail": "수치 근거"}],
+  "correlations": [{"pair": "Micron <-> SK Hynix", "coefficient": 0.70, "implied_move": "+1.2%"}],
   "foreign_flow": {"net_amount": 1500, "consecutive_days": 3, "direction": "buy"},
-  "key_insight": "1 sentence IN KOREAN — 11AM candle watch-point + non-obvious edge.",
-  "sectors": [
-    {"name": "sector name in Korean", "direction": "overweight/underweight", "reason": "1 sentence in Korean based on US leader"}
-  ]
-}
-
-## Decision framework (priority order)
-1. **Overnight futures are the #1 signal**: ES=F↔KOSPI open r=0.78, SOX↔KOSPI open r=0.85
-2. KOSPI open→close same sign ~70% (30% intraday reversals — do NOT assume gap = close)
-3. Yesterday's news is ALREADY reflected in overnight futures prices. Do NOT double-count news + futures as separate factors.
-4. MU↔SK Hynix actual lagged correlation ≈ 0.65~0.80 (strong next-day predictor)
-5. SOX↔Korean semis > 0.6 + SOX up → semiconductor LONG signal
-6. Foreign 3+ consecutive days net buy + KRW strengthening → strong LONG
-7. VIX > 25 + KRW weakening + foreign selling → SHORT
-8. Correlation breakdown (r < 0.3) = decoupling → focus on Korea-specific variables
-9. DXY up + KRW down simultaneously = EM capital outflow risk
-10. Geopolitical risk: Iran mention alone = low weight, only actual military conflict = high weight"""
+  "key_insight": "1문장 — 이 데이터 조합에서만 나오는 비직관적 엣지.",
+  "sectors": [{"name": "섹터명", "direction": "overweight/underweight", "reason": "상관계수 근거 1문장"}]
+}"""
 
 
 def generate_investment_insights(context: str) -> dict:
@@ -1077,8 +1048,8 @@ def _fallback_analysis(context: str) -> dict:
 
     # Parse S&P 500 Futures
     spf_match = re.search(r"S&P 500 Futures.*?\(([\+\-][\d.]+)%\)", context)
+    spf_chg = float(spf_match.group(1)) if spf_match else 0.0
     if spf_match:
-        spf_chg = float(spf_match.group(1))
         if spf_chg > 0.3:
             bull_signals += 1
             factors.append({"name": "미 선물 강세", "signal": "bullish", "detail": f"{spf_chg:+.2f}%"})
@@ -1116,13 +1087,22 @@ def _fallback_analysis(context: str) -> dict:
         bear_signals += 1
         factors.append({"name": "외국인 순매도", "signal": "bearish", "detail": "외국인 매도 지속"})
 
-    # Determine direction — always pick a side
-    if bull_signals >= bear_signals:
+    # Determine direction — pick a side, but no bias on ties
+    if bull_signals > bear_signals:
         direction = "long"
         long_pct = min(85, 51 + (bull_signals - bear_signals) * 5)
-    else:
+    elif bear_signals > bull_signals:
         direction = "short"
         long_pct = max(15, 49 - (bear_signals - bull_signals) * 5)
+    else:
+        # 동점: 선물 방향으로 tiebreak (line 1054의 spf_chg 재사용)
+        if spf_chg > 0:
+            direction = "long"
+        elif spf_chg < 0:
+            direction = "short"
+        else:
+            direction = "long"  # 최후의 기본값
+        long_pct = 51  # 동점이므로 최소 확신
 
     short_pct = 100 - long_pct
     confidence = round(max(bull_signals, bear_signals) / max(len(factors), 1) * 0.9, 2)

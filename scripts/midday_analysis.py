@@ -316,11 +316,18 @@ Synthesize morning data (KOSPI 9:00-12:00 price action, 11 AM candle, foreign in
 - Now the market has actually opened and we have real intraday data.
 - Compare the 7 AM prediction with actual morning price action. Update the afternoon forecast.
 
+## Backtested gap statistics (2026-01~03)
+- Gap up > 0.3%: close > prev close 100% of the time (N=28) — gap direction holds
+- Gap down < -0.3%: close < prev close 71% (N=21) — less reliable
+- BUT intraday direction (close vs open) is 52% — gap holds but does NOT extend
+- 삼성전자 > +1% → KOSPI next day up 85% (N=26) — Samsung leads index
+
 ## Rules
 1. MUST pick LONG or SHORT. Neutral forbidden.
 2. NO platitudes. Specific numbers required.
 3. Foreign investor flow is the KEY variable for intraday direction changes.
 4. Do NOT simply extrapolate morning trend. Morning decline + bullish 11 AM candle = afternoon reversal possible.
+5. If morning gap was large (>1%), the gap direction has 87~100% chance of matching close direction — strong confidence warranted.
 
 ## JSON response format
 ALL text fields must be in KOREAN (한국어).

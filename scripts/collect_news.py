@@ -532,15 +532,26 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
         else:
             factors.append({"name": "VIX 경계 구간", "signal": "neutral", "detail": f"VIX {v:.1f}", "weight": 0.5})
 
-    # 2. US Futures (야간가격 블록, weight=2.0 — 가장 강력한 선행지표)
+    # 2. US Futures — ES=F (백테스트: 상승 88%, 하락 59% → 비대칭 가중치)
     spf = find("futures", "S&P 500")
     if spf:
         if spf["change_pct"] > 0.3:
-            factors.append({"name": "미 선물 강세", "signal": "bullish", "detail": f"{spf['change_pct']:+.2f}%", "weight": 2.0})
+            factors.append({"name": "미 선물 강세", "signal": "bullish", "detail": f"ES=F {spf['change_pct']:+.2f}% (hit 88%)", "weight": 2.0})
         elif spf["change_pct"] < -0.3:
-            factors.append({"name": "미 선물 약세", "signal": "bearish", "detail": f"{spf['change_pct']:+.2f}%", "weight": 2.0})
+            factors.append({"name": "미 선물 약세", "signal": "bearish", "detail": f"ES=F {spf['change_pct']:+.2f}% (hit 59%)", "weight": 1.2})
         else:
-            factors.append({"name": "미 선물 보합", "signal": "neutral", "detail": f"{spf['change_pct']:+.2f}%", "weight": 0.5})
+            factors.append({"name": "미 선물 보합", "signal": "neutral", "detail": f"ES=F {spf['change_pct']:+.2f}%", "weight": 0.5})
+
+    # 2b. NQ Futures — 백테스트 최강 단일 시그널 (상승 95%, 하락 58%)
+    nqf = find("futures", "나스닥")
+    if nqf:
+        if nqf["change_pct"] > 0.5:
+            factors.append({"name": "나스닥 선물 강세", "signal": "bullish", "detail": f"NQ=F {nqf['change_pct']:+.2f}% (hit 95%)", "weight": 2.5})
+        elif nqf["change_pct"] < -0.5:
+            factors.append({"name": "나스닥 선물 약세", "signal": "bearish", "detail": f"NQ=F {nqf['change_pct']:+.2f}% (hit 58%)", "weight": 1.0})
+        elif abs(nqf["change_pct"]) > 0.3:
+            signal = "bullish" if nqf["change_pct"] > 0 else "bearish"
+            factors.append({"name": "나스닥 선물 소폭 변동", "signal": signal, "detail": f"NQ=F {nqf['change_pct']:+.2f}%", "weight": 0.8})
 
     # 3. USD/KRW (야간가격 블록, weight=1.5)
     krw = find("forex", "달러/원")
@@ -598,13 +609,17 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
             factors.append({"name": "금 보합", "signal": "neutral",
                             "detail": f"Gold ${gold['price']:.0f}", "weight": 0.2})
 
-    # 8. Philadelphia Semiconductor (SOX) (weight=1.5 — 섹터 핵심 선행지표)
+    # 8. Philadelphia Semiconductor (SOX) — 백테스트: 상승 90%, 하락 74% (유일한 강한 약세 시그널)
     sox = find("us_indices", "반도체")
     if sox:
-        if sox["change_pct"] > 0.5:
-            factors.append({"name": "SOX 반도체 강세", "signal": "bullish", "detail": f"SOX {sox['change_pct']:+.2f}%", "weight": 1.5})
+        if sox["change_pct"] > 1.0:
+            factors.append({"name": "SOX 반도체 강세", "signal": "bullish", "detail": f"SOX {sox['change_pct']:+.2f}% (>1% hit 90%)", "weight": 2.0})
+        elif sox["change_pct"] > 0.5:
+            factors.append({"name": "SOX 반도체 소폭 강세", "signal": "bullish", "detail": f"SOX {sox['change_pct']:+.2f}%", "weight": 1.2})
+        elif sox["change_pct"] < -1.0:
+            factors.append({"name": "SOX 반도체 약세", "signal": "bearish", "detail": f"SOX {sox['change_pct']:+.2f}% (<-1% hit 74%)", "weight": 1.8})
         elif sox["change_pct"] < -0.5:
-            factors.append({"name": "SOX 반도체 약세", "signal": "bearish", "detail": f"SOX {sox['change_pct']:+.2f}%", "weight": 1.5})
+            factors.append({"name": "SOX 반도체 소폭 약세", "signal": "bearish", "detail": f"SOX {sox['change_pct']:+.2f}%", "weight": 1.0})
         else:
             factors.append({"name": "SOX 반도체 보합", "signal": "neutral", "detail": f"SOX {sox['change_pct']:+.2f}%", "weight": 0.3})
 
@@ -655,8 +670,11 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
     # ── 가중치 합산 방향 결정 ──
     # 각 factor의 weight 필드를 사용한 weighted sum.
     # 뉴스 팩터(지정학 등)가 가격 팩터와 같은 방향이면 가중치 50% 감산 (이미 가격에 반영)
-    PRICE_FACTORS = {"미 선물 강세", "미 선물 약세", "원화 강세", "원화 약세",
-                     "SOX 반도체 강세", "SOX 반도체 약세",
+    PRICE_FACTORS = {"미 선물 강세", "미 선물 약세",
+                     "나스닥 선물 강세", "나스닥 선물 약세", "나스닥 선물 소폭 변동",
+                     "원화 강세", "원화 약세",
+                     "SOX 반도체 강세", "SOX 반도체 소폭 강세",
+                     "SOX 반도체 약세", "SOX 반도체 소폭 약세",
                      "달러 강세 (EM 자금유출 우려)", "달러 약세 (EM 자금유입 기대)"}
     NEWS_FACTORS = {"지정학 리스크 심각", "지정학 리스크 높음", "지정학 리스크 주의",
                     "유가 급등 (지정학 우려)"}
@@ -679,12 +697,12 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
 
     if total_weight == 0:
         direction = "neutral"
-    elif bull_weight > bear_weight * 1.3:  # 30% 마진 — 방향 전환에 확실한 우위 필요
+    elif bull_weight > bear_weight * 1.3:
         direction = "long"
     elif bear_weight > bull_weight * 1.3:
         direction = "short"
     elif bull_weight > bear_weight:
-        direction = "long"  # 마진 미달이지만 우위는 있음 → 약한 콜
+        direction = "long"
     elif bear_weight > bull_weight:
         direction = "short"
     else:
