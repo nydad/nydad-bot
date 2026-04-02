@@ -26,6 +26,11 @@ from pathlib import Path
 import requests
 
 try:
+    import pytz
+except ImportError:
+    pytz = None
+
+try:
     import yfinance as yf
 except ImportError:
     yf = None
@@ -148,8 +153,7 @@ def fetch_morning_session() -> dict:
         # tz-aware인 경우 KST로 변환, tz-naive인 경우 KST로 가정
         for i, ts in enumerate(opens.index):
             # 타임존 처리: tz-aware → KST 변환, tz-naive → 그대로 (KRX는 KST)
-            if hasattr(ts, 'tz') and ts.tz is not None:
-                import pytz
+            if hasattr(ts, 'tz') and ts.tz is not None and pytz:
                 kst_tz = pytz.timezone("Asia/Seoul")
                 ts_local = ts.astimezone(kst_tz)
                 hour, minute = ts_local.hour, ts_local.minute
@@ -179,19 +183,9 @@ def fetch_morning_session() -> dict:
                          result["candle_11am"]["body_pct"])
                 break
 
-        # Volume ratio vs. average
+        # Volume ratio — skip extra yfinance call, use intraday volume only
         if len(volume) >= 2:
-            today_vol = float(volume.sum())
-            # Compare to previous day volume (fetch separately)
-            try:
-                prev = yf.download("^KS11", period="5d", interval="1d",
-                                   progress=False, timeout=10)
-                if not prev.empty and len(prev["Volume"].dropna()) >= 2:
-                    avg_vol = float(prev["Volume"].dropna().iloc[:-1].mean())
-                    if avg_vol > 0:
-                        result["volume_ratio"] = round(today_vol / avg_vol, 2)
-            except Exception:
-                pass
+            result["morning_volume"] = int(volume.sum())
 
         log.info("KOSPI morning: %.2f → %.2f (%+.2f%%), trend=%s",
                  result["kospi_open"] or 0, result["kospi_current"] or 0,
