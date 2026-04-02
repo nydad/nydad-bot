@@ -639,6 +639,90 @@ def _estimate_foreign_flow_from_etf() -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Phase 2b: KOSPI200 Night Futures from News Headlines
+# ---------------------------------------------------------------------------
+def extract_night_futures_from_news(articles: list) -> dict:
+    """Extract KOSPI200 night futures data from news headlines.
+
+    KOSPI200 야간선물은 yfinance에서 제공되지 않으므로,
+    뉴스 헤드라인에서 파싱하여 추출합니다.
+    """
+    result = {
+        "found": False,
+        "change_pct": None,
+        "close_price": None,
+        "headline": None,
+        "source": None,
+    }
+
+    if not articles:
+        return result
+
+    # 야간선물 관련 키워드 패턴
+    # 실제 헤드라인 예시:
+    #   "코스피200 야간선물, 4.32% 급락 '털썩'…코스피 시초가 '하락' 예상"
+    #   "[속보] 코스피200 야간선물 6% 가까이 급반등…장중 850선 회복"
+    #   "야간선물 1.5% 하락 마감"
+    patterns = [
+        re.compile(r"야간선물[,\s]*(\d+\.?\d*)%", re.IGNORECASE),
+        re.compile(r"야간선물[,\s]+([+-]?\d+\.?\d*)%", re.IGNORECASE),
+        re.compile(r"야간.*?선물[,\s]*(\d+\.?\d*)%", re.IGNORECASE),
+        re.compile(r"코스피200\s*야간선물[,\s]*(\d+\.?\d*)%", re.IGNORECASE),
+        re.compile(r"코스피.*?야간.*?(\d+\.?\d*)%", re.IGNORECASE),
+        re.compile(r"KOSPI.*?200.*?futures?.*?(\d+\.?\d*)%", re.IGNORECASE),
+        re.compile(r"night.*?futures?.*?(\d+\.?\d*)%", re.IGNORECASE),
+    ]
+
+    # 방향 키워드 (퍼센트가 부호 없이 나올 때 방향 판단)
+    bearish_words = {"급락", "하락", "떨어", "밀려", "빠져", "폭락", "약세", "decline", "drop", "fall", "down"}
+    bullish_words = {"급등", "상승", "반등", "올라", "뛰어", "폭등", "강세", "rally", "surge", "rise", "up", "회복"}
+
+    # 야간선물 종가/포인트 패턴
+    price_patterns = [
+        re.compile(r"(\d{3,4})선\s*(?:회복|돌파|붕괴|이탈)", re.IGNORECASE),
+        re.compile(r"야간선물.*?(\d{3,4}\.?\d*)\s*(?:pt|포인트|에)", re.IGNORECASE),
+    ]
+
+    for a in articles:
+        text = a.get("title", "") + " " + a.get("description", a.get("summary", ""))
+
+        for pat in patterns:
+            m = pat.search(text)
+            if m:
+                try:
+                    pct = float(m.group(1))
+
+                    # 부호 판단: 숫자에 부호가 없으면 주변 키워드로 방향 결정
+                    text_lower = text.lower()
+                    is_bearish = any(w in text_lower for w in bearish_words)
+                    is_bullish = any(w in text_lower for w in bullish_words)
+                    if is_bearish and not is_bullish:
+                        pct = -abs(pct)
+                    elif is_bullish and not is_bearish:
+                        pct = abs(pct)
+                    # 양쪽 다 있거나 없으면 원래 부호 유지
+
+                    result["found"] = True
+                    result["change_pct"] = pct
+                    result["headline"] = a.get("title", "")[:100]
+                    result["source"] = a.get("source", "")
+                    log.info("KOSPI200 night futures from news: %+.2f%% [%s]", pct, result["source"])
+
+                    # 종가/포인트도 찾기
+                    for ppat in price_patterns:
+                        pm = ppat.search(text)
+                        if pm:
+                            result["close_price"] = float(pm.group(1).replace(",", ""))
+                            break
+
+                    return result
+                except (ValueError, IndexError):
+                    continue
+
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Phase 3: Build Analysis Context
 # ---------------------------------------------------------------------------
 def build_analysis_context(
@@ -678,6 +762,20 @@ def build_analysis_context(
     sections.append("  ⚠️ ALL news headlines below are ALREADY PRICED INTO the US close and overnight futures.")
     sections.append("     Do NOT count news + futures as separate bearish/bullish factors — that's double-counting.")
     sections.append("     The futures price IS the market's reaction to the news.")
+
+    # --- KOSPI200 Night Futures (야간선물) from news ---
+    if articles:
+        night_futures = extract_night_futures_from_news(articles)
+        if night_futures["found"]:
+            sections.append("\n=== KOSPI200 NIGHT FUTURES (야간선물) — #1 LEADING INDICATOR ===")
+            sections.append(f"  Change: {night_futures['change_pct']:+.2f}%")
+            if night_futures["close_price"]:
+                sections.append(f"  Close: {night_futures['close_price']:.2f}")
+            sections.append(f"  Source: [{night_futures['source']}] {night_futures['headline']}")
+            sections.append("  ⚠️ This is the SINGLE MOST IMPORTANT data point for today's KOSPI open.")
+        else:
+            sections.append("\n=== KOSPI200 NIGHT FUTURES (야간선물) ===")
+            sections.append("  Data not found in news headlines. Using US futures (ES=F, NQ=F) as proxy.")
 
     # --- Market Prices ---
     sections.append("\n=== MARKET PRICES & CHANGES ===")

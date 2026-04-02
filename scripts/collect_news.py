@@ -518,8 +518,26 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
         return None
 
     # ── 가중치 시스템 ──
-    # 45% 밤사이 가격(선물/VIX/SOX/환율) | 30% 한국고유(외국인/KOSPI) | 15% 섹터 | 10% 뉴스
-    # 각 factor에 weight 부여 (기본 1.0), 최종 direction은 weighted sum으로 결정
+    # 야간선물 > 미국선물 > VIX/SOX/환율 > 섹터 > 뉴스
+
+    # 0. KOSPI200 야간선물 (뉴스 헤드라인에서 추출 — 최강 선행지표, weight=3.0)
+    if invest_articles:
+        try:
+            from domestic_analysis import extract_night_futures_from_news
+            nf_data = extract_night_futures_from_news(invest_articles)
+            if nf_data.get("found") and nf_data.get("change_pct") is not None:
+                nf_pct = nf_data["change_pct"]
+                if nf_pct > 0.3:
+                    factors.append({"name": "야간선물 상승", "signal": "bullish",
+                                    "detail": f"코스피200 야간선물 {nf_pct:+.2f}%", "weight": 3.0})
+                elif nf_pct < -0.3:
+                    factors.append({"name": "야간선물 하락", "signal": "bearish",
+                                    "detail": f"코스피200 야간선물 {nf_pct:+.2f}%", "weight": 3.0})
+                else:
+                    factors.append({"name": "야간선물 보합", "signal": "neutral",
+                                    "detail": f"코스피200 야간선물 {nf_pct:+.2f}%", "weight": 0.5})
+        except Exception:
+            pass
 
     # 1. VIX (야간가격 블록, weight=1.5)
     vix = find("volatility", "VIX")
