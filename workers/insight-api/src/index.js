@@ -583,19 +583,24 @@ function buildContext(data, patterns) {
     etH >= 16 && etH < 20 ? "미국 애프터마켓" :
     etH >= 4 && etH < 9 ? "미국 프리마켓" : "미국 장 마감";
 
-  lines.push(`\n현재 한국시간: ${kstH}시 | 미국동부: ${etH}시`);
-  lines.push(`시장 상태: ${krStatus} / ${usStatus}`);
+  lines.push(`\n=== TIME CONTEXT ===`);
+  lines.push(`KST: ${kstH}시 | US Eastern: ${etH}시`);
+  lines.push(`${krStatus} / ${usStatus}`);
+  lines.push(`⚠️ All prices above are from the LAST completed session.`);
+  lines.push(`   US data = yesterday's US session (closed ~06:00 KST today).`);
+  lines.push(`   KOSPI data = yesterday's KR session (closed ~15:30 KST yesterday).`);
+  lines.push(`   News is ALREADY reflected in these prices. Do NOT double-count.`);
 
   if (isKrWeekend && isUsWeekend) {
-    lines.push("주말입니다. 월요일 전망을 제시하세요.");
+    lines.push("주말. 월요일 시가 전망을 제시하세요.");
   } else if (krStatus.includes("진행중")) {
-    lines.push("한국장 진행중. 현재 흐름 기반 남은 시간 전망 제시.");
+    lines.push("한국장 진행중. 장중 데이터로 남은 시간 전망.");
   } else if (usStatus.includes("진행중") || usStatus.includes("프리마켓")) {
-    lines.push("미국장 진행중. 미국 시장 동향이 내일 한국장에 미칠 영향 분석.");
+    lines.push("미국장 진행중. 미국 동향이 내일 한국 시가에 미칠 영향 분석.");
   } else if (kstH < 9 && !isKrWeekend) {
-    lines.push("한국 장 시작 전. 야간선물/미국 마감 기반 오늘 전망 제시.");
+    lines.push("한국 장 시작 전. 야간선물이 오늘 시가의 최강 선행지표.");
   } else {
-    lines.push("양국 장 마감. 현재 선물/지표 기반 내일 전망 제시.");
+    lines.push("양국 장 마감. 선물/지표 기반 내일 시가 전망.");
   }
 
   return lines.join("\n");

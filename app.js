@@ -19,7 +19,16 @@
     futures: "선물", volatility: "변동성", forex: "환율",
     commodities: "원자재", bonds: "채권"
   };
-  var DIR_KR = { long: "LONG 롱", short: "SHORT 숏", neutral: "NEUTRAL 중립" };
+  var DIR_KR = { long: "상승 출발", short: "하락 출발", neutral: "보합 출발" };
+  function dirLabel(dir, longPct) {
+    if (dir === "long") {
+      return longPct >= 70 ? "강한 상승 출발" : longPct >= 55 ? "상승 출발" : "약보합 상승 출발";
+    } else if (dir === "short") {
+      var shortPct = 100 - longPct;
+      return shortPct >= 70 ? "강한 하락 출발" : shortPct >= 55 ? "하락 출발" : "약보합 하락 출발";
+    }
+    return "보합 출발";
+  }
   var STREAK_KR = { win: "연승", lose: "연패" };
 
   function getKstDateKey() {
@@ -455,8 +464,8 @@
     h += '<div class="signal-hero ' + safeDir(dir) + ' reveal" style="margin-top:20px">';
     // Verdict first (Bloomberg/Robinhood: large direction call is the hero)
     h += '<div class="signal-top"><div class="signal-direction-wrap">';
-    h += '<div class="signal-eyebrow">오늘의 전망 · KOSPI Direction <span style="font-size:10px;color:var(--text-3)">(7시 장전 시황 · 전일 종가 기준)</span></div>';
-    h += '<div class="signal-direction">' + (DIR_KR[dir] || dir) + '</div>';
+    h += '<div class="signal-eyebrow">오늘의 시가 전망 <span style="font-size:10px;color:var(--text-3)">7AM KST · 야간선물 기반</span></div>';
+    h += '<div class="signal-direction">' + dirLabel(dir, longPct) + '</div>';
     h += '</div>';
     h += '<div class="signal-confidence"><div class="signal-conf-label">Confidence</div>';
     h += '<div class="signal-conf-value">' + Math.round(conf * 100) + '%</div>';

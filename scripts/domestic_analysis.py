@@ -660,15 +660,27 @@ def build_analysis_context(
     """
     sections = []
     now = datetime.now(KST)
-    sections.append(f"=== ANALYSIS DATE: {now.strftime('%Y-%m-%d %A %H:%M KST')} ===\n")
+    sections.append(f"=== ANALYSIS TIMESTAMP: {now.strftime('%Y-%m-%d %A %H:%M KST')} ===")
+    sections.append("")
+    sections.append("=== TIME CHAIN (CRITICAL — read this first) ===")
+    sections.append(f"  NOW: {now.strftime('%Y-%m-%d %H:%M')} KST (Korean time)")
+    sections.append("  KOSPI: CLOSED (last session ended yesterday ~15:30 KST)")
+    sections.append("  US market: CLOSED (ended ~06:00 KST today = yesterday US time)")
+    sections.append("  KOSPI opens: TODAY 09:00 KST (about 2 hours from now)")
+    sections.append("")
+    sections.append("  TIMELINE:")
+    sections.append("    Yesterday ~15:30 KST: KOSPI closed → this data is 15+ hours old")
+    sections.append("    Yesterday ~23:30 KST: US market opened")
+    sections.append("    Today ~06:00 KST: US market closed → this is the LATEST data")
+    sections.append("    Today ~06:00 KST: Overnight futures settled → MOST RELEVANT for today's KOSPI open")
+    sections.append("    Today 09:00 KST: KOSPI will open → THIS is what we're predicting")
+    sections.append("")
+    sections.append("  ⚠️ ALL news headlines below are ALREADY PRICED INTO the US close and overnight futures.")
+    sections.append("     Do NOT count news + futures as separate bearish/bullish factors — that's double-counting.")
+    sections.append("     The futures price IS the market's reaction to the news.")
 
     # --- Market Prices ---
-    sections.append("=== MARKET PRICES & CHANGES ===")
-    sections.append("⚠️ 선행 지표 우선 원칙:")
-    sections.append("   1. 야간선물(ES=F, NQ=F)이 코스피 시가 예측의 최강 선행 지표 (r=0.78~0.85)")
-    sections.append("   2. S&P 종가, 전일 KOSPI 종가는 후행 데이터 — 이미 야간선물에 반영됨, 별도 팩터 X")
-    sections.append("   3. 뉴스는 이미 가격에 반영됨 — '가격이 왜 움직였는지' 설명용으로만 사용")
-    sections.append("   4. 투자자가 보는 시점의 선행 정보만 의사결정에 반영하세요")
+    sections.append("\n=== MARKET PRICES & CHANGES ===")
     prices = correlations.get("prices", {})
 
     # Group prices by category
@@ -844,24 +856,27 @@ ANALYSIS_SYSTEM_PROMPT = """헤지펀드 퀀트 애널리스트. 오전 7시(장
 - 금/유가는 KOSPI 방향 예측력 없음 — 참고만 하고 방향 시그널로 사용 금지
 - 데이터에 상관계수와 implied move가 포함됨 — 이를 근거로 섹터별 방향 판단
 
-## 시가 전망 표현 (summary에 사용)
-- ES/NQ > +1%: "강한 상승 출발 예상" → 종가 방향 별도 제시
-- ES/NQ +0.3~1%: "상승 출발 예상"
-- ES/NQ ±0.3%: "보합 출발 예상"
-- ES/NQ < -0.3%: "하락 출발 예상"
+## Opening outlook labels (use in summary, based on overnight futures)
+- ES/NQ > +1.5%: "강한 상승 출발"
+- ES/NQ +0.5~1.5%: "상승 출발"
+- ES/NQ +0.1~0.5%: "약보합 상승 출발"
+- ES/NQ ±0.1%: "보합 출발"
+- ES/NQ -0.1~-0.5%: "약보합 하락 출발"
+- ES/NQ -0.5~-1.5%: "하락 출발"
+- ES/NQ < -1.5%: "강한 하락 출발"
 
-## 응답 형식 (JSON, 모든 텍스트 한국어)
+## Response format (JSON, all text in Korean, keep it SHORT)
 {
   "direction": "long" or "short",
   "long_pct": 51~85,
   "short_pct": 15~49,
   "confidence": 0.5~0.9,
-  "summary": "3문장. 종가 방향 + 핵심 근거(상관계수/선물) + 유망 섹터. 수치 필수.",
-  "factors": [{"name": "팩터명", "signal": "bullish/bearish", "detail": "수치 근거"}],
+  "summary": "2문장 이내. 시가 전망 + 핵심 드라이버 1개. 짧고 임팩트있게.",
+  "factors": [{"name": "팩터명", "signal": "bullish/bearish", "detail": "수치"}],
   "correlations": [{"pair": "Micron <-> SK Hynix", "coefficient": 0.70, "implied_move": "+1.2%"}],
   "foreign_flow": {"net_amount": 1500, "consecutive_days": 3, "direction": "buy"},
-  "key_insight": "1문장 — 이 데이터 조합에서만 나오는 비직관적 엣지.",
-  "sectors": [{"name": "섹터명", "direction": "overweight/underweight", "reason": "상관계수 근거 1문장"}]
+  "key_insight": "1문장. 핵심 변수 또는 시나리오 전환 조건만.",
+  "sectors": [{"name": "섹터명", "direction": "overweight/underweight", "reason": "10자 이내"}]
 }"""
 
 

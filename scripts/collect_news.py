@@ -563,19 +563,8 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
         else:
             factors.append({"name": "환율 보합", "signal": "neutral", "detail": f"USD/KRW {krw['price']:.0f}", "weight": 0.5})
 
-    # 4. S&P 500 종가 — 선물(Factor 2)과 중복이므로 참고용으로 표시
-    # 미 증시 종가는 이미 야간선물에 반영되어 있음. 별도 bearish/bullish 시그널 X
-    sp = find("us_indices", "S&P 500")
-    if sp:
-        factors.append({"name": "S&P 500 종가", "signal": "neutral",
-                        "detail": f"{sp['change_pct']:+.2f}% (야간선물에 대부분 반영, 참고용)", "weight": 0.3})
-
-    # 5. KOSPI 전일 종가 — 참고 데이터로만 표시 (후행 지표이므로 방향 시그널 아님)
-    # 전일 KOSPI 등락은 이미 야간선물/환율에 반영되어 있어 별도 팩터로 카운트하면 중복
-    kospi = find("kr_indices", "KOSPI")
-    if kospi:
-        factors.append({"name": "KOSPI 전일 종가", "signal": "neutral",
-                        "detail": f"{kospi['change_pct']:+.2f}% (참고용, 야간선물에 대부분 반영)", "weight": 0.3})
+    # 4-5. S&P 종가, KOSPI 전일 — 후행 지표이므로 factor에 포함하지 않음
+    # 야간선물에 이미 반영되어 있어 별도 표시는 오해를 유발
 
     # 6. WTI Oil (weight=0.8 — 보조 지표)
     wti = find("commodities", "WTI")
