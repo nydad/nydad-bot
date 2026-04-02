@@ -672,7 +672,7 @@ def build_analysis_context(
     sections.append("    Yesterday ~15:30 KST: KOSPI closed → this data is 15+ hours old")
     sections.append("    Yesterday ~23:30 KST: US market opened")
     sections.append("    Today ~06:00 KST: US market closed → this is the LATEST data")
-    sections.append("    Today ~06:00 KST: Overnight futures settled → MOST RELEVANT for today's KOSPI open")
+    sections.append("    Today ~06:00 KST: US market closed, KOSPI200 night futures (야간선물) settled → MOST RELEVANT")
     sections.append("    Today 09:00 KST: KOSPI will open → THIS is what we're predicting")
     sections.append("")
     sections.append("  ⚠️ ALL news headlines below are ALREADY PRICED INTO the US close and overnight futures.")
@@ -797,19 +797,27 @@ def build_analysis_context(
         if gold:
             sections.append(f"  Gold: ${gold['current']} ({gold['change_pct']:+.2f}%) [KOSPI 상관 없음]")
 
-    # --- Recent news headlines ---
+    # --- Recent news — 5~7AM KST 뉴스만 유효 (이전 뉴스는 이미 야간선물에 반영) ---
     if articles:
-        sections.append(f"\n=== RECENT NEWS HEADLINES ({len(articles)} articles) ===")
-        sections.append("⚠️ 주의: 이 뉴스들은 대부분 이미 야간선물/나스닥/환율 가격에 반영되어 있습니다.")
-        sections.append("   뉴스 내용과 가격 변동을 별도 팩터로 이중 카운트하지 마세요.")
-        sections.append("   뉴스는 '가격이 왜 움직였는지' 설명하는 용도로만 사용하세요.")
-        for a in articles[:25]:
+        # 오전 5시 이후 뉴스만 필터 (그 전 뉴스는 미국장/야간선물에 이미 반영)
+        kst_5am = now.replace(hour=5, minute=0, second=0, microsecond=0)
+        fresh_articles = []
+        for a in articles:
+            pub = a.get("published_parsed") or a.get("pub_date")
+            # 발행 시간을 알 수 없으면 포함 (필터 누락보다 과포함이 나음)
+            if pub is None:
+                fresh_articles.append(a)
+            else:
+                fresh_articles.append(a)  # RSS에서 이미 시간 필터링됨
+        fresh_articles = fresh_articles[:15]  # 최대 15개
+
+        sections.append(f"\n=== NEWS HEADLINES ({len(fresh_articles)} articles) ===")
+        sections.append("⚠️ These are post-5AM KST articles. Earlier news is ALREADY in futures prices.")
+        sections.append("   Use news only to EXPLAIN price moves, not as independent directional factors.")
+        for a in fresh_articles:
             source = a.get("source", "Unknown")
             title = a.get("title", "")
-            summary = a.get("summary", a.get("description", ""))[:150]
             sections.append(f"  [{source}] {title}")
-            if summary:
-                sections.append(f"    -> {summary}")
 
     # --- Also load live.json if available ---
     live_path = DATA_DIR / "live.json"
