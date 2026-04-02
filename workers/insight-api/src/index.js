@@ -22,32 +22,270 @@ const TICKERS = {
   usdkrw: "KRW=X", usdjpy: "JPY=X", dxy: "DX-Y.NYB",
   // Commodities
   wti: "CL=F", gold: "GC=F",
-  // Semis
-  nvda: "NVDA", mu: "MU",
+  // Semis (memory weight ↑ — KOSPI 삼성/하이닉스 상관관계 높음)
+  nvda: "NVDA", mu: "MU", wdc: "WDC", amat: "AMAT", lrcx: "LRCX",
   samsung: "005930.KS", hynix: "000660.KS",
+  // Sector Leaders — 2nd Battery / EV (3종목)
+  tsla: "TSLA", alb: "ALB", enph: "ENPH",
+  // Sector Leaders — Robotics / Automation (2종목)
+  isrg: "ISRG", rok: "ROK",
+  // Sector Leaders — Defense / Space (3종목)
+  lmt: "LMT", rtx: "RTX", rklb: "RKLB",
   // Bonds
   us10y: "^TNX",
 };
 
-// Fetch via Yahoo Finance v8 chart API (still public)
-async function fetchAllQuotes() {
-  const results = {};
-  const entries = Object.entries(TICKERS);
-  await Promise.all(entries.map(async ([key, symbol]) => {
+const LIVE_TICKER_KEYS = [
+  // Core indices & FX
+  "kospi", "kosdaq", "ewy",
+  "sp500", "nasdaq", "sox",
+  "sp_future", "nq_future",
+  "vix", "usdkrw",
+  "wti", "gold", "us10y",
+  // Memory/Semis (KOSPI 시총 1,2위 연동)
+  "nvda", "mu", "wdc", "amat", "lrcx",
+  "samsung", "hynix",
+  // Sector leaders
+  "tsla", "alb", "enph",       // 2nd Battery/EV
+  "isrg", "rok",               // Robotics
+  "lmt", "rtx", "rklb",        // Defense/Space
+  // Derivatives proxy
+  "kodex_inverse", "kodex_leverage"
+];
+
+const QUOTE_HOSTS = ["query1.finance.yahoo.com", "query2.finance.yahoo.com"];
+const QUOTE_BATCH_SIZE = 16;
+const QUOTE_TIMEOUT_MS = 2500;
+const QUOTE_CACHE_TTL_MS = 15000;
+const AI_TIMEOUT_MS = 12000;
+const DAILY_REQUEST_LIMIT = 5;
+const quoteCache = new Map();
+const usageCache = new Map();
+
+export class GlobalDailyQuota {
+  constructor(state, env) {
+    this.state = state;
+    this.env = env;
+  }
+
+  async fetch(request) {
+    if (request.method !== "POST") {
+      return new Response('{"error":"POST only"}', {
+        status: 405,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    let body = {};
     try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`;
-      const resp = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; NydadBot/1.0)" } });
-      if (!resp.ok) return;
+      body = await request.json();
+    } catch (_) {}
+
+    const dateKey = String(body.dateKey || "");
+    const limit = Math.max(1, parseInt(body.limit || DAILY_REQUEST_LIMIT, 10) || DAILY_REQUEST_LIMIT);
+    if (!dateKey) {
+      return new Response('{"error":"dateKey required"}', {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    const stored = await this.state.storage.get("daily_quota");
+    const current = stored && stored.dateKey === dateKey
+      ? stored
+      : { dateKey, used: 0 };
+
+    if (current.used >= limit) {
+      return new Response(JSON.stringify({
+        allowed: false,
+        used: current.used,
+        limit,
+        remaining: 0
+      }), { headers: { "Content-Type": "application/json" } });
+    }
+
+    const next = {
+      dateKey,
+      used: current.used + 1
+    };
+    await this.state.storage.put("daily_quota", next);
+
+    return new Response(JSON.stringify({
+      allowed: true,
+      used: next.used,
+      limit,
+      remaining: limit - next.used
+    }), { headers: { "Content-Type": "application/json" } });
+  }
+}
+
+function getKstDateKey(now = new Date()) {
+  const kst = new Date(now.getTime() + 9 * 3600000);
+  return [
+    kst.getUTCFullYear(),
+    String(kst.getUTCMonth() + 1).padStart(2, "0"),
+    String(kst.getUTCDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function cleanupUsageCache(nowMs = Date.now()) {
+  for (const [key, value] of usageCache.entries()) {
+    if (!value || value.expiresAt <= nowMs) usageCache.delete(key);
+  }
+}
+
+async function consumeDailyQuota(env, quotaKey) {
+  const durable = env.GLOBAL_DAILY_QUOTA;
+  if (durable && typeof durable.idFromName === "function") {
+    const id = durable.idFromName("global-insight-quota");
+    const stub = durable.get(id);
+    const resp = await stub.fetch("https://quota.internal/consume", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        dateKey: quotaKey.replace("insight:", ""),
+        limit: DAILY_REQUEST_LIMIT
+      })
+    });
+    if (resp.ok) return await resp.json();
+  }
+
+  const kv = env.RATE_LIMIT_KV;
+  if (kv && typeof kv.get === "function" && typeof kv.put === "function") {
+    const raw = await kv.get(quotaKey);
+    const used = Math.max(0, parseInt(raw || "0", 10) || 0);
+    if (used >= DAILY_REQUEST_LIMIT) {
+      return { allowed: false, used, limit: DAILY_REQUEST_LIMIT, remaining: 0 };
+    }
+    const next = used + 1;
+    await kv.put(quotaKey, String(next));
+    return { allowed: true, used: next, limit: DAILY_REQUEST_LIMIT, remaining: DAILY_REQUEST_LIMIT - next };
+  }
+
+  cleanupUsageCache();
+  const entry = usageCache.get(quotaKey);
+  const used = entry?.count || 0;
+  if (used >= DAILY_REQUEST_LIMIT) {
+    return { allowed: false, used, limit: DAILY_REQUEST_LIMIT, remaining: 0 };
+  }
+  const next = used + 1;
+  usageCache.set(quotaKey, { count: next, expiresAt: Date.now() + 86400000 });
+  return { allowed: true, used: next, limit: DAILY_REQUEST_LIMIT, remaining: DAILY_REQUEST_LIMIT - next };
+}
+
+function buildPriorAnalysisContext(dailyContext) {
+  if (!dailyContext || typeof dailyContext !== "object") return "";
+  const lines = ["=== 이미 조사된 일간 분석 ==="];
+  if (dailyContext.date) lines.push(`기준일: ${dailyContext.date}`);
+  if (dailyContext.generated_at) lines.push(`생성시각: ${dailyContext.generated_at}`);
+  if (dailyContext.direction) lines.push(`아침 방향 콜: ${String(dailyContext.direction).toUpperCase()}`);
+  if (dailyContext.summary) lines.push(`규칙형 요약: ${dailyContext.summary}`);
+  if (dailyContext.briefing) lines.push(`아침 브리핑: ${dailyContext.briefing}`);
+  if (dailyContext.outlook) lines.push(`아침 전망: ${dailyContext.outlook}`);
+  if (Array.isArray(dailyContext.key_insights) && dailyContext.key_insights.length) {
+    lines.push("핵심 포인트:");
+    dailyContext.key_insights.slice(0, 3).forEach((item) => {
+      if (item && (item.title || item.detail)) {
+        lines.push(`  - ${item.title || "포인트"}: ${item.detail || ""}`);
+      }
+    });
+  }
+  if (Array.isArray(dailyContext.correlations) && dailyContext.correlations.length) {
+    lines.push("대표 상관관계:");
+    dailyContext.correlations.slice(0, 3).forEach((item) => {
+      const pair = item.pair || [item.us_ticker, item.kr_ticker].filter(Boolean).join("→");
+      const detail = item.implication || item.interpretation || "";
+      if (pair) lines.push(`  - ${pair}${detail ? `: ${detail}` : ""}`);
+    });
+  }
+  lines.push("이 내용은 이미 아침 배치에서 조사된 결과입니다. 실시간 시세와 모순되면 이유를 설명하고, 단순 반복하지 말고 업데이트하세요.");
+  return lines.join("\n");
+}
+
+async function fetchQuote(symbol) {
+  const cached = quoteCache.get(symbol);
+  if (cached && Date.now() - cached.ts < QUOTE_CACHE_TTL_MS) {
+    return cached.value;
+  }
+
+  for (const host of QUOTE_HOSTS) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort("quote-timeout"), QUOTE_TIMEOUT_MS);
+    try {
+      const url = `https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`;
+      const resp = await fetch(url, {
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "Mozilla/5.0 (compatible; NydadBot/1.0)"
+        },
+        signal: controller.signal
+      });
+      if (!resp.ok) {
+        if (resp.status === 429 || resp.status >= 500) continue;
+        return null;
+      }
       const data = await resp.json();
       const meta = data?.chart?.result?.[0]?.meta;
-      if (!meta) return;
+      if (!meta) return null;
       const price = meta.regularMarketPrice;
       const prev = meta.chartPreviousClose || meta.previousClose;
-      if (!price || !prev) return;
-      results[key] = { price, prev, change: price - prev, changePct: ((price - prev) / prev) * 100, symbol, name: key };
-    } catch(e) { console.error(`Ticker ${key} failed:`, e.message); }
-  }));
+      if (!price || !prev) return null;
+      const quote = {
+        price,
+        prev,
+        change: price - prev,
+        changePct: ((price - prev) / prev) * 100,
+        symbol
+      };
+      quoteCache.set(symbol, { ts: Date.now(), value: quote });
+      return quote;
+    } catch (e) {
+      if (host === QUOTE_HOSTS[QUOTE_HOSTS.length - 1]) {
+        console.error(`Quote ${symbol} failed:`, e.message);
+      }
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  return null;
+}
+
+// Fetch via Yahoo Finance v8 chart API with host fallback and bounded concurrency.
+async function fetchAllQuotes() {
+  const results = {};
+  const entries = LIVE_TICKER_KEYS
+    .map((key) => [key, TICKERS[key]])
+    .filter(([, symbol]) => !!symbol);
+
+  for (let i = 0; i < entries.length; i += QUOTE_BATCH_SIZE) {
+    const batch = entries.slice(i, i + QUOTE_BATCH_SIZE);
+    const resolved = await Promise.all(batch.map(async ([key, symbol]) => {
+      const quote = await fetchQuote(symbol);
+      return quote ? [key, { ...quote, name: key }] : null;
+    }));
+    for (const item of resolved) {
+      if (item) results[item[0]] = item[1];
+    }
+  }
+
   return results;
+}
+
+// Sector pattern helper — reduces near-duplicate blocks
+function sectorSignal(d, keys, threshold, name, krDesc) {
+  const stocks = keys.map(k => d[k]).filter(Boolean);
+  if (stocks.length === 0) return null;
+  const avg = stocks.reduce((s, q) => s + q.changePct, 0) / stocks.length;
+  if (Math.abs(avg) <= threshold) return null;
+  const parts = keys
+    .filter(k => d[k])
+    .map(k => `${k.toUpperCase()} ${d[k].changePct >= 0 ? "+" : ""}${d[k].changePct.toFixed(1)}%`);
+  return {
+    name,
+    signal: avg > 0 ? "bullish" : "bearish",
+    detail: `${parts.join(", ")} → ${krDesc} ${avg > 0 ? "수혜" : "약세"} (${stocks.length}종목 평균 ${avg >= 0 ? "+" : ""}${avg.toFixed(1)}%)`
+  };
 }
 
 // Pattern analyzers — time-aware
@@ -61,14 +299,14 @@ function analyzePatterns(d) {
   const isMarketOpen = !isWeekend && (isRegularOpen || isNxtOpen);
   const isPreMarket = !isWeekend && kstH < 8;
 
-  // 1. Morning Momentum — only during market hours
+  // 1. Intraday Momentum — 0.5% threshold (~0.4σ for KOSPI daily vol ~1.3%)
   if (d.kospi && isMarketOpen) {
     const chg = d.kospi.changePct;
-    if (Math.abs(chg) >= 0.15) {
+    if (Math.abs(chg) >= 0.5) {
       patterns.push({
         name: "장중 모멘텀",
         signal: chg > 0 ? "bullish" : "bearish",
-        detail: `KOSPI ${chg > 0 ? "+" : ""}${chg.toFixed(2)}% → ${chg > 0 ? "상승" : "하락"} 모멘텀 지속 확률 58%`
+        detail: `KOSPI ${chg > 0 ? "+" : ""}${chg.toFixed(2)}% → ${chg > 0 ? "상승" : "하락"} 모멘텀`
       });
     }
   }
@@ -87,13 +325,15 @@ function analyzePatterns(d) {
     }
   }
 
-  // 3. VIX Regime
+  // 3. VIX Regime — bullish < 20, bearish > 25/30
   if (d.vix) {
     const v = d.vix.price;
     const vc = d.vix.changePct;
-    if (v > 25) patterns.push({ name: "VIX 공포", signal: "bearish", detail: `VIX ${v.toFixed(1)} 고공포 → 글로벌 리스크오프` });
-    else if (v > 20 && vc > 5) patterns.push({ name: "VIX 급등", signal: "bearish", detail: `VIX ${v.toFixed(1)} (+${vc.toFixed(1)}%) 급등 → 변동성 스파이크` });
-    else if (v < 16) patterns.push({ name: "VIX 안정", signal: "bullish", detail: `VIX ${v.toFixed(1)} 안정권 → 위험자산 선호` });
+    if (v > 30) patterns.push({ name: "VIX 패닉", signal: "bearish", detail: `VIX ${v.toFixed(1)} 극단 공포 → 글로벌 리스크오프` });
+    else if (v > 25 && vc > 8) patterns.push({ name: "VIX 급등", signal: "bearish", detail: `VIX ${v.toFixed(1)} (+${vc.toFixed(1)}%) 급등 → 변동성 스파이크` });
+    else if (v > 25) patterns.push({ name: "VIX 공포", signal: "bearish", detail: `VIX ${v.toFixed(1)} 공포구간 → 위험자산 압력` });
+    else if (v < 20 && vc < -5) patterns.push({ name: "VIX 급락", signal: "bullish", detail: `VIX ${v.toFixed(1)} (${vc.toFixed(1)}%) 급락 → 공포 해소` });
+    else if (v < 20) patterns.push({ name: "VIX 안정", signal: "bullish", detail: `VIX ${v.toFixed(1)} 안정권 → 위험자산 선호` });
     else patterns.push({ name: "VIX 경계", signal: "neutral", detail: `VIX ${v.toFixed(1)} (${vc >= 0 ? "+" : ""}${vc.toFixed(1)}%)` });
   }
 
@@ -112,26 +352,30 @@ function analyzePatterns(d) {
     else if (s < -1) patterns.push({ name: "SOX 약세", signal: "bearish", detail: `SOX ${s.toFixed(1)}% → 한국 반도체 하방${samDetail}` });
   }
 
-  // 6. NVDA/MU Lead
-  if (d.nvda || d.mu) {
-    const nv = d.nvda?.changePct || 0;
-    const mc = d.mu?.changePct || 0;
-    const avg = (nv + mc) / 2;
-    if (Math.abs(avg) > 1) {
-      patterns.push({
-        name: "NVDA/MU 선행",
-        signal: avg > 0 ? "bullish" : "bearish",
-        detail: `NVDA ${nv >= 0 ? "+" : ""}${nv.toFixed(1)}%, MU ${mc >= 0 ? "+" : ""}${mc.toFixed(1)}% → 삼성/하이닉스 연동`
-      });
-    }
+  // 6. Sector signals via shared helper
+  const memSig = sectorSignal(d, ["mu", "wdc", "amat", "lrcx"], 0.8, "메모리/반도체장비 → 삼성/하이닉스", "한국 메모리 반도체");
+  if (memSig) patterns.push(memSig);
+  // NVDA는 AI capex 센티먼트 — 한국 반도체와 직접 상관 약함, 참고용
+  if (d.nvda && Math.abs(d.nvda.changePct) > 2) {
+    patterns.push({ name: "NVDA 변동 (참고)", signal: "neutral",
+      detail: `NVDA ${d.nvda.changePct >= 0 ? "+" : ""}${d.nvda.changePct.toFixed(1)}% → AI capex 센티먼트 (한국 반도체 직접 상관 약함)` });
   }
+  const battSig = sectorSignal(d, ["tsla", "alb", "enph"], 1.5, "2차전지/EV 섹터", "한국 2차전지주(LG에너지/삼성SDI)");
+  if (battSig) patterns.push(battSig);
+  const defSig = sectorSignal(d, ["lmt", "rtx", "rklb"], 1.5, "방산/우주 섹터", "한국 방산주(한화에어로/KAI)");
+  if (defSig) patterns.push(defSig);
+  const robSig = sectorSignal(d, ["isrg", "rok"], 1.5, "로봇/자동화 섹터", "한국 로봇관련주");
+  if (robSig) patterns.push(robSig);
 
-  // 7. Oil Shock
+  // 7. Oil Shock — 한국은 원유 순수입국: 유가 하락은 제조업 비용 완화로 bullish 요소
   if (d.wti) {
     const c = d.wti.changePct;
     const p = d.wti.price;
-    if (c > 3) patterns.push({ name: "유가 급등", signal: "bearish", detail: `WTI $${p.toFixed(1)} (+${c.toFixed(1)}%) → 인플레/지정학 우려` });
-    else if (c < -3) patterns.push({ name: "유가 급락", signal: "bearish", detail: `WTI $${p.toFixed(1)} (${c.toFixed(1)}%) → 수요 둔화 우려` });
+    if (c > 3) patterns.push({ name: "유가 급등", signal: "bearish", detail: `WTI $${p.toFixed(1)} (+${c.toFixed(1)}%) → 인플레/지정학 우려, 한국 제조업 비용 압력` });
+    else if (c < -3) {
+      // 한국은 원유 순수입국 — 유가 하락은 제조업 비용 완화로 bullish
+      patterns.push({ name: "유가 급락", signal: "bullish", detail: `WTI $${p.toFixed(1)} (${c.toFixed(1)}%) → 한국 제조업 비용 완화, 순수입국 수혜` });
+    }
   }
 
   // 8. Gold Risk
@@ -149,14 +393,14 @@ function analyzePatterns(d) {
     else if (c < -0.05) patterns.push({ name: "금리 하락", signal: "bullish", detail: `미10년 ${p.toFixed(2)}% (${(c*100).toFixed(0)}bp) → 성장주 우호` });
   }
 
-  // 10. Gap Reversal — only during market hours
+  // 10. Large Day Move — note: this measures day return from prev close, not opening gap
   if (d.kospi && d.kospi.prev && isMarketOpen) {
-    const gap = d.kospi.changePct;
-    if (Math.abs(gap) > 0.5) {
+    const dayReturn = d.kospi.changePct;
+    if (Math.abs(dayReturn) > 1.0) {
       patterns.push({
-        name: "갭 반전 가능",
-        signal: gap > 0 ? "bearish" : "bullish",
-        detail: `KOSPI ${gap > 0 ? "+" : ""}${gap.toFixed(2)}% 갭 → 장중 부분 반전 가능성`
+        name: "장중 큰 폭 변동",
+        signal: "neutral",  // mean reversion probability ~50%, not directional
+        detail: `KOSPI ${dayReturn > 0 ? "+" : ""}${dayReturn.toFixed(2)}% — 큰 일일 변동, 추세 지속 vs 반전 불확실`
       });
     }
   }
@@ -177,15 +421,17 @@ function analyzePatterns(d) {
   // ── 수급·파생 포지션 분석 ──
 
   // 12. KOSPI vs KOSDAQ 괴리 → 외국인 스탠스 추정
+  // Note: KOSPI outperforming in a down market = defensive/risk-off, NOT bullish
   if (d.kospi && d.kosdaq) {
     const kpChg = d.kospi.changePct;
     const kqChg = d.kosdaq.changePct;
     const diff = kpChg - kqChg;
     if (diff > 0.5) {
+      const bothDown = kpChg < 0 && kqChg < 0;
       patterns.push({
-        name: "대형주 선호 (외국인 매수 추정)",
-        signal: "bullish",
-        detail: `KOSPI ${kpChg >= 0 ? "+" : ""}${kpChg.toFixed(2)}% vs KOSDAQ ${kqChg >= 0 ? "+" : ""}${kqChg.toFixed(2)}% → 외국인·기관 대형주 집중 매수`
+        name: bothDown ? "대형주 방어 (리스크오프)" : "대형주 선호 (외국인 매수 추정)",
+        signal: bothDown ? "bearish" : "bullish",
+        detail: `KOSPI ${kpChg >= 0 ? "+" : ""}${kpChg.toFixed(2)}% vs KOSDAQ ${kqChg >= 0 ? "+" : ""}${kqChg.toFixed(2)}% → ${bothDown ? "방어적 순환, 외국인 리스크 축소" : "외국인·기관 대형주 집중 매수"}`
       });
     } else if (diff < -0.5) {
       patterns.push({
@@ -196,21 +442,21 @@ function analyzePatterns(d) {
     }
   }
 
-  // 13. 인버스/레버리지 ETF → 파생 포지션 방향
+  // 13. 인버스/레버리지 ETF — 메커니컬 -1x/+2x이므로 참고용 (유량/설정액 없이는 포지셔닝 시그널 아님)
   if (d.kodex_inverse && d.kodex_leverage) {
     const invChg = d.kodex_inverse.changePct;
     const levChg = d.kodex_leverage.changePct;
-    if (invChg > 1.5 && levChg < -1) {
+    if (invChg > 2 && levChg < -2) {
       patterns.push({
-        name: "파생 숏 포지션 증가",
-        signal: "bearish",
-        detail: `인버스 +${invChg.toFixed(1)}%, 레버리지 ${levChg.toFixed(1)}% → 시장 참여자 숏 베팅 강화`
+        name: "인버스/레버리지 (참고)",
+        signal: "neutral",
+        detail: `인버스 +${invChg.toFixed(1)}%, 레버리지 ${levChg.toFixed(1)}% → 하락장 반영 (유량 데이터 없어 포지셔닝 판단 불가)`
       });
-    } else if (levChg > 1.5 && invChg < -1) {
+    } else if (levChg > 2 && invChg < -2) {
       patterns.push({
-        name: "파생 롱 포지션 증가",
-        signal: "bullish",
-        detail: `레버리지 +${levChg.toFixed(1)}%, 인버스 ${invChg.toFixed(1)}% → 시장 참여자 롱 베팅 강화`
+        name: "인버스/레버리지 (참고)",
+        signal: "neutral",
+        detail: `레버리지 +${levChg.toFixed(1)}%, 인버스 ${invChg.toFixed(1)}% → 상승장 반영 (유량 데이터 없어 포지셔닝 판단 불가)`
       });
     }
   }
@@ -237,34 +483,36 @@ function analyzePatterns(d) {
     }
   }
 
-  // 15. 현물+선물 동반 분석 → 외국인 의도 추정 (종합)
+  // 15. 글로벌 리스크 복합 시그널 (EWY + 미 선물 + 환율 + KOSPI 종합)
+  // 주의: 이 복합 시그널이 발동되면, 개별 요소(야간선물/원화/EWY)와 중복 → 개별 제거
+  // Note: EWY는 외국인 현물매매가 아닌 글로벌 한국 익스포저 ETF. ES는 미국 선물.
   if (d.kospi && d.ewy && d.sp_future) {
-    const spotChg = d.kospi.changePct;
+    const kospiChg = d.kospi.changePct;
     const ewyChg = d.ewy.changePct;
     const futChg = d.sp_future.changePct;
     const fxChg = d.usdkrw?.changePct || 0;
 
-    // 현물(EWY) + 선물(ES) 동반 매도 = 명확한 숏 스탠스
+    // 글로벌 리스크오프: EWY 하락 + 미 선물 약세 + 원화 약세
     if (ewyChg < -1 && futChg < -0.3 && fxChg > 0.2) {
+      // 복합 시그널 발동 시, 개별 중복 요소 제거 (같은 리스크오프를 여러 번 세지 않음)
+      const dupeNames = ["야간선물", "원화 약세", "EWY 동행 (외국인 스탠스 확인)", "EWY-KOSPI 괴리 (외국인 선행)"];
+      for (let i = patterns.length - 1; i >= 0; i--) {
+        if (dupeNames.some(n => patterns[i].name === n)) patterns.splice(i, 1);
+      }
       patterns.push({
-        name: "외국인 현물+선물 동반 매도",
+        name: "글로벌 리스크오프 복합",
         signal: "bearish",
-        detail: `EWY ${ewyChg.toFixed(1)}% + 선물 약세 + 원화 약세 → 명확한 숏 스탠스, 한국 자금 이탈`
+        detail: `EWY ${ewyChg.toFixed(1)}%, 미선물 ${futChg.toFixed(1)}%, 원화 약세 ${fxChg.toFixed(1)}% → KOSPI(${kospiChg >= 0 ? "+" : ""}${kospiChg.toFixed(1)}%) 추가 하방 압력`
       });
     } else if (ewyChg > 1 && futChg > 0.3 && fxChg < -0.2) {
+      const dupeNames = ["야간선물", "원화 강세", "EWY 동행 (외국인 스탠스 확인)", "EWY-KOSPI 괴리 (외국인 선행)"];
+      for (let i = patterns.length - 1; i >= 0; i--) {
+        if (dupeNames.some(n => patterns[i].name === n)) patterns.splice(i, 1);
+      }
       patterns.push({
-        name: "외국인 현물+선물 동반 매수",
+        name: "글로벌 리스크온 복합",
         signal: "bullish",
-        detail: `EWY +${ewyChg.toFixed(1)}% + 선물 강세 + 원화 강세 → 명확한 롱 스탠스, 한국 자금 유입`
-      });
-    }
-
-    // 현물 매도 + 선물 매수 = 베이시스 트레이드 (방향성 중립)
-    if (ewyChg < -0.5 && futChg > 0.3) {
-      patterns.push({
-        name: "차익거래 추정 (현물↓ 선물↑)",
-        signal: "neutral",
-        detail: `EWY ${ewyChg.toFixed(1)}% but 선물 강세 → 프로그램 매도/차익거래, 방향성 약함`
+        detail: `EWY +${ewyChg.toFixed(1)}%, 미선물 +${futChg.toFixed(1)}%, 원화 강세 → KOSPI(${kospiChg >= 0 ? "+" : ""}${kospiChg.toFixed(1)}%) 상승 지지`
       });
     }
   }
@@ -283,7 +531,12 @@ function buildContext(data, patterns) {
     sp_future: "S&P선물(야간)", nq_future: "나스닥선물(야간)", dow_future: "다우선물(야간)",
     vix: "VIX", usdkrw: "USD/KRW", usdjpy: "USD/JPY", dxy: "달러인덱스",
     wti: "WTI 원유", gold: "금", nvda: "NVDA", mu: "MU",
-    samsung: "삼성전자", hynix: "SK하이닉스", us10y: "미10년물"
+    samsung: "삼성전자", hynix: "SK하이닉스",
+    wdc: "WDC(SanDisk/메모리)", amat: "AMAT(반도체장비)", lrcx: "Lam Research(반도체장비)",
+    tsla: "테슬라(2차전지/EV)", alb: "ALB(리튬)", enph: "Enphase(클린에너지)",
+    isrg: "ISRG(로봇)", rok: "Rockwell(자동화)",
+    lmt: "LMT(방산)", rtx: "RTX(방산/항공)", rklb: "RKLB(Rocket Lab/우주)",
+    us10y: "미10년물"
   };
   for (const [key, q] of Object.entries(data)) {
     const name = labels[key] || key;
@@ -293,13 +546,31 @@ function buildContext(data, patterns) {
   const bull = patterns.filter(p => p.signal === "bullish").length;
   const bear = patterns.filter(p => p.signal === "bearish").length;
   lines.push(`\n=== 패턴 분석: 강세 ${bull}개 / 약세 ${bear}개 ===`);
+  lines.push(`⚠️ 주의: 뉴스/지정학 이벤트는 이미 야간선물/나스닥 가격에 반영되어 있을 가능성 높음.`);
+  lines.push(`   가격 변동과 뉴스를 별도 팩터로 이중 카운트하지 마세요. 가격이 이미 움직였으면 그 원인(뉴스)은 추가 팩터가 아닙니다.`);
   patterns.forEach(p => lines.push(`  [${p.signal.toUpperCase()}] ${p.name}: ${p.detail}`));
 
   const now = new Date();
   const kstH = (now.getUTCHours() + 9) % 24;
-  const etH = (now.getUTCHours() - 4 + 24) % 24; // US Eastern (EDT = UTC-4)
+  // US Eastern: EDT (UTC-4) Mar 2nd Sun ~ Nov 1st Sun, else EST (UTC-5)
+  const utcMonth = now.getUTCMonth(); // 0-indexed
+  const utcDate = now.getUTCDate();
+  const utcDay = now.getUTCDay();
+  const isEDT = (() => {
+    if (utcMonth > 2 && utcMonth < 10) return true;  // Apr–Oct always EDT
+    if (utcMonth < 2 || utcMonth > 10) return false;  // Jan–Feb, Dec always EST
+    if (utcMonth === 2) { // March: EDT starts 2nd Sunday
+      const secondSun = 14 - new Date(now.getUTCFullYear(), 2, 1).getDay();
+      return utcDate > secondSun || (utcDate === secondSun && now.getUTCHours() >= 7);
+    }
+    // November: EST starts 1st Sunday
+    const firstSun = 7 - new Date(now.getUTCFullYear(), 10, 1).getDay();
+    return utcDate < firstSun || (utcDate === firstSun && now.getUTCHours() < 6);
+  })();
+  const etOffset = isEDT ? 4 : 5;
+  const etH = (now.getUTCHours() - etOffset + 24) % 24;
   const kstDay = new Date(Date.now() + 9*3600000).getDay();
-  const etDay = new Date(Date.now() - 4*3600000).getDay();
+  const etDay = new Date(Date.now() - etOffset*3600000).getDay();
   const isKrWeekend = kstDay === 0 || kstDay === 6;
   const isUsWeekend = etDay === 0 || etDay === 6;
 
@@ -330,53 +601,111 @@ function buildContext(data, patterns) {
   return lines.join("\n");
 }
 
-const SYSTEM_PROMPT = `당신은 헤지펀드 퀀트 트레이더입니다. 사용자는 지금 롱/숏 포지션을 잡으려는 투자자입니다.
+const SYSTEM_PROMPT = `You are a hedge fund quant trader. The user is a Korean investor looking to take a long/short position NOW.
 
-## 절대 규칙: 선행적 전망만 말하세요
-- **금지:** "~했다", "~하고 있다", "~인 상황이다" (후행적 설명)
-- **필수:** "~할 것이다", "~될 가능성이 높다", "~에서 반등/하락 예상" (선행적 전망)
-- 데이터는 근거로만 쓰고, 결론은 반드시 **앞으로 어떻게 될 것인지**
-- 예시: ❌ "외국인이 매도하고 있다" → ✅ "외국인 숏 스탠스가 지속되면 5,400 이탈 가능성 높다. 다만 브렌트유 $100 하회 시 숏커버 유입으로 반등 트리거."
+## Absolute rule: Forward-looking outlook ONLY
+- FORBIDDEN: "~했다" (past tense), "~하고 있다" (present description)
+- REQUIRED: "~할 것이다", "~될 가능성이 높다" (forward-looking predictions)
+- Data is evidence only; conclusions must be about WHAT WILL HAPPEN NEXT.
 
-## 핵심 규칙
-1. **사용자 질문에 직접 답하세요.** "어떻게 될까?" → 앞으로의 방향을 명확히.
-2. **시간대 확인.** 장 마감 후면 "내일 전망", 장중이면 "남은 시간", 장 전이면 "오늘 전망".
-3. 반드시 LONG 또는 SHORT 방향 제시. 중립 불가. 51%라도 한쪽 선택.
-4. 뻔한 말 절대 금지. 구체적 수치와 핵심 변수를 명시.
-5. 수급·파생 분석으로 외국인 의도를 해석하고, 그 의도가 **앞으로 어떤 결과를 만들지** 전망.
+## CRITICAL: "Expected gap-down" ≠ "SHORT recommendation"
+- This may be served pre-market (7 AM KST). The market may not be open yet.
+- An expected gap-down is ALREADY PRICED IN. SHORT = betting on FURTHER decline.
+- Gap-down + likely intraday reversal → LONG is correct.
+- Gap-up + likely selling from highs → SHORT is correct.
+- **Predict the CLOSING direction**, not the opening direction.
 
-## 수급 해석 → 전망 연결
-- 외국인 현물+선물 동반 매도 → "추가 하방 압력 예상, X원까지 하락 가능"
-- 외국인 현물+선물 동반 매수 → "상승 모멘텀 확대, X원 돌파 시도 예상"
-- 인버스 급등 → "시장 참여자 숏 강화, 그러나 과매도 시 반등도 빠를 것"
-- KOSDAQ > KOSPI → "개인 주도 장세, 외국인 복귀 전까지 방향성 약할 것"
+## Backtested correlations (30-day data)
+- Overnight futures (ES=F) ↔ KOSPI open: r=0.78, direction accuracy 77%
+- SOX ↔ KOSPI open: r=0.85, accuracy 83% (strongest leading indicator)
+- KOSPI open→close same sign: ~70% (30% reversals — do NOT assume gap = close)
+- MU ↔ SK Hynix lagged: r=0.65~0.80 (strong next-day predictor)
 
-## 전망 구조 (이 순서로 답하세요)
-1. **방향 콜:** "SHORT 68% — 단기 하방 바이어스" (한 줄)
-2. **근거:** 수급/파생/글로벌 데이터 기반 2-3줄 (구체적 수치)
-3. **핵심 변수:** "X 발생 시 방향 전환" (한 줄)
-4. **레인지:** "지지 X~Y / 저항 X~Y" (있으면)
+## 11 AM 60-min candle (backtested)
+- Bullish → afternoon rally 71%. Bearish → afternoon decline 42% (reversal frequent).
+- Use as scenario pivot condition, NOT directional evidence.
 
-## JSON 응답 형식
-{"direction":"long또는short","long_pct":51~85,"short_pct":15~49,"summary":"선행적 전망 3~5줄. 앞으로 어떻게 될지 + 근거 + 레인지.","key_insight":"방향 전환 핵심 변수 1줄 (예: 브렌트유 $100 하회 시 숏커버 트리거)"}`;
+## Core rules
+1. Answer the user's question directly. "How will it end?" → clear directional call.
+2. Check the time context. After close → "tomorrow's outlook". During session → "remaining time". Pre-market → "today's outlook".
+3. MUST pick LONG or SHORT. Neutral forbidden. 51% is enough.
+4. NO platitudes. Specific numbers and key variables only.
+5. Interpret foreign investor flow and predict what their intent will PRODUCE next.
+
+## Sector correlations (1-day lag, backtested)
+- Memory/Semis: WDC(r=0.80), MU(r=0.74), SOX(r=0.75) → Samsung, SK Hynix
+- 2nd Battery: TSLA(r=0.69), SQM(r=0.69) → LG Energy, Samsung SDI
+- Defense/Space: LMT, RTX, RKLB → Hanwha Aerospace
+- Power Grid: NRG(r=0.72), VST(r=0.70) → HD Hyundai Electric
+- Robotics: ISRG(r=0.47) → Korean robotics stocks
+
+## Flow interpretation → forecast
+- Foreign spot+futures selling → "further downside pressure expected, may test X"
+- Foreign spot+futures buying → "upside momentum building, X breakout attempt expected"
+- KODEX Inverse surge → "market participants adding shorts, but oversold bounce could be sharp"
+- KOSDAQ > KOSPI → "retail-driven, directionally weak until foreign return"
+
+## Opening outlook expressions (for summary, in Korean)
+Based on overnight futures data, start the summary with:
+- ES/NQ > +1%: "강한 상승 출발 예상"
+- ES/NQ +0.3~1%: "상승 출발 예상"
+- ES/NQ ±0.3%: "보합 출발 예상"
+- ES/NQ -0.3~-1%: "하락 출발 예상"
+- ES/NQ < -1%: "강한 하락 출발 예상"
+Then state closing direction separately.
+
+## Response structure
+1. Direction call: "LONG 62% — 하락 출발 예상, 장중 반등으로 상승 마감 전망" (one line, in Korean)
+2. Evidence: 2-3 lines with specific numbers + correlations
+3. Today's sectors: 1-2 lines based on NASDAQ leader performance
+4. Key variable: "direction flips if X" + 11AM candle watch-point
+5. Range: "support X~Y / resistance X~Y" (if available)
+
+## JSON response format
+ALL text fields (summary, key_insight, sector reasons) must be in KOREAN (한국어).
+{"direction":"long or short","long_pct":51~85,"short_pct":15~49,"summary":"3-5 lines IN KOREAN. Forward-looking closing direction + evidence + sectors + range.","key_insight":"1 line IN KOREAN. Key pivot variable + 11AM candle watch-point.","sectors":[{"name":"sector in Korean","direction":"overweight/underweight","reason":"reason in Korean"}]}`;
 
 export default {
   async fetch(request, env) {
+    const requestOrigin = request.headers.get("Origin") || "";
+    const configuredOrigins = String(env.ALLOWED_ORIGIN || "")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean);
+    const isLocalOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(requestOrigin);
+    const allowOrigin = (requestOrigin && (isLocalOrigin || configuredOrigins.includes(requestOrigin)))
+      ? requestOrigin
+      : (configuredOrigins[0] || "*");
     const cors = {
-      "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN || "*",
+      "Access-Control-Allow-Origin": allowOrigin,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
+      "Vary": "Origin",
     };
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
     if (request.method !== "POST") return new Response('{"error":"POST only"}', { status: 405, headers: { ...cors, "Content-Type": "application/json" } });
 
     try {
-      // Get user question if provided
+      let body = {};
       let userQuestion = "오늘 어떻게 마무리될까?";
       try {
-        const body = await request.json();
+        body = await request.json();
         if (body.question) userQuestion = body.question;
       } catch(e) { console.error('Body parse:', e.message); }
+
+      const dateKey = getKstDateKey();
+      const usage = await consumeDailyQuota(env, `insight:${dateKey}`);
+      usage.date_key = dateKey;
+      if (!usage.allowed) {
+        return new Response(JSON.stringify({
+          error: "daily_limit_exceeded",
+          message: `실시간 분석은 전체 기준 하루 5회까지 사용할 수 있습니다. 한국시간 ${dateKey} 기준 남은 횟수는 0회입니다.`,
+          usage
+        }), {
+          status: 429,
+          headers: { ...cors, "Content-Type": "application/json" }
+        });
+      }
 
       // 1. Fetch real-time data
       const quotes = await fetchAllQuotes();
@@ -392,25 +721,35 @@ export default {
       let aiResult = null;
 
       let aiError = "";
-      const AI_MODELS = [
-        env.OPENROUTER_MODEL || "anthropic/claude-sonnet-4.6",
-        "openai/gpt-5.4",
-        "google/gemini-3-flash-preview"
-      ];
+      const AI_MODELS = (
+        env.OPENROUTER_MODELS ||
+        [
+          env.OPENROUTER_MODEL || "anthropic/claude-sonnet-4.6",
+          "openai/gpt-5.4",
+          "google/gemini-3-flash-preview"
+        ].join(",")
+      )
+        .split(",")
+        .map(model => model.trim())
+        .filter((model, index, list) => model && list.indexOf(model) === index);
       if (apiKey && fetched > 3) {
         let context = buildContext(quotes, patterns);
-        // Append 오답노트 if provided
+        // Append 오답노트 if provided (추세추종 강화 방지)
+        if (body.prev_review) {
+          context += "\n\n=== 전일 예측 검증 (오답노트) ===";
+          context += `\n  예측: ${body.prev_review.predicted || "?"} → 실제: ${body.prev_review.actual || "?"} (${body.prev_review.correct ? "적중" : "오답"})`;
+          if (body.prev_review.reason) context += `\n  원인: ${body.prev_review.reason}`;
+          context += "\n참고만 하세요. 전일 결과에 과도하게 영향받지 마세요.";
+          context += "\n어제 숏이 맞았다고 오늘도 숏이 맞는 것이 아닙니다. 오늘의 데이터로 독립적으로 판단하세요.";
+        }
+        if (body.daily_context) {
+          context += "\n\n" + buildPriorAnalysisContext(body.daily_context);
+        }
+
         try {
-          const body = await request.clone().json();
-          if (body.prev_review) {
-            context += "\n\n=== 전일 예측 검증 (오답노트) ===";
-            context += `\n  예측: ${body.prev_review.predicted || "?"} → 실제: ${body.prev_review.actual || "?"} (${body.prev_review.correct ? "적중" : "오답"})`;
-            if (body.prev_review.reason) context += `\n  원인: ${body.prev_review.reason}`;
-            context += "\n이 오답노트를 반영하세요. 같은 실수를 반복하지 마세요.";
-          }
-        } catch(e) {}
-        // Try models in order: Sonnet → GPT-5.4 → Gemini Flash
-        for (const aiModel of AI_MODELS) {
+          const [primaryModel, ...fallbackModels] = AI_MODELS;
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort("ai-timeout"), AI_TIMEOUT_MS);
           try {
             const aiResp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
               method: "POST",
@@ -421,17 +760,48 @@ export default {
                 "X-Title": "Nydad Insight"
               },
               body: JSON.stringify({
-                model: aiModel,
+                model: primaryModel,
+                models: fallbackModels,
+                provider: {
+                  allow_fallbacks: true,
+                  require_parameters: true
+                },
+                tools: [
+                  {
+                    type: "openrouter:web_search",
+                    parameters: {
+                      engine: "auto",
+                      search_context_size: "medium",
+                      max_results: 5,
+                      max_total_results: 10,
+                      user_location: {
+                        type: "approximate",
+                        country: "KR",
+                        city: "Seoul",
+                        region: "Seoul",
+                        timezone: "Asia/Seoul"
+                      }
+                    }
+                  }
+                ],
+                tool_choice: "required",
+                parallel_tool_calls: false,
                 messages: [
                   { role: "system", content: SYSTEM_PROMPT },
                   { role: "user", content: `사용자 질문: ${userQuestion}\n\n${context}` }
                 ],
                 temperature: 0.4,
-                max_tokens: 3000,
+                max_tokens: 900,
                 response_format: { type: "json_object" }
-              })
+              }),
+              signal: controller.signal
             });
-            if (aiResp.ok) {
+
+            if (!aiResp.ok) {
+              const errBody = await aiResp.text();
+              aiError = `${primaryModel} ${aiResp.status}: ${errBody.substring(0, 100)}`;
+              console.error("AI error:", aiError);
+            } else {
               const aiData = await aiResp.json();
               let content = aiData.choices?.[0]?.message?.content || "{}";
               if (content.startsWith("```")) {
@@ -440,49 +810,65 @@ export default {
               }
               // Robust JSON extraction — handle extra text around JSON
               let parsed;
-              const jsonMatch = content.match(/\{[\s\S]*\}/);
-              if (jsonMatch) {
-                parsed = JSON.parse(jsonMatch[0]);
-              } else {
+              try {
                 parsed = JSON.parse(content.trim());
+              } catch (_) {
+                // Fallback: extract outermost JSON object
+                const start = content.indexOf("{");
+                const end = content.lastIndexOf("}");
+                if (start !== -1 && end > start) {
+                  parsed = JSON.parse(content.substring(start, end + 1));
+                } else {
+                  throw new Error("No valid JSON in AI response");
+                }
               }
-              aiResult = parsed;
-              aiResult._model = aiModel;
-              break; // Success — stop trying
-            } else if (aiResp.status === 403) {
-              console.error(`Model ${aiModel} region-blocked, trying next...`);
-              continue; // Try next model
-            } else {
-              const errBody = await aiResp.text();
-              aiError = `${aiModel} ${aiResp.status}: ${errBody.substring(0, 100)}`;
-              console.error("AI error:", aiError);
-              continue;
+              // Validate required fields — reject empty/malformed responses
+              if (parsed && parsed.direction && parsed.summary) {
+                aiResult = parsed;
+                aiResult._model = aiData.model || primaryModel;
+              } else {
+                console.error("AI returned incomplete JSON:", JSON.stringify(parsed).substring(0, 100));
+                aiError = "AI response missing required fields (direction/summary)";
+              }
             }
-          } catch(e) {
-            console.error(`Model ${aiModel} failed:`, e.message);
-            aiError = e.message;
-            continue;
+          } finally {
+            clearTimeout(timeout);
           }
+        } catch(e) {
+          console.error("AI request failed:", e.message);
+          aiError = e.message;
         }
       }
 
-      // Fallback if AI failed — just show raw data, no forced direction
+      // Fallback if AI failed — pattern-based direction, never hardcode short
       if (!aiResult) {
+        const fbBull = patterns.filter(p => p.signal === "bullish").length;
+        const fbBear = patterns.filter(p => p.signal === "bearish").length;
+        const fbDir = fbBull > fbBear ? "long" : fbBear > fbBull ? "short" : "neutral";
+        const fbLong = fbDir === "long" ? Math.min(85, 51 + (fbBull - fbBear) * 4)
+                     : fbDir === "short" ? Math.max(15, 49 - (fbBear - fbBull) * 4) : 50;
         aiResult = {
-          direction: "short",
-          long_pct: 50,
-          short_pct: 50,
-          summary: "AI 분석 서버 응답 실패. 아래 패턴 데이터를 참고하세요:\n" + patterns.map(p => `[${p.signal}] ${p.name}: ${p.detail}`).join("\n"),
-          key_insight: "AI 서버 재시도 필요 — 패턴 데이터만 표시 중",
+          direction: fbDir,
+          long_pct: fbLong,
+          short_pct: 100 - fbLong,
+          summary: "AI 분석 서버 응답 실패. 패턴 기반 시그널:\n" + patterns.map(p => `[${p.signal}] ${p.name}: ${p.detail}`).join("\n"),
+          key_insight: "AI 미응답 — 패턴 기반 방향 판단. 신뢰도 낮음, 참고용.",
         };
       }
 
-      aiResult.long_pct = Math.max(15, Math.min(85, aiResult.long_pct || 50));
-      aiResult.short_pct = 100 - aiResult.long_pct;
+      // Ensure percentages are consistent with direction
+      const dir = aiResult.direction || "neutral";
+      let longPct = Math.max(15, Math.min(85, aiResult.long_pct || 50));
+      // If direction is short but long_pct > 50, flip to match direction
+      if (dir === "short" && longPct > 50) longPct = 100 - longPct;
+      if (dir === "long" && longPct < 50) longPct = 100 - longPct;
+      aiResult.long_pct = longPct;
+      aiResult.short_pct = 100 - longPct;
       aiResult.patterns = patterns;
       aiResult.timestamp = new Date().toISOString();
       aiResult.source = (apiKey && fetched > 3 && !aiError) ? "ai+patterns" : "pattern-only";
       aiResult.tickers_fetched = fetched;
+      aiResult.usage = usage;
       if (aiError) aiResult.ai_error = aiError;
 
       // Add raw prices for transparency

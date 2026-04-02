@@ -2,8 +2,10 @@ name: Daily Digest
 
 on:
   schedule:
-    # 07:00 KST daily (= 22:00 UTC previous day)
+    # 07:00 KST daily (= 22:00 UTC previous day) — 장전 시황
     - cron: '0 22 * * *'
+    # 12:10 KST daily (= 03:10 UTC) — 오후 시황 예측 (11시 60분봉 마감 후)
+    - cron: '10 3 * * 1-5'
   workflow_dispatch:
 
 permissions:
@@ -33,22 +35,48 @@ jobs:
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
 
-      - name: Collect news and generate digest
+      - name: Determine run type (morning vs midday)
+        id: run-type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "type=morning" >> $GITHUB_OUTPUT
+          else
+            HOUR_UTC=$(date -u +%H)
+            if [ "$HOUR_UTC" -ge 1 ] && [ "$HOUR_UTC" -le 5 ]; then
+              echo "type=midday" >> $GITHUB_OUTPUT
+            else
+              echo "type=morning" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Collect news and generate digest (장전 시황)
+        if: steps.run-type.outputs.type == 'morning'
+        timeout-minutes: 15
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL_FAST: ${{ vars.OPENROUTER_MODEL_FAST || 'google/gemini-3-flash-preview' }}
           OPENROUTER_MODEL_QUALITY: ${{ vars.OPENROUTER_MODEL_QUALITY || 'anthropic/claude-sonnet-4.6' }}
+          COINGECKO_DEMO_API_KEY: ${{ secrets.COINGECKO_DEMO_API_KEY }}
         run: python scripts/collect_news.py
+
+      - name: Midday KOSPI analysis (오후 시황 예측)
+        if: steps.run-type.outputs.type == 'midday'
+        timeout-minutes: 5
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL_QUALITY: ${{ vars.OPENROUTER_MODEL_QUALITY || 'anthropic/claude-sonnet-4.6' }}
+        run: python scripts/midday_analysis.py
 
       - name: Commit data
         run: |
           git config user.name "nydad-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/
+          git add data/index.json data/2*.json
           if git diff --staged --quiet; then
             echo "No new data."
           else
             git commit -m "Daily digest $(date -u +%Y-%m-%d)"
+            git pull --rebase || true
             git push
           fi
 

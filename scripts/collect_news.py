@@ -61,6 +61,7 @@ except ImportError:
 API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 MODEL_FAST = os.environ.get("OPENROUTER_MODEL_FAST", "google/gemini-3-flash-preview")
 MODEL_QUALITY = os.environ.get("OPENROUTER_MODEL_QUALITY", "anthropic/claude-sonnet-4.6")
+COINGECKO_DEMO_API_KEY = os.environ.get("COINGECKO_DEMO_API_KEY", "")
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 
@@ -242,21 +243,30 @@ def fetch_market_data() -> dict:
 
 def fetch_crypto_prices() -> list[dict]:
     """Top 15 crypto prices from CoinGecko."""
+    headers = dict(HEADERS)
+    if COINGECKO_DEMO_API_KEY:
+        headers["x-cg-demo-api-key"] = COINGECKO_DEMO_API_KEY
     try:
-        r = requests.get(
-            "https://api.coingecko.com/api/v3/coins/markets",
-            params={"vs_currency": "usd", "order": "market_cap_desc",
-                    "per_page": 15, "page": 1, "sparkline": "false",
-                    "price_change_percentage": "24h"},
-            headers=HEADERS, timeout=15)
-        r.raise_for_status()
-        return [{
-            "name": c["name"], "symbol": c["symbol"].upper(),
-            "price": c["current_price"], "change_pct": round(c.get("price_change_percentage_24h") or 0, 2),
-            "market_cap": c.get("market_cap", 0),
-            "volume_24h": c.get("total_volume", 0),
-            "rank": c.get("market_cap_rank", 0),
-        } for c in r.json()]
+        for attempt in range(3):
+            r = requests.get(
+                "https://api.coingecko.com/api/v3/coins/markets",
+                params={"vs_currency": "usd", "order": "market_cap_desc",
+                        "per_page": 15, "page": 1, "sparkline": "false",
+                        "price_change_percentage": "24h"},
+                headers=headers, timeout=15)
+            if r.status_code == 429 and attempt < 2:
+                retry_after = int(r.headers.get("Retry-After", 10))
+                log.warning("CoinGecko rate limited, waiting %ds...", retry_after)
+                time.sleep(min(retry_after, 30))
+                continue
+            r.raise_for_status()
+            return [{
+                "name": c["name"], "symbol": c["symbol"].upper(),
+                "price": c["current_price"], "change_pct": round(c.get("price_change_percentage_24h") or 0, 2),
+                "market_cap": c.get("market_cap", 0),
+                "volume_24h": c.get("total_volume", 0),
+                "rank": c.get("market_cap_rank", 0),
+            } for c in r.json()]
     except Exception as e:
         log.warning("CoinGecko failed: %s", e)
         return []
@@ -384,51 +394,102 @@ def _fetch_foreign_flow_builtin() -> dict:
 
 
 # Geopolitical risk keywords for scanning news headlines
-GEO_RISK_KEYWORDS = [
-    # War / Military conflict
-    "war", "military", "strike", "attack", "missile", "bomb", "invasion",
-    "conflict", "troops", "army", "navy", "airforce", "escalat",
-    "전쟁", "군사", "공격", "미사일", "폭격", "침공", "공습", "확전",
-    # Iran specifically
-    "iran", "tehran", "strait of hormuz", "persian gulf", "irgc",
-    "이란", "호르무즈", "페르시아만",
-    # Middle East / geopolitics
-    "middle east", "israel", "hamas", "hezbollah", "syria", "yemen", "houthi",
-    "중동", "이스라엘", "하마스", "헤즈볼라", "시리아", "예멘", "후티",
-    # US-China / North Korea / Taiwan
-    "taiwan strait", "south china sea", "north korea", "icbm", "nuclear",
-    "대만", "남중국해", "북한", "핵",
-    # Russia / Ukraine
-    "russia", "ukraine", "nato", "러시아", "우크라이나", "나토",
-    # Trade war / sanctions
-    "sanction", "tariff", "trade war", "embargo", "blacklist",
-    "제재", "관세", "무역전쟁", "금수",
+# 단어 경계 매칭 사용: r"\bwar\b" → "war"는 잡지만 "warning"/"forward"는 무시
+# (pattern, weight) — 직접적 군사 충돌 키워드는 가중치 2, 일반 지정학은 1
+GEO_RISK_PATTERNS = [
+    # ── 복합 패턴 먼저 (구체적 → 일반 순서로 매치해야 정확한 가중치 적용) ──
+    # Russia / Ukraine (복합 패턴이 일반 attack보다 우선)
+    (r"\brussia\b.{0,80}(?:attack|invad|escalat|nuclear)", 2),
+    (r"\bukraine\b.{0,80}(?:attack|offensive|counter)", 1),
+    (r"러시아.{0,30}(?:공격|침공|핵)", 2), (r"우크라이나.{0,30}(?:공격|반격)", 1),
+    # Iran (복합 패턴 우선)
+    (r"\biran\b.{0,100}(?:nuclear|strike|sanction|military)", 2),
+    (r"이란.{0,50}(?:핵|군사|제재)", 2),
+    # North Korea (복합 패턴 우선)
+    (r"north korea.{0,50}(?:missile|nuclear|icbm)", 2),
+    (r"북한.{0,20}(?:미사일|핵|ICBM)", 2),
+    # 한국어 복합 패턴
+    (r"군사.{0,20}공격", 2),
+    # ── 일반 패턴 (위 복합 패턴에 안 걸린 기사만 매치) ──
+    (r"\bwar\b", 2), (r"\bmilitary strike", 2), (r"\battack\b", 1),
+    (r"\bmissile", 2), (r"\bbomb(?:ing|ed|s)?\b", 2), (r"\binvasion\b", 2),
+    (r"\barmed conflict", 2), (r"\btroops\b", 1), (r"\bescalat", 1),
+    (r"전쟁", 2), (r"미사일", 2), (r"폭격", 2), (r"침공", 2), (r"확전", 2),
+    # Iran 단독 (낮은 가중치)
+    (r"\biran\b", 0.5), (r"strait of hormuz", 2), (r"\birgc\b", 2), (r"호르무즈", 2),
+    # Middle East
+    (r"\bhamas\b", 1), (r"\bhezbollah\b", 1), (r"\bhouthi\b", 1),
+    (r"하마스", 1), (r"헤즈볼라", 1), (r"후티", 1),
+    # US-China / Taiwan
+    (r"taiwan strait", 2), (r"south china sea", 1),
+    (r"대만.{0,20}해협", 2), (r"남중국해", 1),
+    # Trade war / sanctions (가중치 낮음)
+    (r"\btrade war\b", 1), (r"무역전쟁", 1),
+    (r"\btariff\b", 0.5), (r"\bsanction\b", 0.5),
+    (r"관세", 0.5), (r"제재", 0.5),
 ]
+
+# 컴파일된 패턴 캐시
+_GEO_COMPILED = [((re.compile(p, re.IGNORECASE), w)) for p, w in GEO_RISK_PATTERNS]
 
 
 def _scan_geopolitical_risk(articles: list[dict]) -> dict:
-    """Scan news headlines for geopolitical risk signals."""
+    """Scan news headlines for geopolitical risk signals.
+
+    Uses regex word-boundary matching to avoid false positives (e.g., 'war' in 'warning').
+    Uses weighted scoring: direct military conflict = 2, general geopolitics = 1, trade = 0.5.
+    """
     risk_hits = []
+    total_weight = 0.0
     for a in articles:
         text = (a.get("title", "") + " " + a.get("description", "")).lower()
-        for kw in GEO_RISK_KEYWORDS:
-            if kw in text:
-                risk_hits.append({"keyword": kw, "title": a["title"][:80], "source": a["source"]})
+        for pattern, weight in _GEO_COMPILED:
+            if pattern.search(text):
+                risk_hits.append({"keyword": pattern.pattern, "title": a["title"][:80], "source": a["source"]})
+                total_weight += weight
                 break  # one hit per article
 
+    # 가중 점수 기반 레벨 판단 (이전: 건수 기반 → 과민 반응)
     risk_level = "low"
-    if len(risk_hits) >= 8:
+    if total_weight >= 15:
         risk_level = "critical"
-    elif len(risk_hits) >= 5:
+    elif total_weight >= 10:
         risk_level = "high"
-    elif len(risk_hits) >= 2:
+    elif total_weight >= 4:
         risk_level = "elevated"
 
     return {
         "level": risk_level,
         "hit_count": len(risk_hits),
+        "weighted_score": round(total_weight, 1),
         "top_hits": risk_hits[:5],
     }
+
+
+def _normalize_foreign_flow(raw: dict) -> dict:
+    """Convert domestic_analysis or builtin foreign_flow to a unified format for display."""
+    if not raw or raw.get("status") == "unavailable":
+        return {"available": False, "note": raw.get("note", "") if raw else ""}
+    # EWY proxy inconclusive — 방향 판단 불가
+    if raw.get("source") == "etf_proxy_inconclusive":
+        return {"available": False, "note": "EWY 프록시 판단 불가 (변동폭 미미)"}
+    if raw.get("net_amount") is not None:
+        net = raw["net_amount"]
+        return {
+            "available": True,
+            "net_amount": net,
+            "direction": raw.get("direction", "buy" if net > 0 else "sell"),
+            "consecutive_days": raw.get("consecutive_days", 0),
+            "unit": raw.get("net_amount_unit", "억원"),
+        }
+    # builtin schema: {종목명: {net_buy_qty}, ...}
+    items = {k: v for k, v in raw.items()
+             if k not in ("status", "note", "source", "details", "direction",
+                          "net_amount", "consecutive_days", "institutional", "retail")
+             and isinstance(v, dict)}
+    if not items:
+        return {"available": False, "note": "수급 데이터 미확인"}
+    return {"available": True, "items": items, "item_count": len(items)}
 
 
 def calculate_investment_signal(market: dict, invest_articles: list[dict] = None,
@@ -456,128 +517,126 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
                 return item
         return None
 
-    # 1. VIX
+    # ── 가중치 시스템 ──
+    # 45% 밤사이 가격(선물/VIX/SOX/환율) | 30% 한국고유(외국인/KOSPI) | 15% 섹터 | 10% 뉴스
+    # 각 factor에 weight 부여 (기본 1.0), 최종 direction은 weighted sum으로 결정
+
+    # 1. VIX (야간가격 블록, weight=1.5)
     vix = find("volatility", "VIX")
     if vix:
         v = vix["price"]
-        if v < 18:
-            factors.append({"name": "VIX 안정권", "signal": "bullish", "detail": f"VIX {v:.1f}"})
+        if v < 20:
+            factors.append({"name": "VIX 안정권", "signal": "bullish", "detail": f"VIX {v:.1f}", "weight": 1.5})
         elif v > 28:
-            factors.append({"name": "VIX 공포 구간", "signal": "bearish", "detail": f"VIX {v:.1f}"})
+            factors.append({"name": "VIX 공포 구간", "signal": "bearish", "detail": f"VIX {v:.1f}", "weight": 1.5})
         else:
-            factors.append({"name": "VIX 경계 구간", "signal": "neutral", "detail": f"VIX {v:.1f}"})
+            factors.append({"name": "VIX 경계 구간", "signal": "neutral", "detail": f"VIX {v:.1f}", "weight": 0.5})
 
-    # 2. US Futures
+    # 2. US Futures (야간가격 블록, weight=2.0 — 가장 강력한 선행지표)
     spf = find("futures", "S&P 500")
     if spf:
         if spf["change_pct"] > 0.3:
-            factors.append({"name": "미 선물 강세", "signal": "bullish", "detail": f"{spf['change_pct']:+.2f}%"})
+            factors.append({"name": "미 선물 강세", "signal": "bullish", "detail": f"{spf['change_pct']:+.2f}%", "weight": 2.0})
         elif spf["change_pct"] < -0.3:
-            factors.append({"name": "미 선물 약세", "signal": "bearish", "detail": f"{spf['change_pct']:+.2f}%"})
+            factors.append({"name": "미 선물 약세", "signal": "bearish", "detail": f"{spf['change_pct']:+.2f}%", "weight": 2.0})
         else:
-            factors.append({"name": "미 선물 보합", "signal": "neutral", "detail": f"{spf['change_pct']:+.2f}%"})
+            factors.append({"name": "미 선물 보합", "signal": "neutral", "detail": f"{spf['change_pct']:+.2f}%", "weight": 0.5})
 
-    # 3. USD/KRW
+    # 3. USD/KRW (야간가격 블록, weight=1.5)
     krw = find("forex", "달러/원")
     if krw:
         if krw["change_pct"] < -0.2:
-            factors.append({"name": "원화 강세", "signal": "bullish", "detail": f"USD/KRW {krw['price']:.0f}"})
+            factors.append({"name": "원화 강세", "signal": "bullish", "detail": f"USD/KRW {krw['price']:.0f}", "weight": 1.5})
         elif krw["change_pct"] > 0.2:
-            factors.append({"name": "원화 약세", "signal": "bearish", "detail": f"USD/KRW {krw['price']:.0f}"})
+            factors.append({"name": "원화 약세", "signal": "bearish", "detail": f"USD/KRW {krw['price']:.0f}", "weight": 1.5})
         else:
-            factors.append({"name": "환율 보합", "signal": "neutral", "detail": f"USD/KRW {krw['price']:.0f}"})
+            factors.append({"name": "환율 보합", "signal": "neutral", "detail": f"USD/KRW {krw['price']:.0f}", "weight": 0.5})
 
-    # 4. S&P 500 close
+    # 4. S&P 500 종가 — 선물(Factor 2)과 중복이므로 참고용으로 표시
+    # 미 증시 종가는 이미 야간선물에 반영되어 있음. 별도 bearish/bullish 시그널 X
     sp = find("us_indices", "S&P 500")
     if sp:
-        if sp["change_pct"] > 0.3:
-            factors.append({"name": "미 증시 강세 마감", "signal": "bullish", "detail": f"{sp['change_pct']:+.2f}%"})
-        elif sp["change_pct"] < -0.3:
-            factors.append({"name": "미 증시 약세 마감", "signal": "bearish", "detail": f"{sp['change_pct']:+.2f}%"})
-        else:
-            factors.append({"name": "미 증시 보합 마감", "signal": "neutral", "detail": f"{sp['change_pct']:+.2f}%"})
+        factors.append({"name": "S&P 500 종가", "signal": "neutral",
+                        "detail": f"{sp['change_pct']:+.2f}% (야간선물에 대부분 반영, 참고용)", "weight": 0.3})
 
-    # 5. KOSPI trend
+    # 5. KOSPI 전일 종가 — 참고 데이터로만 표시 (후행 지표이므로 방향 시그널 아님)
+    # 전일 KOSPI 등락은 이미 야간선물/환율에 반영되어 있어 별도 팩터로 카운트하면 중복
     kospi = find("kr_indices", "KOSPI")
     if kospi:
-        if kospi["change_pct"] > 0.3:
-            factors.append({"name": "KOSPI 상승 흐름", "signal": "bullish", "detail": f"{kospi['change_pct']:+.2f}%"})
-        elif kospi["change_pct"] < -0.3:
-            factors.append({"name": "KOSPI 하락 흐름", "signal": "bearish", "detail": f"{kospi['change_pct']:+.2f}%"})
-        else:
-            factors.append({"name": "KOSPI 보합", "signal": "neutral", "detail": f"{kospi['change_pct']:+.2f}%"})
+        factors.append({"name": "KOSPI 전일 종가", "signal": "neutral",
+                        "detail": f"{kospi['change_pct']:+.2f}% (참고용, 야간선물에 대부분 반영)", "weight": 0.3})
 
-    # 6. WTI Oil
+    # 6. WTI Oil (weight=0.8 — 보조 지표)
     wti = find("commodities", "WTI")
     if wti:
         if wti["change_pct"] > 2.0:
             factors.append({"name": "유가 급등 (지정학 우려)", "signal": "bearish",
-                            "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)"})
+                            "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)", "weight": 0.8})
         elif wti["change_pct"] > 0.5:
             factors.append({"name": "유가 상승", "signal": "neutral",
-                            "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)"})
+                            "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)", "weight": 0.3})
         elif wti["change_pct"] < -2.0:
-            factors.append({"name": "유가 급락 (수요 우려)", "signal": "bearish",
-                            "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)"})
+            factors.append({"name": "유가 급락 (비용 완화)", "signal": "bullish",
+                            "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%) → 순수입국 수혜", "weight": 0.8})
         elif wti["change_pct"] < -0.5:
             factors.append({"name": "유가 하락 (비용 완화)", "signal": "bullish",
-                            "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)"})
+                            "detail": f"WTI ${wti['price']:.1f} ({wti['change_pct']:+.1f}%)", "weight": 0.5})
         else:
             factors.append({"name": "유가 안정", "signal": "neutral",
-                            "detail": f"WTI ${wti['price']:.1f}"})
+                            "detail": f"WTI ${wti['price']:.1f}", "weight": 0.2})
 
-    # 7. Gold
+    # 7. Gold (weight=0.8 — 보조 지표)
     gold = find("commodities", "금")
     if gold:
         if gold["change_pct"] > 1.0:
             factors.append({"name": "금 급등 (안전자산 선호)", "signal": "bearish",
-                            "detail": f"Gold ${gold['price']:.0f} ({gold['change_pct']:+.1f}%)"})
+                            "detail": f"Gold ${gold['price']:.0f} ({gold['change_pct']:+.1f}%)", "weight": 0.8})
         elif gold["change_pct"] < -1.0:
             factors.append({"name": "금 하락 (위험자산 선호)", "signal": "bullish",
-                            "detail": f"Gold ${gold['price']:.0f} ({gold['change_pct']:+.1f}%)"})
+                            "detail": f"Gold ${gold['price']:.0f} ({gold['change_pct']:+.1f}%)", "weight": 0.8})
         else:
             factors.append({"name": "금 보합", "signal": "neutral",
-                            "detail": f"Gold ${gold['price']:.0f}"})
+                            "detail": f"Gold ${gold['price']:.0f}", "weight": 0.2})
 
-    # 8. Philadelphia Semiconductor (SOX)
+    # 8. Philadelphia Semiconductor (SOX) (weight=1.5 — 섹터 핵심 선행지표)
     sox = find("us_indices", "반도체")
     if sox:
         if sox["change_pct"] > 0.5:
-            factors.append({"name": "SOX 반도체 강세", "signal": "bullish", "detail": f"SOX {sox['change_pct']:+.2f}%"})
+            factors.append({"name": "SOX 반도체 강세", "signal": "bullish", "detail": f"SOX {sox['change_pct']:+.2f}%", "weight": 1.5})
         elif sox["change_pct"] < -0.5:
-            factors.append({"name": "SOX 반도체 약세", "signal": "bearish", "detail": f"SOX {sox['change_pct']:+.2f}%"})
+            factors.append({"name": "SOX 반도체 약세", "signal": "bearish", "detail": f"SOX {sox['change_pct']:+.2f}%", "weight": 1.5})
         else:
-            factors.append({"name": "SOX 반도체 보합", "signal": "neutral", "detail": f"SOX {sox['change_pct']:+.2f}%"})
+            factors.append({"name": "SOX 반도체 보합", "signal": "neutral", "detail": f"SOX {sox['change_pct']:+.2f}%", "weight": 0.3})
 
-    # 9. Dollar Index
+    # 9. Dollar Index (weight=1.0)
     dxy = find("forex", "달러인덱스")
     if dxy:
         if dxy["change_pct"] > 0.3:
             factors.append({"name": "달러 강세 (EM 자금유출 우려)", "signal": "bearish",
-                            "detail": f"DXY {dxy['price']:.1f} ({dxy['change_pct']:+.2f}%)"})
+                            "detail": f"DXY {dxy['price']:.1f} ({dxy['change_pct']:+.2f}%)", "weight": 1.0})
         elif dxy["change_pct"] < -0.3:
             factors.append({"name": "달러 약세 (EM 자금유입 기대)", "signal": "bullish",
-                            "detail": f"DXY {dxy['price']:.1f} ({dxy['change_pct']:+.2f}%)"})
+                            "detail": f"DXY {dxy['price']:.1f} ({dxy['change_pct']:+.2f}%)", "weight": 1.0})
         else:
             factors.append({"name": "달러 보합", "signal": "neutral",
-                            "detail": f"DXY {dxy['price']:.1f}"})
+                            "detail": f"DXY {dxy['price']:.1f}", "weight": 0.2})
 
-    # 10. Geopolitical risk
+    # 10. Geopolitical risk (weight=0.5 — 대부분 가격에 이미 반영, override 조건만 높은 가중치)
     geo_risk = {"level": "low", "hit_count": 0, "top_hits": []}
     if invest_articles:
         geo_risk = _scan_geopolitical_risk(invest_articles)
         if geo_risk["level"] == "critical":
             factors.append({"name": "지정학 리스크 심각", "signal": "bearish",
-                            "detail": f"{geo_risk['hit_count']}건 위험 뉴스 감지"})
+                            "detail": f"{geo_risk['hit_count']}건 위험 뉴스 감지", "weight": 1.0})
         elif geo_risk["level"] == "high":
             factors.append({"name": "지정학 리스크 높음", "signal": "bearish",
-                            "detail": f"{geo_risk['hit_count']}건 위험 뉴스"})
+                            "detail": f"{geo_risk['hit_count']}건 위험 뉴스", "weight": 0.5})
         elif geo_risk["level"] == "elevated":
             factors.append({"name": "지정학 리스크 주의", "signal": "neutral",
-                            "detail": f"{geo_risk['hit_count']}건 관련 뉴스"})
+                            "detail": f"{geo_risk['hit_count']}건 관련 뉴스", "weight": 0.3})
         else:
             factors.append({"name": "지정학 리스크 낮음", "signal": "bullish",
-                            "detail": "주요 리스크 뉴스 없음"})
+                            "detail": "주요 리스크 뉴스 없음", "weight": 0.3})
 
     if not factors:
         return {
@@ -587,32 +646,62 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
             "key_insight": "", "sectors": [], "geo_risk": geo_risk,
         }
 
-    bull = sum(1 for f in factors if f["signal"] == "bullish")
-    bear = sum(1 for f in factors if f["signal"] == "bearish")
-    total = len(factors)
+    # ── 중복 집계 방지 ──
+    # 원칙 1: 전날 뉴스는 이미 나스닥/야간선물/환율 가격에 반영되어 있음
+    #   → 뉴스 팩터(지정학 등)와 가격 팩터를 동시에 같은 가중치로 세면 이중 반영
+    # 원칙 2: "미 선물 약세 + 미 증시 약세 + KOSPI 하락 + 원화 약세 + SOX 약세"는
+    #   사실상 하나의 글로벌 리스크오프 이벤트
 
-    # Direction logic with critical geo risk override
-    if geo_risk["level"] == "critical" and bear >= 3:
-        direction = "short"
-    elif bull >= total * 0.6:
+    # ── 가중치 합산 방향 결정 ──
+    # 각 factor의 weight 필드를 사용한 weighted sum.
+    # 뉴스 팩터(지정학 등)가 가격 팩터와 같은 방향이면 가중치 50% 감산 (이미 가격에 반영)
+    PRICE_FACTORS = {"미 선물 강세", "미 선물 약세", "원화 강세", "원화 약세",
+                     "SOX 반도체 강세", "SOX 반도체 약세",
+                     "달러 강세 (EM 자금유출 우려)", "달러 약세 (EM 자금유입 기대)"}
+    NEWS_FACTORS = {"지정학 리스크 심각", "지정학 리스크 높음", "지정학 리스크 주의",
+                    "유가 급등 (지정학 우려)"}
+
+    bull_weight = sum(f.get("weight", 1.0) for f in factors if f["signal"] == "bullish")
+    bear_weight = sum(f.get("weight", 1.0) for f in factors if f["signal"] == "bearish")
+
+    # 뉴스-가격 중복 보정
+    price_bearish = any(f["name"] in PRICE_FACTORS and f["signal"] == "bearish" for f in factors)
+    price_bullish = any(f["name"] in PRICE_FACTORS and f["signal"] == "bullish" for f in factors)
+    if price_bearish:
+        bear_weight -= sum(f.get("weight", 1.0) * 0.5 for f in factors
+                          if f["name"] in NEWS_FACTORS and f["signal"] == "bearish")
+    if price_bullish:
+        bull_weight -= sum(f.get("weight", 1.0) * 0.5 for f in factors
+                          if f["name"] in NEWS_FACTORS and f["signal"] == "bullish")
+    bull_weight = max(0, bull_weight)
+    bear_weight = max(0, bear_weight)
+    total_weight = bull_weight + bear_weight
+
+    if total_weight == 0:
+        direction = "neutral"
+    elif bull_weight > bear_weight * 1.3:  # 30% 마진 — 방향 전환에 확실한 우위 필요
         direction = "long"
-    elif bear >= total * 0.6:
+    elif bear_weight > bull_weight * 1.3:
         direction = "short"
-    elif bull > bear:
-        direction = "long"
-    elif bear > bull:
+    elif bull_weight > bear_weight:
+        direction = "long"  # 마진 미달이지만 우위는 있음 → 약한 콜
+    elif bear_weight > bull_weight:
         direction = "short"
     else:
         direction = "neutral"
 
-    confidence = round(max(bull, bear) / total, 2) if total else 0
+    confidence = round(max(bull_weight, bear_weight) / total_weight, 2) if total_weight else 0
 
-    # Compute long/short percentages
+    # Compute long/short percentages — edge 기반 (confidence 과대 표시 방지)
+    if total_weight > 0:
+        edge = abs(bull_weight - bear_weight) / total_weight  # 0~1 범위
+    else:
+        edge = 0
     if direction == "long":
-        long_pct = round(50 + confidence * 30)
+        long_pct = round(51 + edge * 34)  # 51~85 범위, edge 비례
         short_pct = 100 - long_pct
     elif direction == "short":
-        short_pct = round(50 + confidence * 30)
+        short_pct = round(51 + edge * 34)
         long_pct = 100 - short_pct
     else:
         long_pct = 50
@@ -645,7 +734,7 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
     elif direction == "short":
         sectors.append({"name": "방어주/유틸리티", "direction": "overweight",
                         "reason": "하락장 방어 + 배당 매력"})
-        sectors.append({"name": "통신", "direction": "overweight", "reason": "변동성 장세 방어 섹터"})
+        sectors.append({"name": "은행/금융", "direction": "overweight", "reason": "변동성 장세 방어 + 배당 매력"})
         if oil_surge or geo_high:
             sectors.append({"name": "에너지/정유", "direction": "overweight",
                             "reason": "유가 상승 수혜 + 지정학 프리미엄"})
@@ -670,10 +759,13 @@ def calculate_investment_signal(market: dict, invest_articles: list[dict] = None
             key_insight_parts.append(
                 f"{c['us_ticker']}↔{c['kr_ticker']} 상관계수 {c['coefficient']:.2f}"
             )
-    if foreign_flow and foreign_flow.get("status") != "unavailable":
-        flow_items = [k for k in foreign_flow if k not in ("status", "note")]
-        if flow_items:
-            key_insight_parts.append(f"외국인 주요 종목 수급 {len(flow_items)}건 추적 중")
+    nf = _normalize_foreign_flow(foreign_flow)
+    if nf.get("available"):
+        if "net_amount" in nf:
+            dir_kr = "매수" if nf["direction"] == "buy" else "매도"
+            key_insight_parts.append(f"외국인 순{dir_kr} {abs(nf['net_amount']):,.0f}{nf['unit']}")
+        elif nf.get("item_count"):
+            key_insight_parts.append(f"외국인 주요 종목 수급 {nf['item_count']}건 추적 중")
 
     key_insight = " | ".join(key_insight_parts) if key_insight_parts else ""
 
@@ -926,11 +1018,10 @@ def summarize_tab(articles, tab_id):
         user = f"Summarize {len(batch)} articles.\n\n" + "\n".join(parts)
         ai = _call_api(MODEL_FAST, SUMMARY_PROMPTS.get(tab_id, SUMMARY_PROMPTS["invest"]), user)
         ai_list = ai.get("articles", []) if ai else []
-        # Validate response shape
-        ai_list = [item for item in ai_list if isinstance(item, dict) and "summary" in item]
         for j, article in enumerate(batch):
-            if j < len(ai_list):
-                item = ai_list[j]
+            # Match by index — keep invalid items as None to preserve alignment
+            item = ai_list[j] if j < len(ai_list) else None
+            if isinstance(item, dict) and "summary" in item:
                 enriched.append({
                     **article,
                     "summary": item.get("summary", article.get("description", "")[:300]),
@@ -1040,17 +1131,20 @@ def generate_invest_editorial(market, signal, fg, articles, correlations, foreig
                          f"period={c['period_days']}d")
 
     # Foreign flow data
-    if foreign_flow and foreign_flow.get("status") != "unavailable":
+    nf = _normalize_foreign_flow(foreign_flow)
+    if nf.get("available"):
         parts.append("\n=== FOREIGN INVESTOR FLOW ===")
-        for name, data in foreign_flow.items():
-            if name in ("status", "note"):
-                continue
-            if isinstance(data, dict):
+        if "net_amount" in nf:
+            dir_kr = "매수" if nf["direction"] == "buy" else "매도"
+            parts.append(f"  외국인 순{dir_kr}: {abs(nf['net_amount']):,.0f}{nf['unit']}")
+            if nf.get("consecutive_days"):
+                parts.append(f"  연속 {nf['consecutive_days']}일 순{dir_kr}")
+        elif nf.get("items"):
+            for name, data in nf["items"].items():
                 net = data.get("net_buy_qty", 0)
-                direction = "순매수" if net > 0 else "순매도"
-                parts.append(f"  {name}: {direction} {abs(net):,}주")
-    elif foreign_flow:
-        parts.append(f"\n=== FOREIGN FLOW: {foreign_flow.get('note', 'N/A')} ===")
+                parts.append(f"  {name}: {'순매수' if net > 0 else '순매도'} {abs(net):,}주")
+    elif nf.get("note"):
+        parts.append(f"\n=== FOREIGN FLOW: {nf['note']} ===")
 
     if fg.get("us"):
         parts.append(f"\n=== US F&G: {fg['us']['score']} ({fg['us']['rating']}) ===")
@@ -1145,7 +1239,20 @@ def build_digest():
     log.info("--- Computing correlations ---")
     if HAS_DOMESTIC:
         try:
-            correlations = calculate_correlations(CORRELATION_PAIRS)
+            corr_data = calculate_correlations()  # no args — returns full dict
+            # Adapt domestic_analysis schema to collect_news expected format
+            correlations = []
+            for c in corr_data.get("correlations", []):
+                strength = abs(c.get("coefficient", 0))
+                correlations.append({
+                    "pair": c.get("pair", f"{c.get('ticker_a', '')} ↔ {c.get('ticker_b', '')}"),
+                    "us_ticker": c.get("ticker_a", ""),
+                    "kr_ticker": c.get("ticker_b", ""),
+                    "coefficient": c.get("coefficient", 0),
+                    "implied_move": c.get("implied_move"),
+                    "period_days": 20,
+                    "interpretation": c.get("strength", "weak") + (" 양의 상관" if c.get("coefficient", 0) > 0 else " 음의 상관"),
+                })
             log.info("  Correlations (domestic_analysis): %d pairs", len(correlations))
         except Exception as e:
             log.warning("  domestic_analysis.calculate_correlations failed: %s", e)
@@ -1155,7 +1262,8 @@ def build_digest():
     log.info("  Correlations: %d pairs computed", len(correlations))
     for c in correlations:
         log.info("    %s ↔ %s: r=%.3f (%s)",
-                 c["us_ticker"], c["kr_ticker"], c["coefficient"], c["interpretation"])
+                 c.get("us_ticker", "?"), c.get("kr_ticker", "?"),
+                 c.get("coefficient", 0), c.get("interpretation", "?"))
 
     # Foreign flow
     log.info("--- Fetching foreign investor flow ---")
@@ -1288,11 +1396,33 @@ def build_digest():
                     kospi_actual = item
                     break
             if prev_dir and kospi_actual:
-                actual_change = kospi_actual.get("change_pct", 0)
-                actual_dir = "long" if actual_change > 0 else "short"
-                correct = prev_dir == actual_dir
+                # 시초가 대비 종가로 판정 (트레이딩 관점: 시초가에 진입)
+                # yfinance에서 시가/종가를 가져와서 장중 수익률 계산
+                intraday_return = None
+                try:
+                    if yf:
+                        _kd = yf.download("^KS11", period="5d", interval="1d",
+                                          progress=False, timeout=10)
+                        if not _kd.empty and len(_kd) >= 1:
+                            _last = _kd.iloc[-1]
+                            _open = float(_last["Open"])
+                            _close = float(_last["Close"])
+                            if _open > 0:
+                                intraday_return = round((_close - _open) / _open * 100, 2)
+                except Exception:
+                    pass
+
+                if intraday_return is not None:
+                    actual_change = intraday_return
+                    label = "시초가 대비"
+                else:
+                    actual_change = kospi_actual.get("change_pct", 0)
+                    label = "전일 대비"
+
+                actual_dir = "long" if actual_change > 0.1 else "short" if actual_change < -0.1 else "neutral"
+                correct = prev_dir == actual_dir or (actual_dir == "neutral")
                 predicted_str = f"{prev_dir.upper()} {prev_sig.get('long_pct', '?')}% / {prev_sig.get('short_pct', '?')}%"
-                actual_str = f"KOSPI {actual_change:+.2f}% ({'상승' if actual_change > 0 else '하락'})"
+                actual_str = f"KOSPI {actual_change:+.2f}% ({label}, {'상승' if actual_change > 0.1 else '하락' if actual_change < -0.1 else '보합'})"
 
                 # Generate reason if wrong
                 reason = ""

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Quick market data sync — no AI calls, ~30s runtime."""
-import os, sys, json, logging
+import os, sys, json, logging, time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -20,6 +20,7 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 KST = timezone(timedelta(hours=9))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("sync")
+COINGECKO_DEMO_API_KEY = os.environ.get("COINGECKO_DEMO_API_KEY", "")
 
 TICKERS = {
     "us_indices": [("S&P 500","^GSPC"),("NASDAQ","^IXIC"),("다우존스","^DJI"),("러셀 2000","^RUT"),("필라델피아 반도체","^SOX")],
@@ -62,13 +63,23 @@ def main():
     # Crypto
     crypto = []
     try:
-        r = requests.get("https://api.coingecko.com/api/v3/coins/markets",
-            params={"vs_currency":"usd","order":"market_cap_desc","per_page":15,"page":1,"sparkline":"false",
-                    "price_change_percentage":"24h"}, timeout=10)
-        r.raise_for_status()
-        crypto = [{"name":c["name"],"symbol":c["symbol"].upper(),"price":c["current_price"],
-                   "change_pct":round(c.get("price_change_percentage_24h") or 0,2),
-                   "market_cap":c.get("market_cap",0),"rank":c.get("market_cap_rank",0)} for c in r.json()]
+        headers = {}
+        if COINGECKO_DEMO_API_KEY:
+            headers["x-cg-demo-api-key"] = COINGECKO_DEMO_API_KEY
+        for attempt in range(3):
+            r = requests.get("https://api.coingecko.com/api/v3/coins/markets",
+                params={"vs_currency":"usd","order":"market_cap_desc","per_page":15,"page":1,"sparkline":"false",
+                        "price_change_percentage":"24h"}, headers=headers, timeout=15)
+            if r.status_code == 429 and attempt < 2:
+                retry_after = int(r.headers.get("Retry-After", 10))
+                log.warning("CoinGecko rate limited, waiting %ds...", retry_after)
+                time.sleep(min(retry_after, 30))
+                continue
+            r.raise_for_status()
+            crypto = [{"name":c["name"],"symbol":c["symbol"].upper(),"price":c["current_price"],
+                       "change_pct":round(c.get("price_change_percentage_24h") or 0,2),
+                       "market_cap":c.get("market_cap",0),"rank":c.get("market_cap_rank",0)} for c in r.json()]
+            break
     except Exception:
         pass
 

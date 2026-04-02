@@ -8,6 +8,8 @@
 
   var dates = [], currentDate = "", currentTab = "invest", cache = {};
   var INSIGHT_API = "https://nydad-insight-api.nydad.workers.dev";
+  var INSIGHT_DAILY_LIMIT = 5;
+  var INSIGHT_USAGE_KEY = "nydad-insight-usage";
 
   // ── Korean labels ──
   var INSIGHT_KR = { bullish: "강세", bearish: "약세", neutral: "중립", alert: "주의" };
@@ -19,6 +21,89 @@
   };
   var DIR_KR = { long: "LONG 롱", short: "SHORT 숏", neutral: "NEUTRAL 중립" };
   var STREAK_KR = { win: "연승", lose: "연패" };
+
+  function getKstDateKey() {
+    try {
+      var parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(new Date());
+      var map = {};
+      parts.forEach(function (part) { if (part.type !== "literal") map[part.type] = part.value; });
+      return [map.year, map.month, map.day].join("-");
+    } catch (e) {
+      var kst = new Date(Date.now() + 9 * 3600000);
+      return [
+        kst.getUTCFullYear(),
+        String(kst.getUTCMonth() + 1).padStart(2, "0"),
+        String(kst.getUTCDate()).padStart(2, "0")
+      ].join("-");
+    }
+  }
+
+  function getLocalInsightUsage() {
+    var dateKey = getKstDateKey();
+    try {
+      var raw = localStorage.getItem(INSIGHT_USAGE_KEY);
+      if (!raw) return { date_key: dateKey, limit: INSIGHT_DAILY_LIMIT, used: 0, remaining: INSIGHT_DAILY_LIMIT };
+      var parsed = JSON.parse(raw);
+      if (!parsed || parsed.date_key !== dateKey) {
+        return { date_key: dateKey, limit: INSIGHT_DAILY_LIMIT, used: 0, remaining: INSIGHT_DAILY_LIMIT };
+      }
+      var limit = parsed.limit || INSIGHT_DAILY_LIMIT;
+      var used = Math.max(0, parsed.used || 0);
+      return {
+        date_key: dateKey,
+        limit: limit,
+        used: used,
+        remaining: Math.max(0, limit - used)
+      };
+    } catch (e) {
+      return { date_key: dateKey, limit: INSIGHT_DAILY_LIMIT, used: 0, remaining: INSIGHT_DAILY_LIMIT };
+    }
+  }
+
+  function setLocalInsightUsage(usage) {
+    if (!usage) return;
+    try {
+      var limit = usage.limit || INSIGHT_DAILY_LIMIT;
+      var used = Math.max(0, usage.used || 0);
+      localStorage.setItem(INSIGHT_USAGE_KEY, JSON.stringify({
+        date_key: usage.date_key || getKstDateKey(),
+        limit: limit,
+        used: used
+      }));
+    } catch (e) {}
+  }
+
+  function syncInsightUsage(payload) {
+    if (payload && payload.usage) setLocalInsightUsage(payload.usage);
+  }
+
+  function getInsightUsageLabel() {
+    var usage = getLocalInsightUsage();
+    return "실시간 분석은 전체 기준 하루 5회까지. 서버 기준 남은 횟수 " + usage.remaining + "회";
+  }
+
+  function buildInsightDailyContext(d) {
+    if (!d) return null;
+    var tab = (d.tabs || {}).invest || {};
+    var sig = d.investment_signal || d.kospi_signal || {};
+    return {
+      date: d.date || currentDate || "",
+      generated_at: d.generated_at || "",
+      direction: sig.direction || "",
+      summary: sig.summary || "",
+      briefing: tab.briefing || "",
+      outlook: tab.outlook || "",
+      key_insights: (tab.key_insights || []).slice(0, 3).map(function (ins) {
+        return { title: ins.title || "", detail: ins.detail || "", type: ins.type || "neutral" };
+      }),
+      correlations: (tab.correlations || sig.correlations || []).slice(0, 3)
+    };
+  }
 
   // ══════════════════════════════════════
   // INIT
@@ -121,7 +206,13 @@
     var btn = document.getElementById("insight-btn");
     var result = document.getElementById("insight-result");
     var questionInput = document.getElementById("insight-question");
+    var usageNote = document.getElementById("insight-limit-note");
     if (!btn || !result) return;
+
+    function refreshUsageNote() {
+      if (usageNote) usageNote.textContent = getInsightUsageLabel();
+    }
+    refreshUsageNote();
 
     function doAnalysis() {
       var question = questionInput ? questionInput.value.trim() : "";
@@ -138,54 +229,71 @@
       questionInput.addEventListener("keypress", function(e) { if (e.key === "Enter") doAnalysis(); });
     }
 
+    function renderDailyFallback(note) {
+      var d = cache[currentDate];
+      if (!d) return false;
+      var sig = d.investment_signal || d.kospi_signal || {};
+      result.innerHTML = renderInsightResult({
+        direction: sig.direction || "neutral",
+        long_pct: sig.long_pct || 50,
+        short_pct: sig.short_pct || 50,
+        summary: sig.summary || sig.key_insight || "데이터 기반 분석 결과입니다.",
+        key_insight: note || sig.key_insight || "실시간 분석을 위해 Cloudflare Worker를 설정하세요.",
+        patterns: (sig.factors || []).map(function(f) { return { name: f.name, signal: f.signal, detail: f.detail }; }),
+        source: "daily-data"
+      });
+      return true;
+    }
+
     async function fetchInsight(question) {
+      var fetchTimeout = null;
       try {
         var resp;
         if (INSIGHT_API) {
           // Include prev_signal_review (오답노트) if available
-          var payload = { question: question || "오늘 어떻게 마무리될까?" };
+          var payload = {
+            question: question || "오늘 어떻게 마무리될까?"
+          };
           var d = cache[currentDate];
           if (d && d.prev_signal_review) {
             payload.prev_review = d.prev_signal_review;
           }
+          if (d) {
+            payload.daily_context = buildInsightDailyContext(d);
+          }
           var controller = new AbortController();
-          var fetchTimeout = setTimeout(function() { controller.abort(); }, 30000);
+          fetchTimeout = setTimeout(function() { controller.abort(); }, 35000);
           resp = await fetch(INSIGHT_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
             signal: controller.signal
           });
-          clearTimeout(fetchTimeout);
         } else {
-          // Fallback: use existing daily data to generate a quick summary
-          var d = cache[currentDate];
-          if (d) {
-            var sig = d.investment_signal || d.kospi_signal || {};
-            result.innerHTML = renderInsightResult({
-              direction: sig.direction || "neutral",
-              long_pct: sig.long_pct || 50,
-              short_pct: sig.short_pct || 50,
-              summary: sig.summary || sig.key_insight || "데이터 기반 분석 결과입니다.",
-              key_insight: sig.key_insight || "실시간 분석을 위해 Cloudflare Worker를 설정하세요.",
-              patterns: (sig.factors || []).map(function(f) { return { name: f.name, signal: f.signal, detail: f.detail }; }),
-              source: "daily-data"
-            });
-            btn.disabled = false;
-            btn.querySelector("span").textContent = "실시간 인사이트";
-            return;
-          }
+          if (renderDailyFallback("실시간 분석이 비활성화되어 일간 데이터로 표시했습니다.")) return;
           throw new Error("No data");
         }
 
+        if (resp.status === 429) {
+          var limited = await resp.json().catch(function () { return {}; });
+          syncInsightUsage(limited);
+          result.innerHTML = '<div style="padding:12px;color:var(--amber);font-size:13px">' + esc(limited.message || "실시간 분석은 전체 기준 하루 5회까지 사용할 수 있습니다.") + '</div>';
+          return;
+        }
         if (!resp.ok) throw new Error("API " + resp.status);
         var data = await resp.json();
+        syncInsightUsage(data);
         result.innerHTML = renderInsightResult(data);
       } catch (e) {
-        result.innerHTML = '<div style="padding:12px;color:var(--bear);font-size:13px">분석 실패: ' + esc(e.message) + '</div>';
+        if (!renderDailyFallback("실시간 연결이 불안정해 일간 데이터로 대체했습니다.")) {
+          result.innerHTML = '<div style="padding:12px;color:var(--bear);font-size:13px">분석 실패: ' + esc(e.message) + '</div>';
+        }
+      } finally {
+        if (fetchTimeout) clearTimeout(fetchTimeout);
+        btn.disabled = false;
+        btn.querySelector("span").textContent = "분석";
+        refreshUsageNote();
       }
-      btn.disabled = false;
-      btn.querySelector("span").textContent = "분석";
     }
   }
 
@@ -347,7 +455,7 @@
     h += '<div class="signal-hero ' + safeDir(dir) + ' reveal" style="margin-top:20px">';
     // Verdict first (Bloomberg/Robinhood: large direction call is the hero)
     h += '<div class="signal-top"><div class="signal-direction-wrap">';
-    h += '<div class="signal-eyebrow">오늘의 전망 · KOSPI Direction</div>';
+    h += '<div class="signal-eyebrow">오늘의 전망 · KOSPI Direction <span style="font-size:10px;color:var(--text-3)">(7시 장전 시황 · 전일 종가 기준)</span></div>';
     h += '<div class="signal-direction">' + (DIR_KR[dir] || dir) + '</div>';
     h += '</div>';
     h += '<div class="signal-confidence"><div class="signal-conf-label">Confidence</div>';
@@ -356,8 +464,9 @@
     h += '</div>';
 
     // Thesis second (summary before bars — what matters, then evidence)
-    if (sig.summary || tab.briefing) {
-      h += '<div class="signal-summary">' + esc(sig.summary || tab.briefing) + '</div>';
+    if (tab.briefing || sig.summary) {
+      // AI editorial(tab.briefing)을 우선 표시 — 규칙 기반(sig.summary)보다 정교함
+      h += '<div class="signal-summary">' + esc(tab.briefing || sig.summary) + '</div>';
     }
 
     // Evidence: pct bars + factors
@@ -384,6 +493,7 @@
     h += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
     h += '<span>분석</span></button>';
     h += '</div>';
+    h += '<div id="insight-limit-note" style="margin-top:8px;font-size:11px;color:var(--text-3)">실시간 분석은 전체 기준 하루 5회까지.</div>';
     h += '<div class="insight-result hidden" id="insight-result"></div>';
     h += '</div>';
     h += '</div>';
@@ -403,10 +513,69 @@
       h += '</div></div></div><hr class="divider">';
     }
 
+    // Midday Signal (오후 시황 예측) — 12시 분석 결과
+    var mid = d.midday_signal;
+    if (mid && mid.direction) {
+      var mDir = mid.direction || "neutral";
+      var mLong = mid.long_pct || 50;
+      var mShort = mid.short_pct || 50;
+      var mConf = mid.confidence || 0;
+      var mCandle = mid.candle_11am_interpretation || "";
+      var mReview = mid.morning_review || "";
+      var mCatalyst = mid.afternoon_catalyst || "";
+
+      h += '<div class="reveal"><div class="section-label">오후 시황 예측 · 12:00 KST</div>';
+      h += '<div class="signal-hero ' + safeDir(mDir) + '" style="margin-top:8px;padding:14px 16px">';
+
+      h += '<div class="signal-top"><div class="signal-direction-wrap">';
+      h += '<div class="signal-eyebrow">오후 전망 · Afternoon Outlook</div>';
+      h += '<div class="signal-direction" style="font-size:22px">' + (DIR_KR[mDir] || mDir) + '</div>';
+      h += '</div>';
+      h += '<div class="signal-confidence"><div class="signal-conf-label">Confidence</div>';
+      h += '<div class="signal-conf-value">' + Math.round(mConf * 100) + '%</div>';
+      h += '</div></div>';
+
+      if (mid.summary) {
+        h += '<div class="signal-summary" style="font-size:13px">' + esc(mid.summary) + '</div>';
+      }
+
+      // 11시 캔들 + 오전 리뷰 + 오후 변수
+      h += '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;font-size:12px">';
+      if (mCandle) {
+        h += '<div style="display:flex;gap:6px;align-items:baseline"><span class="factor-tag ' + safeDir(mDir) + '" style="font-size:10px;padding:2px 6px">11시 캔들</span><span style="color:var(--text-2)">' + esc(mCandle) + '</span></div>';
+      }
+      if (mReview) {
+        h += '<div style="display:flex;gap:6px;align-items:baseline"><span class="factor-tag neutral" style="font-size:10px;padding:2px 6px">오전 리뷰</span><span style="color:var(--text-2)">' + esc(mReview) + '</span></div>';
+      }
+      if (mCatalyst) {
+        h += '<div style="display:flex;gap:6px;align-items:baseline"><span class="factor-tag neutral" style="font-size:10px;padding:2px 6px">오후 변수</span><span style="color:var(--text-2)">' + esc(mCatalyst) + '</span></div>';
+      }
+      h += '</div>';
+
+      // Pct bars (compact)
+      h += '<div class="signal-pct" style="margin-top:10px">';
+      h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bull" style="width:' + mLong + '%"></div></div>';
+      h += '<span class="signal-pct-label bull">L ' + mLong + '%</span></div>';
+      h += '<div class="signal-pct-item"><div class="signal-pct-bar"><div class="signal-pct-fill bear" style="width:' + mShort + '%"></div></div>';
+      h += '<span class="signal-pct-label bear">S ' + mShort + '%</span></div>';
+      h += '</div>';
+
+      // Factors
+      if (mid.factors && mid.factors.length) {
+        h += '<div class="signal-factors" style="margin-top:8px">';
+        mid.factors.forEach(function (f) {
+          h += '<span class="factor-tag ' + safeSignal(f.signal) + '">' + esc(f.name) + ' ' + esc(f.detail || "") + '</span>';
+        });
+        h += '</div>';
+      }
+
+      h += '</div></div><hr class="divider">';
+    }
+
     // Correlation Insights — show in readable format
     var corr = sig.correlations || tab.correlations || [];
     if (corr.length) {
-      h += '<div class="reveal"><div class="section-label">반도체 상관관계</div><div class="insight-list">';
+      h += '<div class="reveal"><div class="section-label">섹터 상관관계</div><div class="insight-list">';
       corr.forEach(function (c) {
         var coef = c.coefficient || 0;
         var strength = Math.abs(coef) > 0.6 ? "강한" : Math.abs(coef) > 0.3 ? "보통" : "약한";

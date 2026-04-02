@@ -21,6 +21,7 @@ import math
 import os
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -68,36 +69,79 @@ log = logging.getLogger("domestic-analysis")
 # Ticker Definitions for Correlation Analysis
 # ---------------------------------------------------------------------------
 CORRELATION_TICKERS = {
-    # US Semiconductors
+    # ═══ US Semiconductors / Memory (최우선 — 코스피 삼성/하이닉스 상관계수 가장 높음) ═══
     "NVDA": "NVIDIA",
     "MU": "Micron",
-    "WDC": "Western Digital",
-    # Korean Stocks
+    "WDC": "Western Digital (SanDisk)",
+    "AMAT": "Applied Materials",        # 반도체 장비 → 삼성/하이닉스 설비투자 연동
+    "LRCX": "Lam Research",             # 반도체 장비
+    # ═══ Korean Stocks — Core ═══
     "005930.KS": "Samsung Electronics",
     "000660.KS": "SK Hynix",
-    # Indices
+    # ═══ Korean Stocks — Sector Leaders ═══
+    "373220.KS": "LG Energy Solution",
+    "006400.KS": "Samsung SDI",
+    "012450.KS": "Hanwha Aerospace",
+    # ═══ Indices ═══
     "^SOX": "Philadelphia Semiconductor Index",
     "^KS11": "KOSPI",
     "^IXIC": "NASDAQ Composite",
     "^DJI": "Dow Jones",
-    # FX
+    # ═══ US Sector Leaders — 2nd Battery/EV (3종목) ═══
+    "TSLA": "Tesla",
+    "ALB": "Albemarle (Lithium)",
+    "ENPH": "Enphase Energy (Solar/Clean Energy)",
+    # ═══ US Sector Leaders — Robotics/Automation (3종목) ═══
+    "ISRG": "Intuitive Surgical",
+    "ROK": "Rockwell Automation",
+    "ABB": "ABB Ltd (Industrial Automation)",
+    # ═══ US Sector Leaders — Defense/Aerospace/Space (3종목) ═══
+    "LMT": "Lockheed Martin",
+    "RTX": "RTX Corp (Raytheon)",
+    "RKLB": "Rocket Lab",
+    # ═══ FX ═══
     "KRW=X": "USD/KRW",
     "DX-Y.NYB": "US Dollar Index",
-    # Commodities
+    # ═══ Commodities ═══
     "CL=F": "WTI Crude Oil",
     "GC=F": "Gold",
 }
 
 # Key correlation pairs to track
+# Priority: Memory/SOX → 삼성/하이닉스 (상관관계 가장 높음, 코스피 시가총액 1,2위)
 CORRELATION_PAIRS = [
-    ("NVDA", "005930.KS", "NVDA <-> Samsung"),
+    # ═══ Memory Sector (최우선 — 코스피 지수 영향 최대, 시총 1,2위) ═══
     ("MU", "000660.KS", "Micron <-> SK Hynix"),
+    ("MU", "005930.KS", "Micron <-> Samsung"),
+    ("WDC", "000660.KS", "WDC(SanDisk) <-> SK Hynix"),
+    ("WDC", "005930.KS", "WDC(SanDisk) <-> Samsung"),
+    ("AMAT", "000660.KS", "AMAT(장비) <-> SK Hynix"),
+    ("LRCX", "005930.KS", "Lam Research(장비) <-> Samsung"),
+    # SOX Index (반도체 전체)
     ("^SOX", "005930.KS", "SOX <-> Samsung"),
     ("^SOX", "000660.KS", "SOX <-> SK Hynix"),
     ("^SOX", "^KS11", "SOX <-> KOSPI"),
+    # NVIDIA (AI capex, 참고용 — 한국 반도체와 직접 상관 약함)
+    ("NVDA", "005930.KS", "NVDA <-> Samsung"),
+    ("NVDA", "000660.KS", "NVDA <-> SK Hynix"),
+    # ═══ 2nd Battery / EV Sector ═══
+    ("TSLA", "373220.KS", "Tesla <-> LG Energy"),
+    ("TSLA", "006400.KS", "Tesla <-> Samsung SDI"),
+    ("ALB", "373220.KS", "ALB(Lithium) <-> LG Energy"),
+    ("ALB", "006400.KS", "ALB(Lithium) <-> Samsung SDI"),
+    ("ENPH", "373220.KS", "Enphase(Clean Energy) <-> LG Energy"),
+    # ═══ Defense / Aerospace / Space ═══
+    ("LMT", "012450.KS", "Lockheed Martin <-> Hanwha Aerospace"),
+    ("RTX", "012450.KS", "RTX <-> Hanwha Aerospace"),
+    ("RKLB", "012450.KS", "Rocket Lab <-> Hanwha Aerospace"),
+    # ═══ Robotics / Automation ═══
+    ("ISRG", "^KS11", "ISRG(Robotics) <-> KOSPI"),
+    ("ROK", "^KS11", "Rockwell(Automation) <-> KOSPI"),
+    ("ABB", "^KS11", "ABB(Industrial) <-> KOSPI"),
+    # Broad Market
     ("^IXIC", "^KS11", "NASDAQ <-> KOSPI"),
     ("^DJI", "^KS11", "Dow <-> KOSPI"),
-    ("NVDA", "000660.KS", "NVDA <-> SK Hynix"),
+    # FX & Commodities
     ("KRW=X", "^KS11", "USD/KRW <-> KOSPI"),
     ("DX-Y.NYB", "^KS11", "DXY <-> KOSPI"),
     ("CL=F", "^KS11", "WTI <-> KOSPI"),
@@ -233,8 +277,12 @@ def fetch_correlation_data() -> dict:
             # Calculate implied move for Korean asset based on US asset's latest return
             implied_move = None
             # If ticker_a is a US asset and ticker_b is Korean, calculate implied move
-            us_tickers = {"NVDA", "MU", "WDC", "^SOX", "^IXIC", "^DJI", "DX-Y.NYB", "CL=F", "GC=F"}
-            kr_tickers = {"005930.KS", "000660.KS", "^KS11"}
+            us_tickers = {"NVDA", "MU", "WDC", "AMAT", "LRCX",
+                         "TSLA", "ALB", "ENPH", "ISRG", "ROK", "ABB",
+                         "LMT", "RTX", "RKLB",
+                         "^SOX", "^IXIC", "^DJI", "DX-Y.NYB", "CL=F", "GC=F"}
+            kr_tickers = {"005930.KS", "000660.KS", "^KS11",
+                          "373220.KS", "006400.KS", "012450.KS"}
 
             if ticker_a in us_tickers and ticker_b in kr_tickers:
                 us_return = result["raw_returns"].get(ticker_a)
@@ -316,12 +364,21 @@ def fetch_foreign_flow() -> dict:
         "details": [],
     }
 
-    # Attempt 1: Naver Finance KOSPI investor trends
+    # Attempt 1: KRX (가장 신뢰할 수 있는 소스, 금액 기반)
+    try:
+        result = _fetch_krx_foreign_flow()
+        if result.get("net_amount") is not None:
+            log.info("Foreign flow from KRX: %s", result["direction"])
+            return result
+    except Exception as e:
+        log.warning("KRX foreign flow failed: %s", e)
+
+    # Attempt 2: Naver Finance (fallback)
     try:
         result = _fetch_naver_foreign_flow()
         if result.get("net_amount") is not None:
             log.info(
-                "Foreign flow from Naver: %s %s billion KRW (%d consecutive days)",
+                "Foreign flow from Naver: %s %s (%d consecutive days)",
                 result["direction"],
                 abs(result["net_amount"]),
                 result.get("consecutive_days", 0),
@@ -330,12 +387,7 @@ def fetch_foreign_flow() -> dict:
     except Exception as e:
         log.warning("Naver Finance foreign flow failed: %s", e)
 
-    # Attempt 2: KRX data
-    try:
-        result = _fetch_krx_foreign_flow()
-        if result.get("net_amount") is not None:
-            log.info("Foreign flow from KRX: %s", result["direction"])
-            return result
+    # Attempt 3: KRX retry (already tried as #1, skip)
     except Exception as e:
         log.warning("KRX foreign flow failed: %s", e)
 
@@ -446,6 +498,9 @@ def _fetch_krx_foreign_flow() -> dict:
     }
 
     today = datetime.now(KST)
+    # Fall back to previous business day on weekends
+    if today.weekday() >= 5:  # Saturday=5, Sunday=6
+        today -= timedelta(days=(today.weekday() - 4))
     trd_date = today.strftime("%Y%m%d")
 
     # KRX KOSPI investor trading trend
@@ -476,19 +531,22 @@ def _fetch_krx_foreign_flow() -> dict:
     # Find foreign and institutional rows
     for item in items:
         name = item.get("INVST_TP_NM", "")
-        net_val = item.get("NETBVSQTY", "0").replace(",", "")
+        # NETBVSAMT = 순매수/매도 금액 (원), NETBVSQTY = 주수
+        # 금액이 더 정확한 수급 강도 지표 (삼성전자 1주 vs 소형주 1주 가치 다름)
+        net_krw = item.get("NETBVSAMT", item.get("NETBVSQTY", "0")).replace(",", "")
         try:
-            net_amount = int(net_val)
+            net_amount = int(net_krw)
         except ValueError:
             net_amount = 0
 
         if "외국인" in name:
-            result["net_amount"] = round(net_amount / 1_000_000, 1)  # Convert to billions
+            result["net_amount"] = round(net_amount / 100_000_000, 1)  # 억원
+            result["net_amount_unit"] = "억원"
             result["direction"] = "buy" if net_amount > 0 else "sell"
         elif "기관" in name:
-            result["institutional"] = round(net_amount / 1_000_000, 1)
+            result["institutional"] = round(net_amount / 100_000_000, 1)  # 억원
         elif "개인" in name:
-            result["retail"] = round(net_amount / 1_000_000, 1)
+            result["retail"] = round(net_amount / 100_000_000, 1)  # 억원
 
     if result["net_amount"] is not None:
         result["consecutive_days"] = 1  # KRX single day, no consecutive tracking here
@@ -535,18 +593,20 @@ def _estimate_foreign_flow_from_etf() -> dict:
         vol_ratio = current_vol / avg_vol if avg_vol > 0 else 1.0
 
         # Heuristic: positive price + above-avg volume = inflow
+        # 주의: 애매한 경우 "unknown"으로 처리 (기존: 기본 sell → short 바이어스 유발)
         if price_change > 0.3 and vol_ratio > 1.1:
             direction = "buy"
             estimated_net = round(price_change * vol_ratio * 100, 0)  # rough proxy in billions
         elif price_change < -0.3 and vol_ratio > 1.1:
             direction = "sell"
             estimated_net = round(price_change * vol_ratio * 100, 0)
-        elif price_change > 0:
-            direction = "buy"
+        elif abs(price_change) > 0.3:
+            direction = "buy" if price_change > 0 else "sell"
             estimated_net = round(price_change * 50, 0)
         else:
-            direction = "sell"
-            estimated_net = round(price_change * 50, 0)
+            # 변동폭 ±0.3% 이내 = 방향 판단 불가 → unknown 처리
+            direction = "unknown"
+            estimated_net = 0
 
         # Count consecutive direction days
         consecutive = 0
@@ -557,14 +617,24 @@ def _estimate_foreign_flow_from_etf() -> dict:
             else:
                 break
 
-        result["net_amount"] = estimated_net
-        result["direction"] = direction
-        result["consecutive_days"] = max(consecutive, 1)
-        result["details"].append({
-            "proxy": "EWY",
-            "price_change_pct": round(price_change, 2),
-            "volume_ratio": round(vol_ratio, 2),
-        })
+        if direction == "unknown":
+            # 방향 판단 불가 — neutral factor로 처리, short 바이어스 방지
+            result["source"] = "etf_proxy_inconclusive"
+            result["details"].append({
+                "proxy": "EWY",
+                "price_change_pct": round(price_change, 2),
+                "volume_ratio": round(vol_ratio, 2),
+                "note": "변동폭 미미하여 방향 판단 불가",
+            })
+        else:
+            result["net_amount"] = estimated_net
+            result["direction"] = direction
+            result["consecutive_days"] = max(consecutive, 1)
+            result["details"].append({
+                "proxy": "EWY",
+                "price_change_pct": round(price_change, 2),
+                "volume_ratio": round(vol_ratio, 2),
+            })
 
     except Exception as e:
         log.warning("EWY proxy estimation error: %s", e)
@@ -598,6 +668,11 @@ def build_analysis_context(
 
     # --- Market Prices ---
     sections.append("=== MARKET PRICES & CHANGES ===")
+    sections.append("⚠️ 선행 지표 우선 원칙:")
+    sections.append("   1. 야간선물(ES=F, NQ=F)이 코스피 시가 예측의 최강 선행 지표 (r=0.78~0.85)")
+    sections.append("   2. S&P 종가, 전일 KOSPI 종가는 후행 데이터 — 이미 야간선물에 반영됨, 별도 팩터 X")
+    sections.append("   3. 뉴스는 이미 가격에 반영됨 — '가격이 왜 움직였는지' 설명용으로만 사용")
+    sections.append("   4. 투자자가 보는 시점의 선행 정보만 의사결정에 반영하세요")
     prices = correlations.get("prices", {})
 
     # Group prices by category
@@ -605,8 +680,12 @@ def build_analysis_context(
         "US Indices": ["^GSPC", "^IXIC", "^DJI", "^SOX"],
         "US Futures": ["ES=F", "NQ=F"],
         "Volatility": ["^VIX"],
-        "US Semiconductors": ["NVDA", "MU", "WDC"],
-        "Korean Market": ["^KS11", "^KQ11", "005930.KS", "000660.KS"],
+        "US Semiconductors/Memory": ["NVDA", "MU", "WDC", "AMAT", "LRCX"],
+        "US EV/Battery": ["TSLA", "ALB", "ENPH"],
+        "US Defense/Space": ["LMT", "RTX", "RKLB"],
+        "US Robotics": ["ISRG", "ROK", "ABB"],
+        "Korean Market": ["^KS11", "^KQ11", "005930.KS", "000660.KS",
+                          "373220.KS", "006400.KS", "012450.KS"],
         "FX": ["KRW=X", "DX-Y.NYB"],
         "Commodities": ["CL=F", "GC=F"],
         "Bonds": ["^TNX"],
@@ -645,7 +724,8 @@ def build_analysis_context(
     sections.append("\n=== FOREIGN INVESTOR FLOW ===")
     if foreign_flow.get("net_amount") is not None:
         sections.append(f"  Direction: {foreign_flow['direction'].upper()}")
-        sections.append(f"  Net amount: {foreign_flow['net_amount']} billion KRW")
+        unit = foreign_flow.get("net_amount_unit", "억원")
+        sections.append(f"  Net amount: {foreign_flow['net_amount']} {unit}")
         if foreign_flow.get("consecutive_days"):
             sections.append(f"  Consecutive days: {foreign_flow['consecutive_days']}")
         if foreign_flow.get("institutional") is not None:
@@ -696,6 +776,9 @@ def build_analysis_context(
     # --- Recent news headlines ---
     if articles:
         sections.append(f"\n=== RECENT NEWS HEADLINES ({len(articles)} articles) ===")
+        sections.append("⚠️ 주의: 이 뉴스들은 대부분 이미 야간선물/나스닥/환율 가격에 반영되어 있습니다.")
+        sections.append("   뉴스 내용과 가격 변동을 별도 팩터로 이중 카운트하지 마세요.")
+        sections.append("   뉴스는 '가격이 왜 움직였는지' 설명하는 용도로만 사용하세요.")
         for a in articles[:25]:
             source = a.get("source", "Unknown")
             title = a.get("title", "")
@@ -733,46 +816,82 @@ def build_analysis_context(
 # ---------------------------------------------------------------------------
 # Phase 4: LLM-Driven Investment Insights
 # ---------------------------------------------------------------------------
-ANALYSIS_SYSTEM_PROMPT = """당신은 헤지펀드 퀀트 애널리스트입니다. 개인 투자자가 아침 2분 안에 방향을 잡을 수 있는 인사이트를 제공합니다.
+ANALYSIS_SYSTEM_PROMPT = """You are a hedge fund quant analyst. Provide actionable directional insight for a Korean retail investor checking markets at 7 AM KST (pre-market).
 
-## 핵심 규칙
-1. 반드시 LONG 또는 SHORT 방향을 제시하세요. 중립은 불가합니다. 51%라도 한쪽을 선택하세요.
-2. 뻔한 말(시장은 불확실하다, 조심해야 한다, 변동성에 주의 등) 절대 금지.
-3. 구체적 수치와 근거를 포함하세요. "상승할 수 있다"가 아니라 "SOX +2.3% 연동으로 삼성전자 1.5% 상승 기대" 식으로.
-4. 상관관계 데이터를 적극 활용하세요. 특히 높은 상관관계 쌍의 implied move에 주목하세요.
-5. 외국인 수급 데이터가 있으면 방향성 판단에 핵심 근거로 사용하세요.
-6. key_insight는 남들이 모르는, 이 데이터 조합에서만 도출되는 비직관적 인사이트여야 합니다.
+## CRITICAL RULE: "Expected gap-down" ≠ "SHORT recommendation"
+This analysis is generated at 7 AM KST, BEFORE the Korean market opens.
+- An expected gap-down is ALREADY PRICED IN. SHORT means betting on FURTHER decline beyond the gap.
+- If a gap-down open is expected but intraday reversal is likely → LONG is correct.
+- If a gap-up open is expected but selling pressure is likely → SHORT is correct.
+- **You are predicting the CLOSING direction**, not the opening direction.
+- Overnight futures decline = "likely gap-down open", NOT "short is favorable".
 
-## 응답 형식 (JSON)
+## Morning watch-point: 11 AM 60-min candle (backtested)
+- Bullish 11 AM candle → afternoon rally 71% of the time (significant signal)
+- Bearish 11 AM candle → afternoon decline only 42% (reversal frequent — low reliability)
+- Mention as a **scenario pivot condition**, NOT as directional evidence.
+
+## Core rules
+1. You MUST pick LONG or SHORT. Neutral is forbidden. Pick a side even at 51%.
+2. NO platitudes ("markets are uncertain", "exercise caution", "volatility ahead"). Banned.
+3. Include specific numbers. Not "may rise" but "SOX +2.3% + MU +1.8% implies Samsung +1.5%".
+4. Use correlation data actively:
+   - MU/WDC ↔ SK Hynix has the highest lag-1 correlation among Korean single stocks (r ≈ 0.65~0.80 lagged)
+   - SOX index is the broadest semiconductor sentiment proxy (r ≈ 0.75 lagged to Samsung)
+   - Prioritize pairs with high implied moves
+5. Use foreign investor flow data as a key directional input when available.
+6. key_insight must be non-obvious — derived from THIS specific data combination only.
+
+## Sector correlation framework (lagged 1-day, backtested)
+Recommend sectors based on US leader performance:
+- **Memory/Semis**: WDC(r=0.80), MU(r=0.74), LRCX(r=0.72), SOX(r=0.75) → Samsung, SK Hynix
+- **2nd Battery/EV**: TSLA(r=0.69), SQM(r=0.69), ALB → LG Energy, Samsung SDI
+- **Defense/Space**: LMT, RTX, RKLB → Hanwha Aerospace, KAI
+- **Power Grid**: NRG(r=0.72), VST(r=0.70) → HD Hyundai Electric
+- **Robotics**: ISRG(r=0.47), ROK → Korean robotics stocks
+- Each sector transmits with ~1 day lag from US close to Korean open.
+
+## Opening outlook expression guide (for summary field)
+Use these opening outlook phrases in the summary based on overnight data:
+- ES/NQ futures > +1%: "강한 상승 출발 예상" (strong gap-up expected)
+- ES/NQ futures +0.3~1%: "상승 출발 예상" (gap-up expected)
+- ES/NQ futures -0.3~+0.3%: "보합 출발 예상" (flat open expected)
+- ES/NQ futures -0.3~-1%: "하락 출발 예상" (gap-down expected)
+- ES/NQ futures < -1%: "강한 하락 출발 예상" (strong gap-down expected)
+Then separately state your CLOSING direction prediction (which may differ from the opening).
+
+## Response format (JSON)
+All text fields (summary, detail, key_insight, reason) must be in KOREAN.
 {
-  "direction": "long" 또는 "short" (절대 neutral 금지),
-  "long_pct": 51~85 사이 정수 (long이면 51 이상, short이면 50 미만이 되도록),
-  "short_pct": 15~49 사이 정수 (long_pct + short_pct = 100),
-  "confidence": 0.5~0.9 사이 실수,
-  "summary": "한국어 3문장. 구체적이고 비직관적인 시장 분석. 수치 포함 필수.",
+  "direction": "long" or "short" (NEVER "neutral"),
+  "long_pct": integer 51~85,
+  "short_pct": integer 15~49 (long_pct + short_pct = 100),
+  "confidence": float 0.5~0.9,
+  "summary": "3 sentences IN KOREAN. Closing direction forecast + evidence + sectors. Numbers required.",
   "factors": [
-    {"name": "팩터명", "signal": "bullish/bearish", "detail": "구체적 수치와 설명"}
+    {"name": "factor name in Korean", "signal": "bullish/bearish", "detail": "specific numbers in Korean"}
   ],
   "correlations": [
-    {"pair": "NVDA <-> Samsung", "coefficient": 0.85, "implied_move": "+1.2%"}
+    {"pair": "Micron <-> SK Hynix", "coefficient": 0.65, "implied_move": "+1.2%"}
   ],
-  "foreign_flow": {
-    "net_amount": 1500,
-    "consecutive_days": 3,
-    "direction": "buy"
-  },
-  "key_insight": "한국어 1문장 — 이 데이터 조합에서 도출되는 실질적 엣지. 뻔한 말 금지.",
+  "foreign_flow": {"net_amount": 1500, "consecutive_days": 3, "direction": "buy"},
+  "key_insight": "1 sentence IN KOREAN — 11AM candle watch-point + non-obvious edge.",
   "sectors": [
-    {"name": "섹터명", "direction": "overweight/underweight", "reason": "1문장 근거"}
+    {"name": "sector name in Korean", "direction": "overweight/underweight", "reason": "1 sentence in Korean based on US leader"}
   ]
 }
 
-## 판단 프레임워크
-- SOX↔한국 반도체 상관관계 > 0.6 + SOX 상승 → 반도체 LONG 신호
-- 외국인 3일 이상 연속 매수 + 원화 강세 → 강한 LONG
-- VIX > 25 + 원화 약세 + 외국인 매도 → SHORT
-- 상관관계 약화(r < 0.3) 구간 = 디커플링 → 한국 독자 변수 중시
-- DXY 강세 + KRW 약세 동시 = EM 자금유출 위험"""
+## Decision framework (priority order)
+1. **Overnight futures are the #1 signal**: ES=F↔KOSPI open r=0.78, SOX↔KOSPI open r=0.85
+2. KOSPI open→close same sign ~70% (30% intraday reversals — do NOT assume gap = close)
+3. Yesterday's news is ALREADY reflected in overnight futures prices. Do NOT double-count news + futures as separate factors.
+4. MU↔SK Hynix actual lagged correlation ≈ 0.65~0.80 (strong next-day predictor)
+5. SOX↔Korean semis > 0.6 + SOX up → semiconductor LONG signal
+6. Foreign 3+ consecutive days net buy + KRW strengthening → strong LONG
+7. VIX > 25 + KRW weakening + foreign selling → SHORT
+8. Correlation breakdown (r < 0.3) = decoupling → focus on Korea-specific variables
+9. DXY up + KRW down simultaneously = EM capital outflow risk
+10. Geopolitical risk: Iran mention alone = low weight, only actual military conflict = high weight"""
 
 
 def generate_investment_insights(context: str) -> dict:
@@ -798,12 +917,12 @@ def generate_investment_insights(context: str) -> dict:
         "X-Title": "Nydad Bot",
     }
 
-    user_prompt = f"""아래는 오늘의 시장 데이터, 상관관계 분석, 외국인 수급, 뉴스 헤드라인입니다.
-이를 종합하여 KOSPI/한국 시장의 오늘 방향을 제시하세요.
+    user_prompt = f"""Below is today's market data, correlation analysis, foreign investor flow, and news headlines.
+Synthesize all data and provide a directional call for KOSPI/Korean market today.
 
 {context}
 
-위 데이터를 분석하여 JSON 형식으로 응답하세요. 반드시 direction은 "long" 또는 "short"만 가능합니다."""
+Respond in JSON format. direction must be "long" or "short" only. All text fields in KOREAN."""
 
     payload = {
         "model": MODEL_QUALITY,
@@ -1040,11 +1159,12 @@ def run_full_analysis(articles: list = None) -> dict:
     log.info("Starting AI-driven Korean market analysis")
     log.info("=" * 60)
 
-    # Phase 1: Correlation data (includes price data)
-    correlations = fetch_correlation_data()
-
-    # Phase 2: Foreign investor flow
-    foreign_flow = fetch_foreign_flow()
+    # Phase 1 & 2: Correlation data + Foreign flow (parallel — independent I/O)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        corr_future = pool.submit(fetch_correlation_data)
+        flow_future = pool.submit(fetch_foreign_flow)
+        correlations = corr_future.result()
+        foreign_flow = flow_future.result()
 
     # Phase 3: Build context
     context = build_analysis_context(
