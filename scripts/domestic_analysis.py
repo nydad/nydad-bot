@@ -228,11 +228,13 @@ def fetch_correlation_data() -> dict:
                 continue
             chg_pct = ((current - prev) / prev) * 100 if prev != 0 else 0.0
             name = CORRELATION_TICKERS.get(ticker, CONTEXT_TICKERS.get(ticker, ticker))
+            data_date = str(col.index[-1].date()) if hasattr(col.index[-1], 'date') else ""
             result["prices"][ticker] = {
                 "name": name,
                 "current": round(current, 2),
                 "prev_close": round(prev, 2),
                 "change_pct": round(chg_pct, 2),
+                "data_date": data_date,
             }
         except Exception:
             continue
@@ -545,7 +547,8 @@ def _fetch_krx_foreign_flow() -> dict:
             result["retail"] = round(net_amount / 100_000_000, 1)  # 억원
 
     if result["net_amount"] is not None:
-        result["consecutive_days"] = 1  # KRX single day, no consecutive tracking here
+        result["consecutive_days"] = 1
+        result["data_date"] = trd_date  # 실제 조회한 거래일 (07:00 KST → 전일 확정치)
 
     return result
 
@@ -744,24 +747,31 @@ def build_analysis_context(
     """
     sections = []
     now = datetime.now(KST)
+    hours_to_open = max(0, (9 - now.hour) + (0 if now.minute == 0 else 0))
+    yesterday_str = (now - timedelta(days=1)).strftime('%Y-%m-%d')
+    today_str = now.strftime('%Y-%m-%d')
+
     sections.append(f"=== ANALYSIS TIMESTAMP: {now.strftime('%Y-%m-%d %A %H:%M KST')} ===")
     sections.append("")
-    sections.append("=== TIME CHAIN (CRITICAL — read this first) ===")
-    sections.append(f"  NOW: {now.strftime('%Y-%m-%d %H:%M')} KST (Korean time)")
-    sections.append("  KOSPI: CLOSED (last session ended yesterday ~15:30 KST)")
-    sections.append("  US market: CLOSED (ended ~06:00 KST today = yesterday US time)")
-    sections.append("  KOSPI opens: TODAY 09:00 KST (about 2 hours from now)")
+    sections.append("=== DATA FRESHNESS (CRITICAL — 각 데이터의 실제 날짜) ===")
+    sections.append(f"  NOW: {now.strftime('%Y-%m-%d %H:%M')} KST")
     sections.append("")
-    sections.append("  TIMELINE:")
-    sections.append("    Yesterday ~15:30 KST: KOSPI closed → this data is 15+ hours old")
-    sections.append("    Yesterday ~23:30 KST: US market opened")
-    sections.append("    Today ~06:00 KST: US market closed → this is the LATEST data")
-    sections.append("    Today ~06:00 KST: US market closed, KOSPI200 night futures (야간선물) settled → MOST RELEVANT")
-    sections.append("    Today 09:00 KST: KOSPI will open → THIS is what we're predicting")
+    sections.append("  [FRESH — 오늘 새벽 마감, 1~2시간 전 데이터]")
+    sections.append(f"    US 지수/선물 (S&P, NQ, SOX 등): {today_str} 새벽 06:00 KST 마감 종가")
+    sections.append(f"    환율 (USD/KRW, DXY): 24시간 시장, 최신")
+    sections.append(f"    원자재 (WTI, Gold): {today_str} 새벽 마감 종가")
+    sections.append(f"    야간선물 (KOSPI200): {today_str} 새벽 06:00 KST 정산가")
     sections.append("")
-    sections.append("  ⚠️ ALL news headlines below are ALREADY PRICED INTO the US close and overnight futures.")
-    sections.append("     Do NOT count news + futures as separate bearish/bullish factors — that's double-counting.")
-    sections.append("     The futures price IS the market's reaction to the news.")
+    sections.append("  [STALE — 어제 오후 마감, 15시간+ 전 데이터]")
+    sections.append(f"    한국 지수 (KOSPI, KOSDAQ): {yesterday_str} 15:30 KST 종가")
+    sections.append(f"    한국 개별주 (삼성, 하이닉스 등): {yesterday_str} 15:30 KST 종가")
+    sections.append(f"    외국인 수급: 직전 거래일 확정치")
+    sections.append("")
+    sections.append(f"  → 예측 대상: 오늘({today_str}) KOSPI 09:00 시가 + 15:30 종가 방향")
+    sections.append("  → 한국 데이터의 change_pct는 '그제→어제' 변동이므로 오늘 방향 판단에 사용 금지")
+    sections.append("  → US 데이터의 change_pct는 '어제→오늘새벽' 변동이므로 최신 시그널로 사용 가능")
+    sections.append("")
+    sections.append("  ⚠️ 뉴스는 이미 US종가/야간선물/환율에 100% 반영됨. 별도 방향 팩터로 세지 마라.")
 
     # --- KOSPI200 Night Futures (야간선물) from news ---
     if articles:
@@ -803,11 +813,14 @@ def build_analysis_context(
             p = prices.get(t)
             if p:
                 sign = "+" if p["change_pct"] >= 0 else ""
+                dd = p.get("data_date", "")
+                date_tag = f" [{dd}]" if dd else ""
                 cat_entries.append(
-                    f"  {p['name']} ({t}): {p['current']} ({sign}{p['change_pct']}%)"
+                    f"  {p['name']} ({t}): {p['current']} ({sign}{p['change_pct']}%){date_tag}"
                 )
         if cat_entries:
-            sections.append(f"[{cat_name}]")
+            freshness = "STALE" if "Korean" in cat_name else "FRESH"
+            sections.append(f"[{cat_name}] ({freshness})")
             sections.extend(cat_entries)
 
     # --- Correlation Data (강도순 정렬, 약한 상관은 필터) ---
@@ -843,20 +856,17 @@ def build_analysis_context(
             )
 
     # --- Foreign Flow ---
-    sections.append("\n=== FOREIGN INVESTOR FLOW ===")
+    flow_date = foreign_flow.get("data_date", "직전 거래일")
+    sections.append(f"\n=== FOREIGN INVESTOR FLOW (기준일: {flow_date}, STALE) ===")
     if foreign_flow.get("net_amount") is not None:
         sections.append(f"  Direction: {foreign_flow['direction'].upper()}")
         unit = foreign_flow.get("net_amount_unit", "억원")
         sections.append(f"  Net amount: {foreign_flow['net_amount']} {unit}")
-        if foreign_flow.get("consecutive_days"):
-            sections.append(f"  Consecutive days: {foreign_flow['consecutive_days']}")
         if foreign_flow.get("institutional") is not None:
             sections.append(f"  Institutional net: {foreign_flow['institutional']} {unit}")
-        if foreign_flow.get("retail") is not None:
-            sections.append(f"  Retail net: {foreign_flow['retail']} {unit}")
         sections.append(f"  Source: {foreign_flow.get('source', 'unknown')}")
     else:
-        sections.append("  Data unavailable — consider this as neutral/unknown factor")
+        sections.append("  Data unavailable — neutral factor로 처리")
 
     # --- VIX Context ---
     vix_data = prices.get("^VIX")
@@ -895,24 +905,15 @@ def build_analysis_context(
         if gold:
             sections.append(f"  Gold: ${gold['current']} ({gold['change_pct']:+.2f}%) [KOSPI 상관 없음]")
 
-    # --- Recent news — 5~7AM KST 뉴스만 유효 (이전 뉴스는 이미 야간선물에 반영) ---
+    # --- Recent news (참고용 — 뉴스는 이미 가격에 반영됨) ---
     if articles:
-        # 오전 5시 이후 뉴스만 필터 (그 전 뉴스는 미국장/야간선물에 이미 반영)
-        kst_5am = now.replace(hour=5, minute=0, second=0, microsecond=0)
-        fresh_articles = []
-        for a in articles:
-            pub = a.get("published_parsed") or a.get("pub_date")
-            # 발행 시간을 알 수 없으면 포함 (필터 누락보다 과포함이 나음)
-            if pub is None:
-                fresh_articles.append(a)
-            else:
-                fresh_articles.append(a)  # RSS에서 이미 시간 필터링됨
-        fresh_articles = fresh_articles[:15]  # 최대 15개
+        # 최신 15개만 (RSS에서 이미 시간 필터링됨, 추가 날짜 필터 불필요)
+        recent_articles = articles[:15]
 
-        sections.append(f"\n=== NEWS HEADLINES ({len(fresh_articles)} articles) ===")
-        sections.append("⚠️ These are post-5AM KST articles. Earlier news is ALREADY in futures prices.")
-        sections.append("   Use news only to EXPLAIN price moves, not as independent directional factors.")
-        for a in fresh_articles:
+        sections.append(f"\n=== NEWS HEADLINES ({len(recent_articles)} articles, 참고용) ===")
+        sections.append("⚠️ 뉴스는 이미 US종가/야간선물에 반영됨. 가격 움직임의 '설명'으로만 사용.")
+        sections.append("   뉴스 내용을 별도 방향 팩터로 세면 이중 반영이다.")
+        for a in recent_articles:
             source = a.get("source", "Unknown")
             title = a.get("title", "")
             sections.append(f"  [{source}] {title}")
@@ -948,20 +949,23 @@ def build_analysis_context(
 # ---------------------------------------------------------------------------
 ANALYSIS_SYSTEM_PROMPT = """KOSPI 장전 퀀트 애널리스트. 07:00 KST 개인 투자자용 당일 방향 인사이트.
 
-## 이중 반영 금지 (가장 중요)
-야간 뉴스(지정학, 실적, 정책 등)는 이미 아래 가격에 100% 반영되어 있다:
-- KOSPI200 야간선물 (가장 직접적)
-- 나스닥/S&P 종가 및 선물
-- USD/KRW 환율, VIX
+## 데이터 신선도 (반드시 인지)
+데이터에 [FRESH]와 [STALE] 태그가 붙어 있다.
+- FRESH: 1~2시간 전 데이터 (US종가, 선물, 환율, 야간선물) → 오늘 방향 판단의 핵심
+- STALE: 15시간+ 전 데이터 (한국 지수, 개별주, 외국인 수급) → 오늘 방향 판단에 사용 금지
+- 한국 데이터의 change_pct는 "그제→어제" 변동이므로 오늘 시그널이 아님
+- US 데이터의 change_pct는 "어제→오늘새벽" 변동이므로 최신 시그널
 
-뉴스를 별도 방향 팩터로 세면 이중 반영이다. 뉴스는 가격 움직임의 "설명"일 뿐.
+## 이중 반영 금지
+야간 뉴스(지정학, 실적, 정책 등)는 이미 FRESH 가격에 100% 반영됨.
+뉴스를 별도 방향 팩터로 세면 이중 반영. 뉴스는 가격의 "설명"일 뿐.
 예: "이란 전쟁 → bearish" + "NQ -2% → bearish"는 같은 이벤트를 2번 센 것.
 
-## 시그널 우선순위
+## 시그널 우선순위 (FRESH 데이터만 사용)
 1. KOSPI200 야간선물 → 시가 직접 예측 (r≈0.95)
 2. NQ/SOX 종가 → 야간선물 없을 시 프록시 (r≈0.85)
-3. 섹터 상관관계 → implied move로 섹터 방향
-4. 외국인 수급 → 모멘텀 참고
+3. 섹터 상관관계 (US→KR implied move) → 섹터 방향
+4. 외국인 수급 → 모멘텀 참고 (STALE이지만 추세 지속성 높음)
 5. VIX → 레짐(context)일 뿐, 방향 시그널 아님
 6. 유가/금 → KOSPI 방향 예측력 없음
 

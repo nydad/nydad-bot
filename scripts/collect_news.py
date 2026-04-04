@@ -226,10 +226,13 @@ def fetch_market_data() -> dict:
                 chg = cur - prev
                 pct = (chg / prev) * 100 if prev else 0
                 prec = 4 if cat in ("forex", "bonds") else 2
+                # 데이터 실제 날짜 추출 (07:00 KST → US는 오늘새벽 종가, KR은 전날 종가)
+                data_date = str(close.index[-1].date()) if hasattr(close.index[-1], 'date') else ""
                 market.setdefault(cat, []).append({
                     "name": name, "ticker": sym,
                     "price": round(cur, prec), "change": round(chg, prec),
                     "change_pct": round(pct, 2),
+                    "data_date": data_date,
                 })
             except Exception as e:
                 log.warning("  %s: %s", name, e)

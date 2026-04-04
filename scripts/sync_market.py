@@ -53,8 +53,10 @@ def main():
                     chg = cur - prev
                     pct = (chg / prev) * 100 if prev else 0
                     prec = 4 if cat in ("forex","bonds") else 2
+                    data_date = str(close.index[-1].date()) if hasattr(close.index[-1], 'date') else ""
                     market.setdefault(cat, []).append({"name": name, "ticker": sym,
-                        "price": round(cur, prec), "change": round(chg, prec), "change_pct": round(pct, 2)})
+                        "price": round(cur, prec), "change": round(chg, prec), "change_pct": round(pct, 2),
+                        "data_date": data_date})
                 except Exception:
                     pass
         except Exception as e:
