@@ -946,43 +946,47 @@ def build_analysis_context(
 # ---------------------------------------------------------------------------
 # Phase 4: LLM-Driven Investment Insights
 # ---------------------------------------------------------------------------
-ANALYSIS_SYSTEM_PROMPT = """헤지펀드 퀀트 애널리스트. 오전 7시(장전) 한국 개인 투자자용 방향 인사이트 제공.
+ANALYSIS_SYSTEM_PROMPT = """KOSPI 장전 퀀트 애널리스트. 07:00 KST 개인 투자자용 당일 방향 인사이트.
 
-## 핵심 규칙
-1. 반드시 LONG 또는 SHORT. 중립 금지. 51%라도 한쪽 선택.
-2. 뻔한 말 금지. 구체적 수치와 상관계수 근거 필수.
-3. "갭다운 예상" ≠ "숏 추천". 갭은 이미 반영된 정보. 종가 방향을 예측하라.
-4. 뉴스는 이미 야간선물 가격에 반영됨 — 뉴스+선물 이중 카운트 금지.
+## 이중 반영 금지 (가장 중요)
+야간 뉴스(지정학, 실적, 정책 등)는 이미 아래 가격에 100% 반영되어 있다:
+- KOSPI200 야간선물 (가장 직접적)
+- 나스닥/S&P 종가 및 선물
+- USD/KRW 환율, VIX
 
-## 판단 원칙
-- NQ/SOX/ES 야간선물이 KOSPI 시가의 최강 선행지표 (NQ 상관 r≈0.85)
-- 상승 시그널은 매우 강하지만 (88~95%), 하락 시그널은 단일 팩터로 약함 (59~65%)
-- 하락 판단은 반드시 복수 팩터 동시 확인 필요 (SOX+VIX+환율 등)
-- 갭 방향은 종가 방향과 거의 일치하나, 장중 확장은 보장 안 됨
-- 금/유가는 KOSPI 방향 예측력 없음 — 참고만 하고 방향 시그널로 사용 금지
-- 데이터에 상관계수와 implied move가 포함됨 — 이를 근거로 섹터별 방향 판단
+뉴스를 별도 방향 팩터로 세면 이중 반영이다. 뉴스는 가격 움직임의 "설명"일 뿐.
+예: "이란 전쟁 → bearish" + "NQ -2% → bearish"는 같은 이벤트를 2번 센 것.
 
-## Opening outlook labels (use in summary, based on overnight futures)
-- ES/NQ > +1.5%: "강한 상승 출발"
-- ES/NQ +0.5~1.5%: "상승 출발"
-- ES/NQ +0.1~0.5%: "약보합 상승 출발"
-- ES/NQ ±0.1%: "보합 출발"
-- ES/NQ -0.1~-0.5%: "약보합 하락 출발"
-- ES/NQ -0.5~-1.5%: "하락 출발"
-- ES/NQ < -1.5%: "강한 하락 출발"
+## 시그널 우선순위
+1. KOSPI200 야간선물 → 시가 직접 예측 (r≈0.95)
+2. NQ/SOX 종가 → 야간선물 없을 시 프록시 (r≈0.85)
+3. 섹터 상관관계 → implied move로 섹터 방향
+4. 외국인 수급 → 모멘텀 참고
+5. VIX → 레짐(context)일 뿐, 방향 시그널 아님
+6. 유가/금 → KOSPI 방향 예측력 없음
 
-## Response format (JSON, all text in Korean, keep it SHORT)
+## 판단 규칙
+- 반드시 LONG 또는 SHORT. 중립 금지.
+- "갭다운" ≠ "숏". 갭은 시가에 반영. 종가 방향을 예측하라.
+- 상승 시그널 신뢰도 높음(88-95%), 하락은 낮음(59-65%) → 약세는 복수 확인 필요
+- factors에는 실제 가격 데이터만 넣어라 (뉴스 헤드라인 기반 팩터 금지)
+
+## 시가 레이블 (야간선물 or NQ 기준)
+> +1.5%: 강한 상승 출발 | +0.5~1.5%: 상승 출발 | +0.1~0.5%: 약보합 상승
+±0.1%: 보합 | -0.1~-0.5%: 약보합 하락 | -0.5~-1.5%: 하락 출발 | < -1.5%: 강한 하락
+
+## JSON 응답 (한국어, 간결하게)
 {
   "direction": "long" or "short",
   "long_pct": 51~85,
   "short_pct": 15~49,
   "confidence": 0.5~0.9,
-  "summary": "2문장 이내. 시가 전망 + 핵심 드라이버 1개. 짧고 임팩트있게.",
-  "factors": [{"name": "팩터명", "signal": "bullish/bearish", "detail": "수치"}],
-  "correlations": [{"pair": "Micron <-> SK Hynix", "coefficient": 0.70, "implied_move": "+1.2%"}],
+  "summary": "2문장. 시가 전망 + 핵심 드라이버.",
+  "factors": [{"name": "팩터명", "signal": "bullish/bearish", "detail": "수치 근거"}],
+  "correlations": [{"pair": "A <-> B", "coefficient": 0.70, "implied_move": "+1.2%"}],
   "foreign_flow": {"net_amount": 1500, "consecutive_days": 3, "direction": "buy"},
-  "key_insight": "1문장. 핵심 변수 또는 시나리오 전환 조건만.",
-  "sectors": [{"name": "섹터명", "direction": "overweight/underweight", "reason": "10자 이내"}]
+  "key_insight": "1문장. 핵심 변수 또는 전환 조건.",
+  "sectors": [{"name": "섹터", "direction": "overweight/underweight", "reason": "이유"}]
 }"""
 
 
@@ -1146,99 +1150,60 @@ def _validate_insights(result: dict) -> dict:
 
 
 def _fallback_analysis(context: str) -> dict:
-    """Rule-based fallback when LLM is unavailable.
+    """Simple fallback — night futures or NQ direction only. No double-counting."""
+    log.info("Running fallback analysis (LLM unavailable)...")
 
-    Parses the context string for key numbers and makes a simple directional call.
-    """
-    log.info("Running fallback rule-based analysis...")
-
-    bull_signals = 0
-    bear_signals = 0
     factors = []
+    direction = "long"
+    lead_pct = 0.0
+    lead_source = ""
 
-    # Parse VIX
-    vix_match = re.search(r"VIX.*?:\s*([\d.]+)", context)
-    if vix_match:
-        vix = float(vix_match.group(1))
-        if vix < 18:
-            bull_signals += 1
-            factors.append({"name": "VIX 안정권", "signal": "bullish", "detail": f"VIX {vix:.1f}"})
-        elif vix > 28:
-            bear_signals += 1
-            factors.append({"name": "VIX 공포 구간", "signal": "bearish", "detail": f"VIX {vix:.1f}"})
+    # 1순위: 야간선물 (가장 직접적인 KOSPI 선행지표)
+    nf_match = re.search(r"Change:\s*([\+\-]?\d+\.?\d*)%", context)
+    if nf_match and "NIGHT FUTURES" in context:
+        lead_pct = float(nf_match.group(1))
+        lead_source = "야간선물"
+        signal = "bullish" if lead_pct > 0 else "bearish"
+        factors.append({"name": f"야간선물 {lead_pct:+.2f}%", "signal": signal,
+                        "detail": f"KOSPI200 야간선물 {lead_pct:+.2f}%"})
 
-    # Parse S&P 500 Futures
-    spf_match = re.search(r"S&P 500 Futures.*?\(([\+\-][\d.]+)%\)", context)
-    spf_chg = float(spf_match.group(1)) if spf_match else 0.0
-    if spf_match:
-        if spf_chg > 0.3:
-            bull_signals += 1
-            factors.append({"name": "미 선물 강세", "signal": "bullish", "detail": f"{spf_chg:+.2f}%"})
-        elif spf_chg < -0.3:
-            bear_signals += 1
-            factors.append({"name": "미 선물 약세", "signal": "bearish", "detail": f"{spf_chg:+.2f}%"})
+    # 2순위: NQ 선물 (야간선물 없을 때)
+    if not lead_source:
+        nq_match = re.search(r"NASDAQ Futures.*?\(([\+\-][\d.]+)%\)", context)
+        if nq_match:
+            lead_pct = float(nq_match.group(1))
+            lead_source = "NQ선물"
+            signal = "bullish" if lead_pct > 0 else "bearish"
+            factors.append({"name": f"나스닥선물 {lead_pct:+.2f}%", "signal": signal,
+                            "detail": f"NQ=F {lead_pct:+.2f}%"})
 
-    # Parse SOX
-    sox_match = re.search(r"Philadelphia Semiconductor.*?\(([\+\-][\d.]+)%\)", context)
-    if sox_match:
-        sox_chg = float(sox_match.group(1))
-        if sox_chg > 0.5:
-            bull_signals += 1
-            factors.append({"name": "SOX 반도체 강세", "signal": "bullish", "detail": f"SOX {sox_chg:+.2f}%"})
-        elif sox_chg < -0.5:
-            bear_signals += 1
-            factors.append({"name": "SOX 반도체 약세", "signal": "bearish", "detail": f"SOX {sox_chg:+.2f}%"})
-
-    # Parse USD/KRW
-    krw_match = re.search(r"USD/KRW.*?\(([\+\-][\d.]+)%\)", context)
-    if krw_match:
-        krw_chg = float(krw_match.group(1))
-        if krw_chg < -0.2:
-            bull_signals += 1
-            factors.append({"name": "원화 강세", "signal": "bullish", "detail": f"KRW {krw_chg:+.2f}%"})
-        elif krw_chg > 0.2:
-            bear_signals += 1
-            factors.append({"name": "원화 약세", "signal": "bearish", "detail": f"KRW {krw_chg:+.2f}%"})
-
-    # Parse foreign flow direction
-    if "Direction: BUY" in context.upper():
-        bull_signals += 1
-        factors.append({"name": "외국인 순매수", "signal": "bullish", "detail": "외국인 매수 전환"})
-    elif "Direction: SELL" in context.upper():
-        bear_signals += 1
-        factors.append({"name": "외국인 순매도", "signal": "bearish", "detail": "외국인 매도 지속"})
-
-    # Determine direction — pick a side, but no bias on ties
-    if bull_signals > bear_signals:
+    # 방향 결정 (단일 지표 기반 — 이중반영 없음)
+    if lead_pct > 0.1:
         direction = "long"
-        long_pct = min(85, 51 + (bull_signals - bear_signals) * 5)
-    elif bear_signals > bull_signals:
+    elif lead_pct < -0.1:
         direction = "short"
-        long_pct = max(15, 49 - (bear_signals - bull_signals) * 5)
     else:
-        # 동점: 선물 방향으로 tiebreak (line 1054의 spf_chg 재사용)
-        if spf_chg > 0:
-            direction = "long"
-        elif spf_chg < 0:
-            direction = "short"
-        else:
-            direction = "long"  # 최후의 기본값
-        long_pct = 51  # 동점이므로 최소 확신
+        direction = "long"  # 보합 시 기본값
 
+    # 확률: 변동폭에 비례 (51~70 범위, fallback이므로 보수적)
+    edge = min(abs(lead_pct) / 3.0, 1.0)  # 3% 이상이면 최대
+    if direction == "long":
+        long_pct = round(51 + edge * 19)
+    else:
+        long_pct = round(49 - edge * 19)
+    long_pct = max(30, min(70, long_pct))
     short_pct = 100 - long_pct
-    confidence = round(max(bull_signals, bear_signals) / max(len(factors), 1) * 0.9, 2)
-    confidence = max(0.5, min(0.9, confidence))
 
     return {
         "direction": direction,
         "long_pct": long_pct,
         "short_pct": short_pct,
-        "confidence": confidence,
-        "summary": f"규칙 기반 분석: 강세 신호 {bull_signals}개, 약세 신호 {bear_signals}개 감지. API 미연결로 룰 기반 시그널 생성.",
+        "confidence": 0.5,
+        "summary": f"AI 미연결 — {lead_source} {lead_pct:+.2f}% 기준 룰 기반 판단.",
         "factors": factors,
         "correlations": [],
         "foreign_flow": {"net_amount": None, "consecutive_days": None, "direction": None},
-        "key_insight": f"AI 분석 불가 — 룰 기반 시그널: {'강세' if direction == 'long' else '약세'} 우위 ({max(bull_signals, bear_signals)}:{min(bull_signals, bear_signals)})",
+        "key_insight": f"API 미연결. {lead_source} 방향만 반영한 보수적 판단.",
         "sectors": [],
         "_fallback": True,
     }
@@ -1286,6 +1251,43 @@ def run_full_analysis(articles: list = None) -> dict:
             "prices": correlations.get("prices", {}),
             "top_correlations": correlations.get("top_correlations", []),
             "pair_count": len(correlations.get("correlations", [])),
+        },
+        "foreign_flow": foreign_flow,
+        "analysis_timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+    return insights
+
+
+def generate_signal(corr_data: dict, foreign_flow: dict, articles: list = None) -> dict:
+    """Generate investment signal from pre-fetched data.
+
+    Called by collect_news.py with already-fetched correlation and foreign flow data.
+    Avoids re-fetching data that the caller already has.
+
+    Args:
+        corr_data: output of fetch_correlation_data()
+        foreign_flow: output of fetch_foreign_flow()
+        articles: list of news article dicts (for night futures extraction + LLM context)
+
+    Returns:
+        Complete signal dict (direction, long_pct, factors, correlations, etc.)
+    """
+    context = build_analysis_context(
+        market_data=corr_data,
+        correlations=corr_data,
+        foreign_flow=foreign_flow,
+        articles=articles,
+    )
+
+    log.info("generate_signal: context %d chars", len(context))
+    insights = generate_investment_insights(context)
+
+    insights["_raw"] = {
+        "correlation_data": {
+            "prices": corr_data.get("prices", {}),
+            "top_correlations": corr_data.get("top_correlations", []),
+            "pair_count": len(corr_data.get("correlations", [])),
         },
         "foreign_flow": foreign_flow,
         "analysis_timestamp": datetime.now(timezone.utc).isoformat(),
