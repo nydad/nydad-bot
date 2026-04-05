@@ -117,12 +117,12 @@ KR_TICKERS = {
     ],
 }
 
-# Correlation pair tickers for domestic analysis
+# Correlation pair tickers for builtin fallback (when domestic_analysis unavailable)
 CORRELATION_PAIRS = [
-    {"us": "NVDA", "kr": "005930.KS", "label_us": "NVDA", "label_kr": "삼성전자"},
+    {"us": "^SOX", "kr": "^KS11", "label_us": "SOX", "label_kr": "KOSPI"},
     {"us": "MU", "kr": "000660.KS", "label_us": "MU", "label_kr": "SK하이닉스"},
-    {"us": "AAPL", "kr": "066570.KS", "label_us": "AAPL", "label_kr": "LG전자"},
     {"us": "TSLA", "kr": "373220.KS", "label_us": "TSLA", "label_kr": "LG에너지솔루션"},
+    {"us": "^IXIC", "kr": "^KS11", "label_us": "NASDAQ", "label_kr": "KOSPI"},
 ]
 
 # ---------------------------------------------------------------------------
