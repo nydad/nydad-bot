@@ -482,7 +482,7 @@ def _fetch_naver_foreign_flow() -> dict:
 
                 # Amounts are in millions KRW, convert to billions
                 result["net_amount"] = round(foreign_net / 100, 1)  # approximate
-                result["direction"] = "buy" if foreign_net > 0 else "sell"
+                result["direction"] = "buy" if foreign_net > 0 else "sell" if foreign_net < 0 else "neutral"
                 result["institutional"] = round(institutional_net / 100, 1)
                 result["retail"] = round(retail_net / 100, 1)
 

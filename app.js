@@ -355,7 +355,7 @@
     }
 
     // Correlation Insights — show in readable format
-    var corr = sig.correlations || tab.correlations || [];
+    var corr = (sig.correlations && sig.correlations.length) ? sig.correlations : (tab.correlations || []);
     if (corr.length) {
       h += '<div class="reveal"><div class="section-label">섹터 상관관계</div><div class="insight-list">';
       corr.forEach(function (c) {
@@ -373,7 +373,7 @@
     }
 
     // Foreign Flow
-    var flow = sig.foreign_flow || tab.foreign_flow || {};
+    var flow = (sig.foreign_flow && sig.foreign_flow.net_amount) ? sig.foreign_flow : (tab.foreign_flow || {});
     if (flow.net_amount) {
       var flowDir = flow.direction || (flow.net_amount > 0 ? "buy" : "sell");
       h += '<div class="reveal"><div class="flow-bar-wrap"><div class="flow-header">';

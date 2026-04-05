@@ -333,7 +333,7 @@ Synthesize morning data (KOSPI 9:00-12:00 price action, 11 AM candle, foreign in
 
 ## Backtested gap statistics (소표본 — 시장 레짐 변동 시 변할 수 있음)
 - Gap up > 0.3%: close > prev close ~97% (N≈28, 소표본 — 100%는 아님)
-- Gap down < -0.3%: close < prev close ~71% (N≈21) — 상대적으로 낮은 신뢰도
+- Gap down < -0.3%: close < prev close ~70% (N≈21) — 상대적으로 낮은 신뢰도
 - BUT intraday direction (close vs open) 52% — gap direction은 유지되나 확대되지는 않음
 - 삼성전자 > +1% → KOSPI next day up ~85% (N≈26) — Samsung leads index (소표본)
 
@@ -529,12 +529,12 @@ def build_midday_context(session: dict, flow: dict, news: list, morning_signal: 
     # Foreign flow
     sections.append("\n=== 외국인 수급 (장중) ===")
     if flow.get("net_amount") is not None:
-        dir_kr = "순매수" if flow["direction"] == "buy" else "순매도"
+        dir_kr = "순매수" if flow["direction"] == "buy" else "순매도" if flow["direction"] == "sell" else "중립"
         sections.append(f"  방향: {dir_kr}")
-        sections.append(f"  규모: {abs(flow['net_amount']):.1f} 백만주")
+        sections.append(f"  규모: {abs(flow['net_amount']):.1f} 억원")
         if flow.get("institutional") is not None:
             inst_dir = "순매수" if flow["institutional"] > 0 else "순매도"
-            sections.append(f"  기관: {inst_dir} {abs(flow['institutional']):.1f} 백만주")
+            sections.append(f"  기관: {inst_dir} {abs(flow['institutional']):.1f} 억원")
     else:
         sections.append("  수급 데이터 미수집")
 
