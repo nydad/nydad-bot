@@ -14,4 +14,3 @@ Thumbs.db
 .idea/
 .vscode/
 node_modules/
-workers/insight-api/.wrangler/

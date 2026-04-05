@@ -74,7 +74,6 @@
   --z-header: 100;
   --z-tab: 90;
   --z-dock: 110;
-  --z-chat: 80;
 }
 
 /* Copper Night (Dark) */
@@ -470,31 +469,6 @@ main { flex: 1; padding: 20px 0 100px; }
 .factor-tag.bearish::before { background: var(--bear); }
 .factor-tag.neutral::before { background: var(--text-4); }
 
-/* ══════════════════════════════════════
-   CHATBOT INPUT
-   ══════════════════════════════════════ */
-.chat-input-wrap {
-  position: relative;
-}
-.chat-input {
-  width: 100%;
-  height: 44px;
-  padding: 0 46px 0 16px;
-  font-family: var(--sans);
-  font-size: 13.5px;
-  color: var(--text);
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  outline: none;
-  transition: all var(--dur) var(--ease);
-}
-.chat-input::placeholder { color: var(--text-4); }
-.chat-input:focus {
-  background: var(--surface);
-  border-color: var(--bull);
-  box-shadow: 0 0 0 3px rgba(13,138,99,0.08);
-}
 /* ── Foreign Investor Flow ── */
 .flow-bar-wrap {
   background: var(--surface);
@@ -1202,103 +1176,6 @@ main { flex: 1; padding: 20px 0 100px; }
 .date-select:hover { border-color: var(--border-strong); color: var(--text-2); }
 .date-select:focus { outline: none; border-color: var(--bull); box-shadow: 0 0 0 2px var(--bull-bg); }
 
-/* ── Insight Button ── */
-.insight-btn-section { margin-top: 12px; }
-.insight-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 22px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #fff;
-  background: var(--bull);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--dur) var(--ease);
-  font-family: var(--sans);
-  letter-spacing: -0.01em;
-}
-.insight-btn:hover { background: #0a7a58; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,138,99,0.25); }
-.insight-btn:active { transform: translateY(0); box-shadow: none; }
-.insight-btn:disabled { opacity: 0.5; cursor: wait; transform: none; }
-.insight-btn svg { flex-shrink: 0; }
-.insight-result { margin-top: 8px; }
-
-/* ── Live Insight Card (distinct from daily hero) ── */
-.live-card {
-  margin-top: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(26,26,26,0.06);
-}
-.live-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-}
-.live-topbar.long { background: var(--bull); }
-.live-topbar.short { background: var(--bear); }
-.live-topbar.neutral { background: var(--text-3); }
-.live-topbar-left { display: flex; align-items: center; gap: 8px; }
-.live-pulse {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #fff; animation: pulse-live 1.5s ease-in-out infinite;
-}
-@keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-.live-label { font-family: var(--mono); font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.08em; }
-.live-time { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.6); }
-.live-direction { font-family: var(--mono); font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
-.live-summary {
-  padding: 14px 14px 0;
-  font-family: var(--serif);
-  font-size: 14.5px;
-  line-height: 1.8;
-  color: var(--text);
-}
-.live-highlight {
-  margin: 10px 14px;
-  padding: 8px 12px;
-  background: var(--amber-bg);
-  border-left: 2px solid var(--amber);
-  border-radius: 0;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--text);
-}
-.live-details { padding: 0 14px 14px; }
-.live-details-toggle {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-3);
-  cursor: pointer;
-  padding: 6px 0;
-  list-style: none;
-}
-.live-details-toggle::marker { display: none; content: ""; }
-.live-details-toggle::before { content: "▸ "; }
-.live-details[open] .live-details-toggle::before { content: "▾ "; }
-.live-patterns { margin-top: 6px; }
-.live-pattern-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 4px 0;
-  font-size: 12px;
-  border-bottom: 1px solid var(--border);
-}
-.live-pattern-row:last-child { border-bottom: none; }
-.live-pattern-ico { font-family: var(--mono); font-weight: 700; width: 12px; text-align: center; flex-shrink: 0; }
-.live-pattern-row.bullish .live-pattern-ico { color: var(--bull); }
-.live-pattern-row.bearish .live-pattern-ico { color: var(--bear); }
-.live-pattern-row.neutral .live-pattern-ico { color: var(--text-4); }
-.live-pattern-name { font-weight: 600; color: var(--text-2); flex-shrink: 0; }
-.live-pattern-detail { color: var(--text-3); flex: 1; }
 </style>
 </head>
 <body>

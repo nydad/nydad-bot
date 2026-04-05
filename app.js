@@ -7,12 +7,9 @@
   "use strict";
 
   var dates = [], currentDate = "", currentTab = "invest", cache = {};
-  var INSIGHT_API = "https://nydad-insight-api.nydad.workers.dev";
-  var INSIGHT_DAILY_LIMIT = 5;
-  var INSIGHT_USAGE_KEY = "nydad-insight-usage";
 
   // ── Korean labels ──
-  var INSIGHT_KR = { bullish: "강세", bearish: "약세", neutral: "중립", alert: "주의" };
+  var SIGNAL_KR = { bullish: "강세", bearish: "약세", neutral: "중립", alert: "주의" };
   var HL_KR = { model: "모델", tool: "도구", trend: "동향" };
   var MKT_TITLES = {
     us_indices: "미국 지수", kr_indices: "한국 지수", kr_sectors: "섹터 ETF",
@@ -29,90 +26,8 @@
     }
     return "보합 출발";
   }
-  var STREAK_KR = { win: "연승", lose: "연패" };
 
-  function getKstDateKey() {
-    try {
-      var parts = new Intl.DateTimeFormat("en-CA", {
-        timeZone: "Asia/Seoul",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-      }).formatToParts(new Date());
-      var map = {};
-      parts.forEach(function (part) { if (part.type !== "literal") map[part.type] = part.value; });
-      return [map.year, map.month, map.day].join("-");
-    } catch (e) {
-      var kst = new Date(Date.now() + 9 * 3600000);
-      return [
-        kst.getUTCFullYear(),
-        String(kst.getUTCMonth() + 1).padStart(2, "0"),
-        String(kst.getUTCDate()).padStart(2, "0")
-      ].join("-");
-    }
-  }
 
-  function getLocalInsightUsage() {
-    var dateKey = getKstDateKey();
-    try {
-      var raw = localStorage.getItem(INSIGHT_USAGE_KEY);
-      if (!raw) return { date_key: dateKey, limit: INSIGHT_DAILY_LIMIT, used: 0, remaining: INSIGHT_DAILY_LIMIT };
-      var parsed = JSON.parse(raw);
-      if (!parsed || parsed.date_key !== dateKey) {
-        return { date_key: dateKey, limit: INSIGHT_DAILY_LIMIT, used: 0, remaining: INSIGHT_DAILY_LIMIT };
-      }
-      var limit = parsed.limit || INSIGHT_DAILY_LIMIT;
-      var used = Math.max(0, parsed.used || 0);
-      return {
-        date_key: dateKey,
-        limit: limit,
-        used: used,
-        remaining: Math.max(0, limit - used)
-      };
-    } catch (e) {
-      return { date_key: dateKey, limit: INSIGHT_DAILY_LIMIT, used: 0, remaining: INSIGHT_DAILY_LIMIT };
-    }
-  }
-
-  function setLocalInsightUsage(usage) {
-    if (!usage) return;
-    try {
-      var limit = usage.limit || INSIGHT_DAILY_LIMIT;
-      var used = Math.max(0, usage.used || 0);
-      localStorage.setItem(INSIGHT_USAGE_KEY, JSON.stringify({
-        date_key: usage.date_key || getKstDateKey(),
-        limit: limit,
-        used: used
-      }));
-    } catch (e) {}
-  }
-
-  function syncInsightUsage(payload) {
-    if (payload && payload.usage) setLocalInsightUsage(payload.usage);
-  }
-
-  function getInsightUsageLabel() {
-    var usage = getLocalInsightUsage();
-    return "실시간 분석은 전체 기준 하루 5회까지. 서버 기준 남은 횟수 " + usage.remaining + "회";
-  }
-
-  function buildInsightDailyContext(d) {
-    if (!d) return null;
-    var tab = (d.tabs || {}).invest || {};
-    var sig = d.investment_signal || d.kospi_signal || {};
-    return {
-      date: d.date || currentDate || "",
-      generated_at: d.generated_at || "",
-      direction: sig.direction || "",
-      summary: sig.summary || "",
-      briefing: tab.briefing || "",
-      outlook: tab.outlook || "",
-      key_insights: (tab.key_insights || []).slice(0, 3).map(function (ins) {
-        return { title: ins.title || "", detail: ins.detail || "", type: ins.type || "neutral" };
-      }),
-      correlations: (tab.correlations || sig.correlations || []).slice(0, 3)
-    };
-  }
 
   // ══════════════════════════════════════
   // INIT
@@ -122,7 +37,6 @@
     setupDock();
     setupTheme();
     setupCollapse();
-    // setupChat removed — insight button setup happens in renderInvest
     setupReveal();
 
     try {
@@ -208,148 +122,6 @@
     });
   }
 
-  // ══════════════════════════════════════
-  // REAL-TIME INSIGHT BUTTON
-  // ══════════════════════════════════════
-  function setupInsightBtn() {
-    var btn = document.getElementById("insight-btn");
-    var result = document.getElementById("insight-result");
-    var questionInput = document.getElementById("insight-question");
-    var usageNote = document.getElementById("insight-limit-note");
-    if (!btn || !result) return;
-
-    function refreshUsageNote() {
-      if (usageNote) usageNote.textContent = getInsightUsageLabel();
-    }
-    refreshUsageNote();
-
-    function doAnalysis() {
-      var question = questionInput ? questionInput.value.trim() : "";
-      btn.disabled = true;
-      btn.querySelector("span").textContent = "분석 중...";
-      result.classList.remove("hidden");
-      result.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-3)"><div class="loading-bar" style="width:40px;margin:0 auto 8px"></div>실시간 데이터 수집 + AI 분석 중...</div>';
-
-      fetchInsight(question);
-    }
-
-    btn.addEventListener("click", doAnalysis);
-    if (questionInput) {
-      questionInput.addEventListener("keypress", function(e) { if (e.key === "Enter") doAnalysis(); });
-    }
-
-    function renderDailyFallback(note) {
-      var d = cache[currentDate];
-      if (!d) return false;
-      var sig = d.investment_signal || d.kospi_signal || {};
-      result.innerHTML = renderInsightResult({
-        direction: sig.direction || "neutral",
-        long_pct: sig.long_pct || 50,
-        short_pct: sig.short_pct || 50,
-        summary: sig.summary || sig.key_insight || "데이터 기반 분석 결과입니다.",
-        key_insight: note || sig.key_insight || "실시간 분석을 위해 Cloudflare Worker를 설정하세요.",
-        patterns: (sig.factors || []).map(function(f) { return { name: f.name, signal: f.signal, detail: f.detail }; }),
-        source: "daily-data"
-      });
-      return true;
-    }
-
-    async function fetchInsight(question) {
-      var fetchTimeout = null;
-      try {
-        var resp;
-        if (INSIGHT_API) {
-          // Include prev_signal_review (오답노트) if available
-          var payload = {
-            question: question || "오늘 어떻게 마무리될까?"
-          };
-          var d = cache[currentDate];
-          if (d && d.prev_signal_review) {
-            payload.prev_review = d.prev_signal_review;
-          }
-          if (d) {
-            payload.daily_context = buildInsightDailyContext(d);
-          }
-          var controller = new AbortController();
-          fetchTimeout = setTimeout(function() { controller.abort(); }, 35000);
-          resp = await fetch(INSIGHT_API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-            signal: controller.signal
-          });
-        } else {
-          if (renderDailyFallback("실시간 분석이 비활성화되어 일간 데이터로 표시했습니다.")) return;
-          throw new Error("No data");
-        }
-
-        if (resp.status === 429) {
-          var limited = await resp.json().catch(function () { return {}; });
-          syncInsightUsage(limited);
-          result.innerHTML = '<div style="padding:12px;color:var(--amber);font-size:13px">' + esc(limited.message || "실시간 분석은 전체 기준 하루 5회까지 사용할 수 있습니다.") + '</div>';
-          return;
-        }
-        if (!resp.ok) throw new Error("API " + resp.status);
-        var data = await resp.json();
-        syncInsightUsage(data);
-        result.innerHTML = renderInsightResult(data);
-      } catch (e) {
-        if (!renderDailyFallback("실시간 연결이 불안정해 일간 데이터로 대체했습니다.")) {
-          result.innerHTML = '<div style="padding:12px;color:var(--bear);font-size:13px">분석 실패: ' + esc(e.message) + '</div>';
-        }
-      } finally {
-        if (fetchTimeout) clearTimeout(fetchTimeout);
-        btn.disabled = false;
-        btn.querySelector("span").textContent = "분석";
-        refreshUsageNote();
-      }
-    }
-  }
-
-  function renderInsightResult(data) {
-    var dir = data.direction || "neutral";
-    var dirCls = dir === "long" ? "long" : dir === "short" ? "short" : "neutral";
-    var dirLabel = dir === "long" ? "LONG" : dir === "short" ? "SHORT" : "NEUTRAL";
-    var pct = dir === "long" ? (data.long_pct || 50) : dir === "short" ? (data.short_pct || 50) : 50;
-
-    var h = '<div class="live-card">';
-    // Header bar
-    h += '<div class="live-topbar ' + dirCls + '">';
-    h += '<div class="live-topbar-left">';
-    h += '<span class="live-pulse"></span>';
-    h += '<span class="live-label">실시간 분석</span>';
-    h += '<span class="live-time">' + new Date().toLocaleTimeString("ko-KR", {hour:"2-digit",minute:"2-digit"}) + '</span>';
-    h += '</div>';
-    h += '<div class="live-direction ' + dirCls + '">' + dirLabel + " " + pct + '%</div>';
-    h += '</div>';
-
-    // AI summary — clean sentence
-    if (data.summary) {
-      h += '<div class="live-summary">' + esc(data.summary) + '</div>';
-    }
-
-    // Key insight
-    if (data.key_insight) {
-      h += '<div class="live-highlight">' + esc(data.key_insight) + '</div>';
-    }
-
-    // Patterns as collapsible detail
-    if (data.patterns && data.patterns.length) {
-      h += '<details class="live-details"><summary class="live-details-toggle">패턴 상세 (' + data.patterns.length + '개 시그널)</summary>';
-      h += '<div class="live-patterns">';
-      data.patterns.forEach(function (p) {
-        var ico = p.signal === "bullish" ? "+" : p.signal === "bearish" ? "-" : "·";
-        h += '<div class="live-pattern-row ' + safeSignal(p.signal) + '">';
-        h += '<span class="live-pattern-ico">' + ico + '</span>';
-        h += '<span class="live-pattern-name">' + esc(p.name || "") + '</span>';
-        h += '<span class="live-pattern-detail">' + esc(p.detail || "") + '</span>';
-        h += '</div>';
-      });
-      h += '</div></details>';
-    }
-    h += '</div>';
-    return h;
-  }
 
   // ══════════════════════════════════════
   // SCROLL REVEAL
@@ -494,17 +266,6 @@
       h += '</div>';
     }
     h += '</div>';
-    // Interactive Insight — question input + button
-    h += '<div class="insight-btn-section" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">';
-    h += '<div class="chat-input-wrap" style="display:flex;gap:8px;align-items:center">';
-    h += '<input type="text" class="chat-input" id="insight-question" placeholder="오늘 어떻게 마무리될까?" style="flex:1">';
-    h += '<button class="insight-btn" id="insight-btn">';
-    h += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
-    h += '<span>분석</span></button>';
-    h += '</div>';
-    h += '<div id="insight-limit-note" style="margin-top:8px;font-size:11px;color:var(--text-3)">실시간 분석은 전체 기준 하루 5회까지.</div>';
-    h += '<div class="insight-result hidden" id="insight-result"></div>';
-    h += '</div>';
     h += '</div>';
 
     h += '<hr class="divider">';
@@ -519,6 +280,18 @@
       h += '<div class="insight-body">';
       h += '<div class="insight-title">전일 예측: ' + esc(rev.predicted || "") + ' → 실제: ' + esc(rev.actual || "") + '</div>';
       h += '<div class="insight-detail">' + esc(rev.reason || "") + '</div>';
+      // Accuracy stats badge
+      var accStats = rev.accuracy_stats;
+      if (accStats && accStats.total > 0) {
+        h += '<div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">';
+        h += '<span class="factor-tag neutral" style="font-size:10px">누적 ' + accStats.correct + '/' + accStats.total + ' (' + accStats.accuracy_pct + '%)</span>';
+        if (accStats.recent_5 && accStats.recent_5.length) {
+          h += '<span style="font-family:var(--mono);font-size:11px;color:var(--text-3)">';
+          accStats.recent_5.forEach(function(r) { h += r ? '<span style="color:var(--bull)">O</span>' : '<span style="color:var(--bear)">X</span>'; });
+          h += '</span>';
+        }
+        h += '</div>';
+      }
       h += '</div></div></div><hr class="divider">';
     }
 
@@ -621,7 +394,7 @@
       h += '<div class="reveal"><div class="section-label">핵심 인사이트</div><div class="insight-list">';
       tab.key_insights.forEach(function (ins) {
         var t = ins.type || "neutral";
-        h += '<div class="insight-card"><span class="insight-tag ' + safeSignal(t) + '">' + (INSIGHT_KR[t] || t) + '</span>';
+        h += '<div class="insight-card"><span class="insight-tag ' + safeSignal(t) + '">' + (SIGNAL_KR[t] || t) + '</span>';
         h += '<div class="insight-body"><div class="insight-title">' + esc(ins.title) + '</div>';
         h += '<div class="insight-detail">' + esc(ins.detail) + '</div></div></div>';
       });
@@ -658,7 +431,6 @@
 
     el.innerHTML = h;
     setupCollapse();
-    setupInsightBtn();
   }
 
   function renderMarketSection(cat, items) {
@@ -718,7 +490,7 @@
       h += '<div class="reveal"><div class="section-label">주요 이벤트</div><div class="insight-list">';
       tab.key_events.forEach(function (ev) {
         var t = ev.type || "neutral";
-        h += '<div class="insight-card"><span class="insight-tag ' + safeSignal(t) + '">' + (INSIGHT_KR[t] || t) + '</span>';
+        h += '<div class="insight-card"><span class="insight-tag ' + safeSignal(t) + '">' + (SIGNAL_KR[t] || t) + '</span>';
         h += '<div class="insight-body"><div class="insight-title">' + esc(ev.title) + '</div>';
         h += '<div class="insight-detail">' + esc(ev.detail) + '</div></div></div>';
       });

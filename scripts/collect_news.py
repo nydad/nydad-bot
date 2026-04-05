@@ -306,44 +306,50 @@ def fetch_fear_greed() -> dict:
 # ===========================================================================
 
 def _calculate_correlations_builtin(market: dict) -> list[dict]:
-    """Built-in fallback: compute correlations via yfinance if domestic_analysis
-    module is not available. Returns list of correlation pair dicts."""
+    """Built-in fallback: compute lag-1 correlations via yfinance if domestic_analysis
+    module is not available. US day T → KR day T+1."""
     if not yf:
         return []
     correlations = []
     for pair in CORRELATION_PAIRS:
         try:
-            df = yf.download([pair["us"], pair["kr"]], period="30d", interval="1d",
+            df = yf.download([pair["us"], pair["kr"]], period="60d", interval="1d",
                              progress=False, threads=True, timeout=20)
             if df.empty:
                 continue
             close_us = df["Close"][pair["us"]].dropna()
             close_kr = df["Close"][pair["kr"]].dropna()
-            # Align dates
-            idx = close_us.index.intersection(close_kr.index)
-            if len(idx) < 5:
+            us_ret = close_us.pct_change().dropna()
+            kr_ret = close_kr.pct_change().dropna()
+
+            # Lag-1 alignment: for each US date, find next KR trading date
+            kr_dates = sorted(kr_ret.index)
+            us_vals_aligned = []
+            kr_vals_aligned = []
+            for us_date in us_ret.index:
+                # Find next KR date strictly after us_date
+                future_kr = [d for d in kr_dates if d > us_date]
+                if future_kr:
+                    next_kr = future_kr[0]
+                    us_vals_aligned.append(float(us_ret.loc[us_date]))
+                    kr_vals_aligned.append(float(kr_ret.loc[next_kr]))
+
+            n = len(us_vals_aligned)
+            if n < 10:
                 continue
-            us_ret = close_us.loc[idx].pct_change().dropna()
-            kr_ret = close_kr.loc[idx].pct_change().dropna()
-            # Align again after pct_change
-            common = us_ret.index.intersection(kr_ret.index)
-            if len(common) < 5:
-                continue
-            us_vals = us_ret.loc[common]
-            kr_vals = kr_ret.loc[common]
+
             # Manual Pearson correlation (avoid numpy dependency)
-            n = len(common)
-            mean_us = sum(us_vals) / n
-            mean_kr = sum(kr_vals) / n
-            cov = sum((u - mean_us) * (k - mean_kr) for u, k in zip(us_vals, kr_vals)) / n
-            std_us = (sum((u - mean_us) ** 2 for u in us_vals) / n) ** 0.5
-            std_kr = (sum((k - mean_kr) ** 2 for k in kr_vals) / n) ** 0.5
+            mean_us = sum(us_vals_aligned) / n
+            mean_kr = sum(kr_vals_aligned) / n
+            cov = sum((u - mean_us) * (k - mean_kr) for u, k in zip(us_vals_aligned, kr_vals_aligned)) / n
+            std_us = (sum((u - mean_us) ** 2 for u in us_vals_aligned) / n) ** 0.5
+            std_kr = (sum((k - mean_kr) ** 2 for k in kr_vals_aligned) / n) ** 0.5
             corr = cov / (std_us * std_kr) if std_us > 0 and std_kr > 0 else 0
             correlations.append({
                 "us_ticker": pair["label_us"],
                 "kr_ticker": pair["label_kr"],
                 "coefficient": round(corr, 3),
-                "period_days": len(common),
+                "period_days": n,
                 "interpretation": (
                     "강한 양의 상관" if corr > 0.7 else
                     "양의 상관" if corr > 0.3 else
@@ -421,6 +427,128 @@ def _normalize_foreign_flow(raw: dict) -> dict:
     if not items:
         return {"available": False, "note": "수급 데이터 미확인"}
     return {"available": True, "items": items, "item_count": len(items)}
+
+
+def _compute_prev_review(market: dict) -> dict | None:
+    """Compute previous signal review (오답노트) with accumulated accuracy stats."""
+    try:
+        prev_file = None
+        for lookback in range(1, 5):  # 1~4일 전까지 탐색 (공휴일 대비)
+            candidate = (NOW_KST - timedelta(days=lookback)).strftime("%Y-%m-%d")
+            candidate_path = DATA_DIR / f"{candidate}.json"
+            if candidate_path.exists():
+                prev_file = candidate_path
+                yesterday = candidate
+                break
+        if not prev_file or not prev_file.exists():
+            return None
+
+        with open(prev_file, "r", encoding="utf-8") as pf:
+            prev_data = json.load(pf)
+        prev_sig = prev_data.get("investment_signal", prev_data.get("kospi_signal", {}))
+        prev_dir = prev_sig.get("direction", "")
+        if not prev_dir:
+            return None
+
+        # Get actual KOSPI performance (open→close for trading perspective)
+        intraday_return = None
+        try:
+            if yf:
+                _kd = yf.download("^KS11", period="5d", interval="1d",
+                                  progress=False, timeout=10)
+                if not _kd.empty and len(_kd) >= 1:
+                    _last = _kd.iloc[-1]
+                    _open, _close = float(_last["Open"]), float(_last["Close"])
+                    if _open > 0:
+                        intraday_return = round((_close - _open) / _open * 100, 2)
+        except Exception:
+            pass
+
+        if intraday_return is not None:
+            actual_change = intraday_return
+            label = "시초가→종가"
+        else:
+            kospi_items = market.get("kr_indices", [])
+            kospi_actual = next((i for i in kospi_items
+                                 if "KOSPI" in i["name"] and "200" not in i["name"]), None)
+            actual_change = kospi_actual.get("change_pct", 0) if kospi_actual else 0
+            label = "전일 대비"
+
+        actual_dir = "long" if actual_change > 0.1 else "short" if actual_change < -0.1 else "neutral"
+        correct = prev_dir == actual_dir or (actual_dir == "neutral")
+        predicted_str = f"{prev_dir.upper()} {prev_sig.get('long_pct', '?')}% / {prev_sig.get('short_pct', '?')}%"
+        actual_str = f"KOSPI {actual_change:+.2f}% ({label}, {'상승' if actual_change > 0.1 else '하락' if actual_change < -0.1 else '보합'})"
+
+        if not correct:
+            if prev_dir == "long" and actual_change < 0:
+                reason = "롱 예측이었으나 실제 하락"
+            elif prev_dir == "short" and actual_change > 0:
+                reason = "숏 예측이었으나 실제 상승"
+            else:
+                reason = "예상과 반대 방향으로 시장 전개"
+        else:
+            reason = "예측 방향 일치"
+
+        # Accumulate accuracy stats from recent data files
+        accuracy_stats = _compute_accuracy_stats()
+
+        review = {
+            "date": yesterday,
+            "predicted": predicted_str,
+            "actual": actual_str,
+            "correct": correct,
+            "reason": reason,
+            "accuracy_stats": accuracy_stats,
+        }
+        log.info("  Prev review: %s -> %s (%s)", predicted_str, actual_str,
+                 "CORRECT" if correct else "WRONG")
+        return review
+    except Exception as e:
+        log.warning("  Prev review failed: %s", e)
+        return None
+
+
+def _compute_accuracy_stats() -> dict:
+    """Scan recent data files to compute cumulative signal accuracy."""
+    stats = {"total": 0, "correct": 0, "wrong": 0, "accuracy_pct": 0,
+             "long_total": 0, "long_correct": 0, "short_total": 0, "short_correct": 0,
+             "recent_5": []}
+    try:
+        files = sorted(DATA_DIR.glob("*.json"), reverse=True)
+        results = []
+        for f in files[:30]:
+            if not re.match(r"^\d{4}-\d{2}-\d{2}$", f.stem):
+                continue
+            try:
+                d = json.loads(f.read_text(encoding="utf-8"))
+                rev = d.get("prev_signal_review", {})
+                sig = d.get("investment_signal", d.get("kospi_signal", {}))
+                if rev.get("correct") is not None:
+                    is_correct = rev["correct"]
+                    direction = sig.get("direction", "")
+                    stats["total"] += 1
+                    if is_correct:
+                        stats["correct"] += 1
+                    else:
+                        stats["wrong"] += 1
+                    if direction == "long":
+                        stats["long_total"] += 1
+                        if is_correct:
+                            stats["long_correct"] += 1
+                    elif direction == "short":
+                        stats["short_total"] += 1
+                        if is_correct:
+                            stats["short_correct"] += 1
+                    results.append(is_correct)
+            except Exception:
+                continue
+
+        if stats["total"] > 0:
+            stats["accuracy_pct"] = round(stats["correct"] / stats["total"] * 100)
+        stats["recent_5"] = results[:5]
+    except Exception:
+        pass
+    return stats
 
 
 
@@ -903,6 +1031,10 @@ def build_digest():
     else:
         foreign_flow = _fetch_foreign_flow_builtin()
 
+    # Compute prev_signal_review BEFORE signal generation (for LLM feedback loop)
+    log.info("--- Computing prev signal review (오답노트) ---")
+    prev_review = _compute_prev_review(market)
+
     # Investment signal — LLM-based (start in background, collect before Phase 5)
     log.info("--- Starting AI investment signal (background) ---")
     _default_signal = {
@@ -914,7 +1046,8 @@ def build_digest():
     signal_future = None
     if HAS_DOMESTIC and corr_data:
         _sig_pool = ThreadPoolExecutor(max_workers=1)
-        signal_future = _sig_pool.submit(domestic_generate_signal, corr_data, foreign_flow, invest_raw)
+        signal_future = _sig_pool.submit(domestic_generate_signal, corr_data, foreign_flow,
+                                          invest_raw, prev_review)
     signal = None  # resolved before Phase 5
 
     # ------------------------------------------------------------------
@@ -1021,87 +1154,7 @@ def build_digest():
     if invest_ed.get("sector_analysis"):
         signal["sectors"] = invest_ed["sector_analysis"]
 
-    # ------------------------------------------------------------------
-    # Phase 5.5: Previous Signal Review (오답노트)
-    # 주의: 07:00 KST 실행 시 yfinance iloc[-1]은 전날(T-1) 종가.
-    # 어제 시그널은 "오늘 KOSPI 방향"을 예측한 것이므로,
-    # 전날 종가(= 어제 시그널이 예측한 당일 결과)로 비교하는 것이 맞다.
-    # ------------------------------------------------------------------
-    prev_review = None
-    try:
-        # 가장 최근 거래일 파일 찾기 (월요일이면 금요일, 평일이면 어제)
-        prev_file = None
-        for lookback in range(1, 4):  # 1~3일 전까지 탐색
-            candidate = (NOW_KST - timedelta(days=lookback)).strftime("%Y-%m-%d")
-            candidate_path = DATA_DIR / f"{candidate}.json"
-            if candidate_path.exists():
-                prev_file = candidate_path
-                yesterday = candidate
-                break
-        if prev_file and prev_file.exists():
-            with open(prev_file, "r", encoding="utf-8") as pf:
-                prev_data = json.load(pf)
-            prev_sig = prev_data.get("investment_signal", prev_data.get("kospi_signal", {}))
-            prev_dir = prev_sig.get("direction", "")
-
-            if prev_dir:
-                # yfinance에서 전날(T-1) KOSPI 시가/종가 가져오기
-                # 07:00 KST이므로 iloc[-1] = 전날 종가 = 어제 시그널이 예측한 당일
-                intraday_return = None
-                try:
-                    if yf:
-                        _kd = yf.download("^KS11", period="5d", interval="1d",
-                                          progress=False, timeout=10)
-                        if not _kd.empty and len(_kd) >= 1:
-                            _last = _kd.iloc[-1]
-                            _open = float(_last["Open"])
-                            _close = float(_last["Close"])
-                            if _open > 0:
-                                intraday_return = round((_close - _open) / _open * 100, 2)
-                except Exception:
-                    pass
-
-                if intraday_return is not None:
-                    actual_change = intraday_return
-                    label = "시초가→종가"
-                else:
-                    # fallback: market data의 전일 대비 변동률
-                    kospi_items = market.get("kr_indices", [])
-                    kospi_actual = None
-                    for item in kospi_items:
-                        if "KOSPI" in item["name"] and "200" not in item["name"]:
-                            kospi_actual = item
-                            break
-                    actual_change = kospi_actual.get("change_pct", 0) if kospi_actual else 0
-                    label = "전일 대비"
-
-                actual_dir = "long" if actual_change > 0.1 else "short" if actual_change < -0.1 else "neutral"
-                correct = prev_dir == actual_dir or (actual_dir == "neutral")
-                predicted_str = f"{prev_dir.upper()} {prev_sig.get('long_pct', '?')}% / {prev_sig.get('short_pct', '?')}%"
-                actual_str = f"KOSPI {actual_change:+.2f}% ({label}, {'상승' if actual_change > 0.1 else '하락' if actual_change < -0.1 else '보합'})"
-
-                reason = ""
-                if not correct:
-                    if prev_dir == "long" and actual_change < 0:
-                        reason = "롱 예측이었으나 실제 하락"
-                    elif prev_dir == "short" and actual_change > 0:
-                        reason = "숏 예측이었으나 실제 상승"
-                    else:
-                        reason = "예상과 반대 방향으로 시장 전개"
-                else:
-                    reason = "예측 방향 일치"
-
-                prev_review = {
-                    "date": yesterday,
-                    "predicted": predicted_str,
-                    "actual": actual_str,
-                    "correct": correct,
-                    "reason": reason,
-                }
-                log.info("  Previous signal review: %s -> %s (%s)",
-                         predicted_str, actual_str, "CORRECT" if correct else "WRONG")
-    except Exception as e:
-        log.warning("  Previous signal review failed: %s", e)
+    # prev_review already computed before signal generation (see _compute_prev_review)
 
     # ------------------------------------------------------------------
     # Phase 6: Build JSON
@@ -1178,7 +1231,8 @@ def build_digest():
 
 def update_index():
     dates = sorted(
-        [f.stem for f in DATA_DIR.glob("*.json") if f.stem not in ("index", "live")],
+        [f.stem for f in DATA_DIR.glob("*.json")
+         if re.match(r"^\d{4}-\d{2}-\d{2}$", f.stem)],
         reverse=True,
     )
     with open(DATA_DIR / "index.json", "w", encoding="utf-8") as f:

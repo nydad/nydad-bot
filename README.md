@@ -9,27 +9,20 @@
 ```
 nydad-bot/
 ├── index.html                # 프론트엔드 (Paper Ledger 테마)
-├── app.js                    # 프론트엔드 JS (5탭 렌더링, 실시간 인사이트)
+├── app.js                    # 프론트엔드 JS (5탭 렌더링)
 ├── scripts/
 │   ├── collect_news.py       # 7AM 메인 파이프라인 (5탭 데이터 수집 + AI 에디토리얼)
 │   ├── domestic_analysis.py  # 국내 투자 분석 (상관관계, 외국인 수급, AI 인사이트)
 │   ├── midday_analysis.py    # 12:10PM 오후 시황 (11시 캔들, 장중 수급, 오전 뉴스)
 │   ├── kbo_collect.py        # KBO 순위/경기/뉴스 스크래핑
-│   ├── sync_market.py        # 실시간 시세 동기화
 │   ├── backtest_*.py         # 백테스트 도구 (상관계수, 11시 캔들, 시그널 밸런스)
 │   └── requirements.txt      # Python 의존성
-├── workers/
-│   └── insight-api/          # Cloudflare Worker (실시간 인사이트 API)
-│       ├── src/index.js
-│       └── wrangler.toml
 ├── data/
 │   ├── index.json            # 날짜 인덱스
-│   ├── YYYY-MM-DD.json       # 일별 다이제스트 데이터
-│   └── sector_correlations.json  # 섹터별 상관계수 백테스트 결과
+│   └── YYYY-MM-DD.json       # 일별 다이제스트 데이터
 └── .github/workflows/
     ├── daily-digest.yml      # 7AM + 12:10PM KST 자동 실행
-    ├── deploy-only.yml       # 프론트엔드만 빠른 배포
-    └── sync-market.yml       # 수동 시세 동기화
+    └── deploy-only.yml       # 프론트엔드만 빠른 배포
 ```
 
 ## 5개 탭
@@ -67,29 +60,6 @@ nydad-bot/
 | 방산/우주 | LMT, RTX, RKLB | 한화에어로 | 0.35~0.50 |
 | 로봇 | ISRG, ROK | KOSPI 연동 | 0.47 |
 
-### 실시간 인사이트 (Cloudflare Worker)
-국내 투자 탭에서 질문을 입력하면 실시간 분석:
-- Yahoo Finance v8 API로 30+ 티커 실시간 조회 (메모리, 2차전지, 방산, 로봇 포함)
-- 섹터별 패턴 분석 — `sectorSignal()` 헬퍼로 통합 관리
-- 중복 집계 방지 — 글로벌 리스크오프 시 개별 팩터 제거
-- 하루 5회 글로벌 제한 (Durable Object 기반)
-
-**패턴 분석기:**
-1. 장중 모멘텀 (KOSPI ±0.5%)
-2. 야간선물 (ES/NQ) — KOSPI 시가 상관계수 r=0.78
-3. VIX 레짐 (bullish < 20, bearish > 25/30)
-4. 환율 (USD/KRW ±0.3%)
-5. SOX 반도체 — KOSPI 시가 상관계수 r=0.85 (최강 선행지표)
-6. 메모리 섹터 (MU/WDC/AMAT/LRCX 평균)
-7. 2차전지 (TSLA/ALB/ENPH 평균)
-8. 방산/우주 (LMT/RTX/RKLB 평균)
-9. 로봇 (ISRG/ROK 평균)
-10. 유가 (급등 bearish, 급락 bullish — 한국 순수입국)
-11. 금/채권/DXY
-12. KOSPI vs KOSDAQ 괴리
-13. EWY-KOSPI 괴리 (외국인 선행)
-14. 글로벌 리스크 복합 시그널
-
 ## Short bias 수정 이력
 
 기존 시스템은 20일 중 19일 SHORT을 추천 (95% short bias). 원인과 수정 사항:
@@ -115,9 +85,8 @@ nydad-bot/
 | 백엔드 | Python 3.12 (yfinance, feedparser, trafilatura, BeautifulSoup) |
 | AI 모델 | Gemini Flash (요약), Claude Sonnet (에디토리얼) via OpenRouter |
 | AI 프롬프트 | 영어 (출력만 한국어) — AI 이해도 최적화 |
-| 실시간 API | Cloudflare Workers + Durable Objects (5회/일 글로벌 제한) |
 | 배포 | GitHub Pages + GitHub Actions |
-| 데이터 | 정적 JSON (30일 롤링), 실시간은 Worker |
+| 데이터 | 정적 JSON (30일 롤링) |
 
 ## 설정
 
@@ -133,15 +102,7 @@ OPENROUTER_MODEL_FAST=google/gemini-3-flash-preview
 OPENROUTER_MODEL_QUALITY=anthropic/claude-sonnet-4.6
 ```
 
-### 3. Cloudflare Worker
-```bash
-cd workers/insight-api
-npx wrangler login
-npx wrangler secret put OPENROUTER_API_KEY
-npx wrangler deploy
-```
-
-### 4. 로컬 실행
+### 3. 로컬 실행
 ```bash
 pip install -r scripts/requirements.txt
 echo "OPENROUTER_API_KEY=sk-or-..." > .env
@@ -158,7 +119,6 @@ python scripts/backtest_sector_correlations.py  # 섹터 상관계수
 | `daily-digest.yml` | 22:00 UTC (7AM KST) | 장전 시황 + 전체 다이제스트 |
 | `daily-digest.yml` | 03:10 UTC (12:10PM KST, 평일) | 오후 시황 (11시 캔들 마감 후) |
 | `deploy-only.yml` | 수동 | 프론트엔드만 배포 |
-| `sync-market.yml` | 수동 | 실시간 시세 업데이트 |
 
 ## 디자인
 

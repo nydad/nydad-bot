@@ -107,46 +107,40 @@ CORRELATION_TICKERS = {
     "GC=F": "Gold",
 }
 
-# Key correlation pairs to track
-# Priority: Memory/SOX → 삼성/하이닉스 (상관관계 가장 높음, 코스피 시가총액 1,2위)
+# Key correlation pairs to track (lag-1: US day T → KR day T+1)
+# Pruned to high-signal pairs only. Oil/Gold removed (no KOSPI predictive power per backtest).
 CORRELATION_PAIRS = [
-    # ═══ Memory Sector (최우선 — 코스피 지수 영향 최대, 시총 1,2위) ═══
-    ("MU", "000660.KS", "Micron <-> SK Hynix"),
-    ("MU", "005930.KS", "Micron <-> Samsung"),
-    ("WDC", "000660.KS", "WDC(SanDisk) <-> SK Hynix"),
-    ("WDC", "005930.KS", "WDC(SanDisk) <-> Samsung"),
-    ("AMAT", "000660.KS", "AMAT(장비) <-> SK Hynix"),
-    ("LRCX", "005930.KS", "Lam Research(장비) <-> Samsung"),
-    # SOX Index (반도체 전체)
-    ("^SOX", "005930.KS", "SOX <-> Samsung"),
-    ("^SOX", "000660.KS", "SOX <-> SK Hynix"),
-    ("^SOX", "^KS11", "SOX <-> KOSPI"),
-    # NVIDIA (AI capex, 참고용 — 한국 반도체와 직접 상관 약함)
-    ("NVDA", "005930.KS", "NVDA <-> Samsung"),
-    ("NVDA", "000660.KS", "NVDA <-> SK Hynix"),
-    # ═══ 2nd Battery / EV Sector ═══
-    ("TSLA", "373220.KS", "Tesla <-> LG Energy"),
-    ("TSLA", "006400.KS", "Tesla <-> Samsung SDI"),
-    ("ALB", "373220.KS", "ALB(Lithium) <-> LG Energy"),
-    ("ALB", "006400.KS", "ALB(Lithium) <-> Samsung SDI"),
-    ("ENPH", "373220.KS", "Enphase(Clean Energy) <-> LG Energy"),
-    # ═══ Defense / Aerospace / Space ═══
-    ("LMT", "012450.KS", "Lockheed Martin <-> Hanwha Aerospace"),
-    ("RTX", "012450.KS", "RTX <-> Hanwha Aerospace"),
-    ("RKLB", "012450.KS", "Rocket Lab <-> Hanwha Aerospace"),
-    # ═══ Robotics / Automation ═══
-    ("ISRG", "^KS11", "ISRG(Robotics) <-> KOSPI"),
-    ("ROK", "^KS11", "Rockwell(Automation) <-> KOSPI"),
-    ("ABB", "^KS11", "ABB(Industrial) <-> KOSPI"),
-    # Broad Market
-    ("^IXIC", "^KS11", "NASDAQ <-> KOSPI"),
-    ("^DJI", "^KS11", "Dow <-> KOSPI"),
-    # FX & Commodities
-    ("KRW=X", "^KS11", "USD/KRW <-> KOSPI"),
-    ("DX-Y.NYB", "^KS11", "DXY <-> KOSPI"),
-    ("CL=F", "^KS11", "WTI <-> KOSPI"),
-    ("GC=F", "^KS11", "Gold <-> KOSPI"),
+    # ═══ Memory Sector (최우선 — 코스피 시총 1,2위, lag-1 r=0.72-0.80) ═══
+    ("MU", "000660.KS", "Micron → SK Hynix"),
+    ("WDC", "005930.KS", "WDC → Samsung"),
+    ("^SOX", "005930.KS", "SOX → Samsung"),
+    ("^SOX", "000660.KS", "SOX → SK Hynix"),
+    ("^SOX", "^KS11", "SOX → KOSPI"),
+    # ═══ 2nd Battery / EV ═══
+    ("TSLA", "373220.KS", "Tesla → LG Energy"),
+    ("ALB", "006400.KS", "ALB(Lithium) → Samsung SDI"),
+    # ═══ Defense / Aerospace ═══
+    ("LMT", "012450.KS", "Lockheed Martin → Hanwha Aerospace"),
+    # ═══ Broad Market ═══
+    ("^IXIC", "^KS11", "NASDAQ → KOSPI"),
+    # ═══ FX (inverse relationship) ═══
+    ("KRW=X", "^KS11", "USD/KRW → KOSPI"),
+    ("DX-Y.NYB", "^KS11", "DXY → KOSPI"),
 ]
+
+# Tickers that trade on US exchanges (for lag-1 alignment detection)
+US_MARKET_TICKERS = {
+    "NVDA", "MU", "WDC", "AMAT", "LRCX",
+    "TSLA", "ALB", "ENPH", "ISRG", "ROK", "ABB",
+    "LMT", "RTX", "RKLB",
+    "^SOX", "^IXIC", "^DJI", "^GSPC",
+    "DX-Y.NYB", "KRW=X", "CL=F", "GC=F",
+    "ES=F", "NQ=F", "^VIX", "^TNX",
+}
+KR_MARKET_TICKERS = {
+    "005930.KS", "000660.KS", "^KS11", "^KQ11",
+    "373220.KS", "006400.KS", "012450.KS",
+}
 
 # Additional market tickers for context (VIX, futures, etc.)
 CONTEXT_TICKERS = {
@@ -209,8 +203,8 @@ def fetch_correlation_data() -> dict:
         log.error("No 'Close' column in downloaded data")
         return result
 
-    # Calculate daily returns
-    returns = close.pct_change().dropna()
+    # Calculate daily returns per-ticker (don't dropna across entire DataFrame)
+    returns = close.pct_change(fill_method=None)
 
     # Keep only last 60 trading days
     returns = returns.tail(60)
@@ -248,8 +242,9 @@ def fetch_correlation_data() -> dict:
         except Exception:
             continue
 
-    # Calculate 20-day rolling correlations for each pair
-    log.info("Calculating 20-day rolling correlations...")
+    # Calculate 20-day rolling correlations with lag-1 for cross-market pairs
+    # US day T → KR day T+1 (timezone: US closes after KR, so US T affects KR T+1)
+    log.info("Calculating 20-day rolling correlations (lag-1 for US→KR)...")
     for ticker_a, ticker_b, pair_name in CORRELATION_PAIRS:
         try:
             if ticker_a not in returns.columns or ticker_b not in returns.columns:
@@ -258,49 +253,75 @@ def fetch_correlation_data() -> dict:
             ret_a = returns[ticker_a].dropna()
             ret_b = returns[ticker_b].dropna()
 
-            # Align the two series
-            common = ret_a.index.intersection(ret_b.index)
-            if len(common) < 20:
-                continue
+            # Determine if this is a cross-market pair needing lag-1
+            is_cross_market = (
+                (ticker_a in US_MARKET_TICKERS and ticker_b in KR_MARKET_TICKERS) or
+                (ticker_a in KR_MARKET_TICKERS and ticker_b in US_MARKET_TICKERS)
+            )
 
-            ret_a = ret_a.loc[common]
-            ret_b = ret_b.loc[common]
+            if is_cross_market and pd is not None:
+                # Lag-1 alignment: US day T → next KR trading day
+                # Identify which is US and which is KR
+                if ticker_a in US_MARKET_TICKERS:
+                    us_ret, kr_ret = ret_a, ret_b
+                    us_ticker, kr_ticker = ticker_a, ticker_b
+                else:
+                    us_ret, kr_ret = ret_b, ret_a
+                    us_ticker, kr_ticker = ticker_b, ticker_a
 
-            # 20-day rolling correlation
-            rolling_corr = ret_a.rolling(window=20).corr(ret_b)
-            latest_corr = rolling_corr.dropna()
-            if len(latest_corr) == 0:
-                continue
+                # Use merge_asof for proper lag-1: find next KR date after each US date
+                us_df = us_ret.reset_index()
+                us_df.columns = ["Date", "USReturn"]
+                kr_df = kr_ret.reset_index()
+                kr_df.columns = ["Date", "KRReturn"]
 
-            corr_value = float(latest_corr.iloc[-1])
+                aligned = pd.merge_asof(
+                    us_df.sort_values("Date"),
+                    kr_df.sort_values("Date"),
+                    left_on="Date", right_on="Date",
+                    direction="forward",
+                    allow_exact_matches=False,
+                ).dropna(subset=["KRReturn"])
+
+                # Deduplicate: multiple US days may map to same KR day (e.g., US Fri+Mon → KR Mon)
+                aligned = aligned.drop_duplicates(subset=["Date"], keep="last").sort_values("Date")
+
+                if len(aligned) < 20:
+                    continue
+
+                # Rolling 20-day correlation on aligned lag-1 data
+                aligned_series_us = pd.Series(aligned["USReturn"].values, index=range(len(aligned)))
+                aligned_series_kr = pd.Series(aligned["KRReturn"].values, index=range(len(aligned)))
+                rolling_corr = aligned_series_us.rolling(window=20).corr(aligned_series_kr)
+                latest_corr = rolling_corr.dropna()
+                if len(latest_corr) == 0:
+                    continue
+                corr_value = float(latest_corr.iloc[-1])
+
+                # Implied move uses US return (latest) and lagged correlation
+                us_return = result["raw_returns"].get(us_ticker)
+                implied_move = None
+                if us_return is not None:
+                    kr_std = float(aligned_series_kr.tail(20).std())
+                    us_std = float(aligned_series_us.tail(20).std())
+                    vol_ratio = kr_std / us_std if us_std > 0 else 1.0
+                    implied_move = round(corr_value * us_return * vol_ratio, 2)
+            else:
+                # Same-market pair: use standard same-day alignment
+                common = ret_a.index.intersection(ret_b.index)
+                if len(common) < 20:
+                    continue
+                ret_a_aligned = ret_a.loc[common]
+                ret_b_aligned = ret_b.loc[common]
+                rolling_corr = ret_a_aligned.rolling(window=20).corr(ret_b_aligned)
+                latest_corr = rolling_corr.dropna()
+                if len(latest_corr) == 0:
+                    continue
+                corr_value = float(latest_corr.iloc[-1])
+                implied_move = None
+
             if math.isnan(corr_value):
                 continue
-
-            # Calculate implied move for Korean asset based on US asset's latest return
-            implied_move = None
-            # If ticker_a is a US asset and ticker_b is Korean, calculate implied move
-            us_tickers = {"NVDA", "MU", "WDC", "AMAT", "LRCX",
-                         "TSLA", "ALB", "ENPH", "ISRG", "ROK", "ABB",
-                         "LMT", "RTX", "RKLB",
-                         "^SOX", "^IXIC", "^DJI", "DX-Y.NYB", "CL=F", "GC=F"}
-            kr_tickers = {"005930.KS", "000660.KS", "^KS11",
-                          "373220.KS", "006400.KS", "012450.KS"}
-
-            if ticker_a in us_tickers and ticker_b in kr_tickers:
-                us_return = result["raw_returns"].get(ticker_a)
-                if us_return is not None:
-                    # Simple implied move: correlation * US return * (kr_vol / us_vol)
-                    kr_std = float(ret_b.tail(20).std()) if len(ret_b) >= 20 else float(ret_b.std())
-                    us_std = float(ret_a.tail(20).std()) if len(ret_a) >= 20 else float(ret_a.std())
-                    vol_ratio = kr_std / us_std if us_std > 0 else 1.0
-                    implied_move = round(corr_value * us_return * vol_ratio, 2)
-            elif ticker_a in kr_tickers and ticker_b in us_tickers:
-                us_return = result["raw_returns"].get(ticker_b)
-                if us_return is not None:
-                    kr_std = float(ret_a.tail(20).std()) if len(ret_a) >= 20 else float(ret_a.std())
-                    us_std = float(ret_b.tail(20).std()) if len(ret_b) >= 20 else float(ret_b.std())
-                    vol_ratio = kr_std / us_std if us_std > 0 else 1.0
-                    implied_move = round(corr_value * us_return * vol_ratio, 2)
 
             # Determine strength
             abs_corr = abs(corr_value)
@@ -366,7 +387,16 @@ def fetch_foreign_flow() -> dict:
         "details": [],
     }
 
-    # Attempt 1: KRX (가장 신뢰할 수 있는 소스, 금액 기반)
+    # Attempt 1: EWY ETF proxy (always accessible from any IP, via yfinance)
+    try:
+        result = _estimate_foreign_flow_from_etf()
+        if result.get("net_amount") is not None:
+            log.info("Foreign flow from EWY proxy: %s", result["direction"])
+            return result
+    except Exception as e:
+        log.warning("EWY proxy failed: %s", e)
+
+    # Attempt 2: KRX (reliable but geo-blocked from non-Korean IPs)
     try:
         result = _fetch_krx_foreign_flow()
         if result.get("net_amount") is not None:
@@ -375,7 +405,7 @@ def fetch_foreign_flow() -> dict:
     except Exception as e:
         log.warning("KRX foreign flow failed: %s", e)
 
-    # Attempt 2: Naver Finance (fallback)
+    # Attempt 3: Naver Finance (HTML scraping, fragile)
     try:
         result = _fetch_naver_foreign_flow()
         if result.get("net_amount") is not None:
@@ -388,15 +418,6 @@ def fetch_foreign_flow() -> dict:
             return result
     except Exception as e:
         log.warning("Naver Finance foreign flow failed: %s", e)
-
-    # Attempt 3: Fallback — estimate from ETF flows
-    try:
-        result = _estimate_foreign_flow_from_etf()
-        if result.get("net_amount") is not None:
-            log.info("Foreign flow estimated from ETF: %s", result["direction"])
-            return result
-    except Exception as e:
-        log.warning("ETF-based foreign flow estimation failed: %s", e)
 
     log.warning("All foreign flow sources failed, returning empty data")
     return result
@@ -540,7 +561,7 @@ def _fetch_krx_foreign_flow() -> dict:
         if "외국인" in name:
             result["net_amount"] = round(net_amount / 100_000_000, 1)  # 억원
             result["net_amount_unit"] = "억원"
-            result["direction"] = "buy" if net_amount > 0 else "sell"
+            result["direction"] = "buy" if net_amount > 0 else "sell" if net_amount < 0 else "neutral"
         elif "기관" in name:
             result["institutional"] = round(net_amount / 100_000_000, 1)  # 억원
         elif "개인" in name:
@@ -695,6 +716,10 @@ def extract_night_futures_from_news(articles: list) -> dict:
                 try:
                     pct = float(m.group(1))
 
+                    # Sanity check: 야간선물이 20% 이상 움직이는 것은 비현실적
+                    if abs(pct) > 15:
+                        continue
+
                     # 부호 판단: 숫자에 부호가 없으면 주변 키워드로 방향 결정
                     text_lower = text.lower()
                     is_bearish = any(w in text_lower for w in bearish_words)
@@ -733,6 +758,7 @@ def build_analysis_context(
     correlations: dict,
     foreign_flow: dict,
     articles: list = None,
+    prev_review: dict = None,
 ) -> str:
     """Build a structured text context for the LLM from all data sources.
 
@@ -740,6 +766,7 @@ def build_analysis_context(
         market_data: correlation data dict (includes prices and correlations)
         correlations: same as market_data (correlation analysis output)
         foreign_flow: foreign investor flow dict
+        prev_review: previous signal review (오답노트) for feedback loop
         articles: list of news article dicts (optional)
 
     Returns:
@@ -756,8 +783,15 @@ def build_analysis_context(
     sections.append("=== DATA FRESHNESS (CRITICAL — 각 데이터의 실제 날짜) ===")
     sections.append(f"  NOW: {now.strftime('%Y-%m-%d %H:%M')} KST")
     sections.append("")
+    # Detect US DST: EDT (Mar-Nov) closes at 05:00 KST, EST (Nov-Mar) at 06:00 KST
+    try:
+        from zoneinfo import ZoneInfo
+        _us_now = datetime.now(ZoneInfo("US/Eastern"))
+        _us_close_kst = "05:00" if _us_now.dst() else "06:00"
+    except ImportError:
+        _us_close_kst = "06:00"  # fallback: assume EST
     sections.append("  [FRESH — 오늘 새벽 마감, 1~2시간 전 데이터]")
-    sections.append(f"    US 지수/선물 (S&P, NQ, SOX 등): {today_str} 새벽 06:00 KST 마감 종가")
+    sections.append(f"    US 지수/선물 (S&P, NQ, SOX 등): {today_str} 새벽 {_us_close_kst} KST 마감 종가")
     sections.append(f"    환율 (USD/KRW, DXY): 24시간 시장, 최신")
     sections.append(f"    원자재 (WTI, Gold): {today_str} 새벽 마감 종가")
     sections.append(f"    야간선물 (KOSPI200): {today_str} 새벽 06:00 KST 정산가")
@@ -772,6 +806,51 @@ def build_analysis_context(
     sections.append("  → US 데이터의 change_pct는 '어제→오늘새벽' 변동이므로 최신 시그널로 사용 가능")
     sections.append("")
     sections.append("  ⚠️ 뉴스는 이미 US종가/야간선물/환율에 100% 반영됨. 별도 방향 팩터로 세지 마라.")
+
+    # --- Market Regime (base rate for bias correction) ---
+    try:
+        if yf and pd:
+            _kospi_hist = yf.download("^KS11", period="30d", interval="1d",
+                                       progress=False, timeout=10)
+            if not _kospi_hist.empty and len(_kospi_hist) >= 5:
+                _daily_ret = _kospi_hist["Close"].pct_change().dropna()
+                _up_days = int((_daily_ret > 0.001).sum())
+                _total_days = len(_daily_ret)
+                _up_pct = round(_up_days / _total_days * 100) if _total_days > 0 else 50
+                _cum_ret = round(float((_kospi_hist["Close"].iloc[-1] / _kospi_hist["Close"].iloc[0] - 1) * 100), 1)
+                sections.append(f"\n=== MARKET REGIME (base rate for calibration) ===")
+                sections.append(f"  최근 {_total_days}거래일 KOSPI 상승일: {_up_days}/{_total_days} ({_up_pct}%)")
+                sections.append(f"  최근 {_total_days}거래일 누적 수익률: {_cum_ret:+.1f}%")
+                if _up_pct >= 60:
+                    sections.append("  → 상승 추세. bullish 시그널 과대평가 주의. bearish 시그널이 더 가치 있음.")
+                elif _up_pct <= 40:
+                    sections.append("  → 하락 추세. bearish 시그널 과대평가 주의. bullish 시그널이 더 가치 있음.")
+                else:
+                    sections.append("  → 혼조세. 방향 판단에 신중할 것.")
+    except Exception:
+        pass
+
+    # --- Previous Signal Review (오답노트 — LLM 피드백) ---
+    if prev_review:
+        sections.append("\n=== PREVIOUS SIGNAL REVIEW (오답노트) ===")
+        if prev_review.get("predicted"):
+            sections.append(f"  어제 예측: {prev_review['predicted']}")
+        if prev_review.get("actual"):
+            sections.append(f"  실제 결과: {prev_review['actual']}")
+        if prev_review.get("correct") is not None:
+            status = "적중" if prev_review["correct"] else "오답"
+            sections.append(f"  판정: {status}")
+        if prev_review.get("reason"):
+            sections.append(f"  사유: {prev_review['reason']}")
+        # Accumulated accuracy stats
+        if prev_review.get("accuracy_stats"):
+            stats = prev_review["accuracy_stats"]
+            sections.append(f"  누적 적중률: {stats.get('correct', 0)}/{stats.get('total', 0)} ({stats.get('accuracy_pct', 0)}%)")
+            if stats.get("recent_5"):
+                streak = "".join("O" if x else "X" for x in stats["recent_5"])
+                sections.append(f"  최근 5일: {streak}")
+        if not prev_review.get("correct", True):
+            sections.append("  ⚠️ 어제 예측이 틀렸다. 같은 방향을 반복하기 전에 데이터를 재검토하라.")
 
     # --- KOSPI200 Night Futures (야간선물) from news ---
     if articles:
@@ -918,29 +997,6 @@ def build_analysis_context(
             title = a.get("title", "")
             sections.append(f"  [{source}] {title}")
 
-    # --- Also load live.json if available ---
-    live_path = DATA_DIR / "live.json"
-    if live_path.exists():
-        try:
-            with open(live_path, "r", encoding="utf-8") as f:
-                live_data = json.load(f)
-            md = live_data.get("market_data", {})
-            # Add any data not already present
-            extra_cats = []
-            for cat, items in md.items():
-                if cat in ("us_indices", "futures", "bonds", "volatility"):
-                    continue  # already covered
-                for item in items:
-                    if item.get("ticker") not in prices:
-                        extra_cats.append(
-                            f"  {item['name']} ({item['ticker']}): {item['price']} ({item['change_pct']:+.2f}%)"
-                        )
-            if extra_cats:
-                sections.append("\n=== ADDITIONAL MARKET DATA (from live.json) ===")
-                sections.extend(extra_cats[:20])
-        except Exception:
-            pass
-
     return "\n".join(sections)
 
 
@@ -962,17 +1018,22 @@ ANALYSIS_SYSTEM_PROMPT = """KOSPI 장전 퀀트 애널리스트. 07:00 KST 개�
 예: "이란 전쟁 → bearish" + "NQ -2% → bearish"는 같은 이벤트를 2번 센 것.
 
 ## 시그널 우선순위 (FRESH 데이터만 사용)
-1. KOSPI200 야간선물 → 시가 직접 예측 (r≈0.95)
-2. NQ/SOX 종가 → 야간선물 없을 시 프록시 (r≈0.85)
-3. 섹터 상관관계 (US→KR implied move) → 섹터 방향
+1. KOSPI200 야간선물 → 시가 직접 예측 (가장 강력한 선행지표)
+2. NQ/SOX 종가 → 야간선물 없을 시 프록시 (lag-1 상관 0.63-0.75)
+3. 섹터 상관관계 (US→KR lag-1 implied move) → 섹터 방향
 4. 외국인 수급 → 모멘텀 참고 (STALE이지만 추세 지속성 높음)
 5. VIX → 레짐(context)일 뿐, 방향 시그널 아님
-6. 유가/금 → KOSPI 방향 예측력 없음
+6. 유가/금 → KOSPI 방향 예측력 없음 (백테스트 확인)
+
+## 바이어스 주의
+- MARKET REGIME 섹션의 base rate를 반드시 확인하라. base rate가 40%면 LONG 기준이 더 높아야 한다.
+- 이전 시그널 오답노트가 있으면 반드시 참고하라. 연속 오판 시 반대 방향 가능성을 열어두라.
+- 불확실할 때 SHORT를 기본값으로 택하지 마라. 데이터가 혼재되면 base rate에 가까운 방향을 택하라.
 
 ## 판단 규칙
 - 반드시 LONG 또는 SHORT. 중립 금지.
 - "갭다운" ≠ "숏". 갭은 시가에 반영. 종가 방향을 예측하라.
-- 상승 시그널 신뢰도 높음(88-95%), 하락은 낮음(59-65%) → 약세는 복수 확인 필요
+- 시그널 적중률은 시장 레짐에 따라 변동한다. 불마켓에서 bullish 시그널은 과대평가, bearish는 과소평가된다. base rate를 감안하라.
 - factors에는 실제 가격 데이터만 넣어라 (뉴스 헤드라인 기반 팩터 금지)
 
 ## 시가 레이블 (야간선물 or NQ 기준)
@@ -1189,13 +1250,13 @@ def _fallback_analysis(context: str) -> dict:
     else:
         direction = "long"  # 보합 시 기본값
 
-    # 확률: 변동폭에 비례 (51~70 범위, fallback이므로 보수적)
+    # 확률: 변동폭에 비례 (15-85 범위, _validate_insights와 동일 clamp)
     edge = min(abs(lead_pct) / 3.0, 1.0)  # 3% 이상이면 최대
     if direction == "long":
-        long_pct = round(51 + edge * 19)
+        long_pct = round(51 + edge * 34)
     else:
-        long_pct = round(49 - edge * 19)
-    long_pct = max(30, min(70, long_pct))
+        long_pct = round(49 - edge * 34)
+    long_pct = max(15, min(85, long_pct))
     short_pct = 100 - long_pct
 
     return {
@@ -1263,7 +1324,8 @@ def run_full_analysis(articles: list = None) -> dict:
     return insights
 
 
-def generate_signal(corr_data: dict, foreign_flow: dict, articles: list = None) -> dict:
+def generate_signal(corr_data: dict, foreign_flow: dict, articles: list = None,
+                    prev_review: dict = None) -> dict:
     """Generate investment signal from pre-fetched data.
 
     Called by collect_news.py with already-fetched correlation and foreign flow data.
@@ -1273,6 +1335,7 @@ def generate_signal(corr_data: dict, foreign_flow: dict, articles: list = None) 
         corr_data: output of fetch_correlation_data()
         foreign_flow: output of fetch_foreign_flow()
         articles: list of news article dicts (for night futures extraction + LLM context)
+        prev_review: previous signal review (오답노트) for LLM feedback loop
 
     Returns:
         Complete signal dict (direction, long_pct, factors, correlations, etc.)
@@ -1282,6 +1345,7 @@ def generate_signal(corr_data: dict, foreign_flow: dict, articles: list = None) 
         correlations=corr_data,
         foreign_flow=foreign_flow,
         articles=articles,
+        prev_review=prev_review,
     )
 
     log.info("generate_signal: context %d chars", len(context))

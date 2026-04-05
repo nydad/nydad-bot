@@ -183,9 +183,18 @@ def fetch_morning_session() -> dict:
                          result["candle_11am"]["body_pct"])
                 break
 
-        # Volume ratio — skip extra yfinance call, use intraday volume only
+        # Volume ratio — compare morning volume to 5-day average daily volume
         if len(volume) >= 2:
             result["morning_volume"] = int(volume.sum())
+            try:
+                _daily = yf.download("^KS11", period="10d", interval="1d",
+                                     progress=False, timeout=10)
+                if not _daily.empty and "Volume" in _daily.columns:
+                    _avg_vol = float(_daily["Volume"].tail(5).mean())
+                    if _avg_vol > 0:
+                        result["volume_ratio"] = round(float(volume.sum()) / _avg_vol, 2)
+            except Exception:
+                pass
 
         log.info("KOSPI morning: %.2f → %.2f (%+.2f%%), trend=%s",
                  result["kospi_open"] or 0, result["kospi_current"] or 0,
@@ -201,26 +210,36 @@ def fetch_morning_session() -> dict:
 # Phase 2: Foreign Investor Flow (Live)
 # ---------------------------------------------------------------------------
 def fetch_live_foreign_flow() -> dict:
-    """Fetch live foreign investor flow from KRX during trading hours."""
+    """Fetch live foreign investor flow. Uses domestic_analysis if available, else KRX direct."""
     log.info("=== Phase 2: Live Foreign Flow ===")
+
+    # Try importing from domestic_analysis for unified KRX access (억원 단위)
+    try:
+        from domestic_analysis import fetch_foreign_flow
+        result = fetch_foreign_flow()
+        if result.get("net_amount") is not None:
+            log.info("Foreign flow via domestic_analysis: %s", result.get("direction"))
+            return result
+    except ImportError:
+        pass
+    except Exception as e:
+        log.warning("domestic_analysis foreign flow failed: %s", e)
+
+    # Fallback: direct KRX call (억원 단위로 통일)
     result = {
         "net_amount": None,
         "direction": None,
         "source": "unavailable",
     }
-
     today = datetime.now(KST)
     if today.weekday() >= 5:
         today -= timedelta(days=(today.weekday() - 4))
     trd_date = today.strftime("%Y%m%d")
-
     try:
         url = "http://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd"
         payload = {
             "bld": "dbms/MDC/STAT/standard/MDCSTAT02203",
-            "locale": "ko_KR",
-            "trdDd": trd_date,
-            "mktId": "STK",
+            "locale": "ko_KR", "trdDd": trd_date, "mktId": "STK",
             "csvxls_is498": "false",
         }
         headers = {
@@ -232,26 +251,22 @@ def fetch_live_foreign_flow() -> dict:
         resp = requests.post(url, data=payload, headers=headers, timeout=15)
         resp.raise_for_status()
         data = resp.json()
-
         for item in data.get("output", []):
             name = item.get("INVST_TP_NM", "")
-            net_val = item.get("NETBVSQTY", "0").replace(",", "")
+            net_krw = item.get("NETBVSAMT", item.get("NETBVSQTY", "0")).replace(",", "")
             try:
-                net_amount = int(net_val)
+                net_amount = int(net_krw)
             except ValueError:
                 continue
             if "외국인" in name:
-                result["net_amount"] = round(net_amount / 1_000_000, 1)
+                result["net_amount"] = round(net_amount / 100_000_000, 1)
+                result["net_amount_unit"] = "억원"
                 result["direction"] = "buy" if net_amount > 0 else "sell" if net_amount < 0 else "neutral"
                 result["source"] = "krx_live"
-                log.info("Foreign flow: %s %.1f million shares",
-                         result["direction"], abs(result["net_amount"]))
             elif "기관" in name:
-                result["institutional"] = round(int(net_val) / 1_000_000, 1)
-
+                result["institutional"] = round(int(net_krw) / 100_000_000, 1)
     except Exception as e:
         log.warning("KRX live flow failed: %s", e)
-
     return result
 
 
@@ -305,29 +320,29 @@ MIDDAY_SYSTEM_PROMPT = """You are a hedge fund quant trader. It is now noon (12:
 ## Role: Afternoon market forecast
 Synthesize morning data (KOSPI 9:00-12:00 price action, 11 AM candle, foreign investor flow, domestic news) to predict the **afternoon closing direction**.
 
-## 11 AM 60-min candle (backtested)
-- Bullish 11 AM candle → afternoon rally 71%, full-day up 68% (significant signal)
-- Bearish 11 AM candle → afternoon decline only 42% (58% reversal — low reliability)
-- Conclusion: **trust bullish candles, but bearish candles frequently reverse**
-- Strong candle (body > 0.1%) increases reliability to 61%
+## 11 AM 60-min candle (backtested, 소표본 주의)
+- Bullish 11 AM candle → afternoon rally ~70% (소표본 N≈25, 불마켓 base rate 60-65% 감안 시 실질 개선 5-10pp)
+- Bearish 11 AM candle → afternoon decline ~42% (coin flip 수준 — 단독 시그널로 불충분. 외국인 수급 등 보조 지표 필요)
+- 결론: bullish candle은 참고 가능, bearish candle은 단독 근거로 사용 금지
+- Strong candle (body > 0.1%) → 약간 더 신뢰 가능하나 표본 부족
 
 ## Difference from 7 AM pre-market analysis
 - The 7 AM analysis was based on overnight futures + US close data.
 - Now the market has actually opened and we have real intraday data.
 - Compare the 7 AM prediction with actual morning price action. Update the afternoon forecast.
 
-## Backtested gap statistics (2026-01~03)
-- Gap up > 0.3%: close > prev close 100% of the time (N=28) — gap direction holds
-- Gap down < -0.3%: close < prev close 71% (N=21) — less reliable
-- BUT intraday direction (close vs open) is 52% — gap holds but does NOT extend
-- 삼성전자 > +1% → KOSPI next day up 85% (N=26) — Samsung leads index
+## Backtested gap statistics (소표본 — 시장 레짐 변동 시 변할 수 있음)
+- Gap up > 0.3%: close > prev close ~97% (N≈28, 소표본 — 100%는 아님)
+- Gap down < -0.3%: close < prev close ~71% (N≈21) — 상대적으로 낮은 신뢰도
+- BUT intraday direction (close vs open) 52% — gap direction은 유지되나 확대되지는 않음
+- 삼성전자 > +1% → KOSPI next day up ~85% (N≈26) — Samsung leads index (소표본)
 
 ## Rules
 1. MUST pick LONG or SHORT. Neutral forbidden.
 2. NO platitudes. Specific numbers required.
 3. Foreign investor flow is the KEY variable for intraday direction changes.
 4. Do NOT simply extrapolate morning trend. Morning decline + bullish 11 AM candle = afternoon reversal possible.
-5. If morning gap was large (>1%), the gap direction has 87~100% chance of matching close direction — strong confidence warranted.
+5. Large gaps (>1%) tend to hold direction, but do NOT assume 100% certainty from small-sample backtests.
 
 ## JSON response format
 ALL text fields must be in KOREAN (한국어).
