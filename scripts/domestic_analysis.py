@@ -598,16 +598,20 @@ def _estimate_foreign_flow_from_etf() -> dict:
         if ewy.empty or len(ewy) < 2:
             return result
 
+        # Handle MultiIndex columns from newer yfinance versions
+        if isinstance(ewy.columns, pd.MultiIndex):
+            ewy.columns = ewy.columns.get_level_values(0)
+
         close = ewy["Close"].dropna()
         volume = ewy["Volume"].dropna()
 
         if len(close) < 2 or len(volume) < 2:
             return result
 
-        current_price = float(close.iloc[-1])
-        prev_price = float(close.iloc[-2])
-        current_vol = float(volume.iloc[-1])
-        avg_vol = float(volume.tail(5).mean())
+        current_price = float(close.iloc[-1].item() if hasattr(close.iloc[-1], 'item') else close.iloc[-1])
+        prev_price = float(close.iloc[-2].item() if hasattr(close.iloc[-2], 'item') else close.iloc[-2])
+        current_vol = float(volume.iloc[-1].item() if hasattr(volume.iloc[-1], 'item') else volume.iloc[-1])
+        avg_vol = float(volume.tail(5).mean().item() if hasattr(volume.tail(5).mean(), 'item') else volume.tail(5).mean())
 
         price_change = ((current_price - prev_price) / prev_price) * 100
         vol_ratio = current_vol / avg_vol if avg_vol > 0 else 1.0
@@ -631,7 +635,9 @@ def _estimate_foreign_flow_from_etf() -> dict:
         # Count consecutive direction days
         consecutive = 0
         for i in range(len(close) - 1, 0, -1):
-            day_chg = float(close.iloc[i]) - float(close.iloc[i - 1])
+            _ci = close.iloc[i]
+            _ci1 = close.iloc[i - 1]
+            day_chg = float(_ci.item() if hasattr(_ci, 'item') else _ci) - float(_ci1.item() if hasattr(_ci1, 'item') else _ci1)
             if (direction == "buy" and day_chg > 0) or (direction == "sell" and day_chg <= 0):
                 consecutive += 1
             else:
