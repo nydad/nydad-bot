@@ -4443,5 +4443,76 @@
         true
       ]
     }
+  },
+  "midday_signal": {
+    "direction": "long",
+    "long_pct": 65,
+    "short_pct": 35,
+    "confidence": 0.58,
+    "summary": "코스피는 오전 7시 SHORT 예측과 달리 트럼프 48시간 압박에도 불구하고 1.6%대 상승으로 오전 세션을 마감하며 예측이 빗나갔다. 외국인은 133억원 순매도로 소규모에 그쳐 수급 부담이 제한적이며, 오전 강세 흐름이 오후에도 이어질 가능성이 우세하다. 다만 11AM 캔들 데이터 미수집 및 소표본 한계로 확신도는 낮게 유지하며, 수요일 '디데이' 관세 협상 결과를 앞둔 관망 심리가 오후 상승폭을 제한할 수 있다.",
+    "candle_11am_interpretation": "11AM 60분 캔들 데이터가 미수집 상태로 핵심 방향성 시그널을 확인할 수 없어 외국인 수급 및 뉴스 흐름에 의존해 판단한다.",
+    "morning_review": "오전 7시 SHORT(62%) 예측은 완전히 빗나갔으며, 실제 코스피는 +1.6%대 강세로 US선물 하락 압력보다 전일 급등 모멘텀 지속 및 관세 협상 기대감이 우세했다.",
+    "afternoon_catalyst": "수요일 관세 '디데이'를 앞두고 외국인 순매도 규모 확대 여부와 미국 선물 시장(ES/NQ) 오후 방향이 오후 장 마감 방향의 핵심 변수다.",
+    "factors": [
+      {
+        "name": "오전 코스피 실제 등락",
+        "signal": "bullish",
+        "detail": "트럼프 이란 48시간 압박에도 코스피 +1.6%대 상승 — 오전 7시 SHORT 예측 대비 강한 상방 이탈"
+      },
+      {
+        "name": "외국인 수급",
+        "signal": "bearish",
+        "detail": "외국인 순매도 133억원 — 규모 자체는 소규모(일평균 대비 미미)이나 방향은 매도로 오후 확대 시 하방 압력"
+      },
+      {
+        "name": "11AM 캔들",
+        "signal": "bearish",
+        "detail": "데이터 미수집으로 시그널 판단 불가 — 방향성 확신도 하락 요인"
+      },
+      {
+        "name": "관세 디데이 불확실성",
+        "signal": "bearish",
+        "detail": "수요일 미국 상호관세 발효 'D-Day' 앞두고 관망 심리 — 오후 추가 상승 동력 제한 가능"
+      },
+      {
+        "name": "일본 증시 동조",
+        "signal": "bullish",
+        "detail": "닛케이225 오전 +0.59%(53,439pt) 상승 출발 — 아시아 증시 전반 위험선호 분위기 유지"
+      },
+      {
+        "name": "오전 갭업 통계",
+        "signal": "bullish",
+        "detail": "갭업 >0.3% 시 당일 종가 > 전일 종가 확률 ~97%(N≈28, 소표본) — 오전 +1.6% 강세 출발은 종가 양봉 유지 가능성 지지"
+      }
+    ],
+    "_raw": {
+      "session": {
+        "kospi_current": null,
+        "kospi_open": null,
+        "kospi_change_pct": null,
+        "morning_high": null,
+        "morning_low": null,
+        "candle_11am": null,
+        "morning_trend": null,
+        "volume_ratio": null
+      },
+      "foreign_flow": {
+        "net_amount": -133.0,
+        "consecutive_days": 1,
+        "direction": "sell",
+        "institutional": null,
+        "retail": null,
+        "source": "etf_proxy",
+        "details": [
+          {
+            "proxy": "EWY",
+            "price_change_pct": -2.65,
+            "volume_ratio": 0.7
+          }
+        ]
+      },
+      "news_count": 10,
+      "generated_at": "2026-04-06T05:33:06.371055+00:00"
+    }
   }
 }
