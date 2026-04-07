@@ -4587,5 +4587,81 @@
         true
       ]
     }
+  },
+  "midday_signal": {
+    "direction": "long",
+    "long_pct": 72,
+    "short_pct": 28,
+    "confidence": 0.68,
+    "summary": "삼성전자 역대 최대 실적 서프라이즈와 미·이란 휴전 기대감이 오전 +2.29% 급등을 견인했으며, 외국인 순매수 125억원이 수급 측면에서 롱 방향을 지지한다. 11AM 캔들 데이터 미수집으로 핵심 기술 지표 공백이 있으나, 갭업 >1% 시 종가 방향 유지 통계(~97%)와 삼성전자 +1% 이상 시 당일 KOSPI 강세 패턴이 오후 방향을 롱으로 지목한다. 다만 '호실적만으론 추가 상승 동력 한계' 우려와 이란 전쟁 장기화 리스크가 오후 차익실현 매물 압력으로 작용할 수 있어 상승폭 축소 가능성을 열어둔다.",
+    "candle_11am_interpretation": "11AM 캔들 데이터가 미수집되어 핵심 기술 시그널 공백 상태이며, 외국인 수급·갭업 통계 등 보조 지표로 방향성을 판단한다.",
+    "morning_review": "7AM 예측(LONG 62%)은 적중했으며, 실제 오전 9시 25분 기준 +2.29% 급등으로 implied move +0.38% 예상치를 대폭 상회했다—삼성전자 어닝 서프라이즈와 이란 휴전 기대가 예상보다 강한 상승 촉매로 작용했다.",
+    "afternoon_catalyst": "미·이란 휴전 협상 진전 여부가 오후 핵심 변수로, 협상 가시화 시 추가 상승 여력 존재하나 결렬 또는 지연 시 차익실현 매물 출회로 상승폭 반납 가능성이 있다.",
+    "factors": [
+      {
+        "name": "삼성전자 어닝 서프라이즈",
+        "signal": "bullish",
+        "detail": "1분기 역대 최대 실적 발표, 증권사 목표주가 일제 상향, 삼성전자 +1% 이상 시 KOSPI 당일 강세 통계 ~85%(N≈26) 적용"
+      },
+      {
+        "name": "갭업 통계",
+        "signal": "bullish",
+        "detail": "오전 +2.29% 갭업은 >0.3% 기준 초과, 갭업 >0.3% 시 종가 > 전일 종가 확률 ~97%(N≈28, 소표본 주의)"
+      },
+      {
+        "name": "외국인 수급",
+        "signal": "bullish",
+        "detail": "오전 외국인 순매수 +125억원, 방향성은 롱 지지이나 규모가 크지 않아 강도는 중립~약 강세 수준"
+      },
+      {
+        "name": "미·이란 휴전 기대감",
+        "signal": "bullish",
+        "detail": "휴전 협상 기대로 오전 급등 촉매 작용, 닛케이 +0.42% 동반 상승으로 아시아 리스크온 분위기 형성"
+      },
+      {
+        "name": "호실적 후 추가 상승 동력 한계 우려",
+        "signal": "bearish",
+        "detail": "'재투자 없인 주가 상승 동력 한계' 분석 및 SK하이닉스로 관심 이동 — 오후 삼성전자 차익실현 매물 압력 가능"
+      },
+      {
+        "name": "이란 전쟁 장기화·스태그플레이션 리스크",
+        "signal": "bearish",
+        "detail": "제프리스 고배당 방어주 피신 권고, 유가 급등 시 스태그플레이션 우려로 오후 변동성 확대 가능"
+      },
+      {
+        "name": "11AM 캔들 데이터 공백",
+        "signal": "bearish",
+        "detail": "핵심 기술 시그널 미수집으로 오후 방향 신뢰도 일부 훼손, 불확실성 가중"
+      }
+    ],
+    "_raw": {
+      "session": {
+        "kospi_current": null,
+        "kospi_open": null,
+        "kospi_change_pct": null,
+        "morning_high": null,
+        "morning_low": null,
+        "candle_11am": null,
+        "morning_trend": null,
+        "volume_ratio": null
+      },
+      "foreign_flow": {
+        "net_amount": 125.0,
+        "consecutive_days": 1,
+        "direction": "buy",
+        "institutional": null,
+        "retail": null,
+        "source": "etf_proxy",
+        "details": [
+          {
+            "proxy": "EWY",
+            "price_change_pct": 2.5,
+            "volume_ratio": 0.44
+          }
+        ]
+      },
+      "news_count": 10,
+      "generated_at": "2026-04-07T05:19:30.239480+00:00"
+    }
   }
 }
