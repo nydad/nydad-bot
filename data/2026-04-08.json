@@ -1,0 +1,73 @@
+{
+  "midday_signal": {
+    "direction": "long",
+    "long_pct": 82,
+    "short_pct": 18,
+    "confidence": 0.82,
+    "summary": "미국·이란 2주간 휴전 합의라는 강력한 지정학적 리스크 해소 이벤트가 오전 장에서 매수 사이드카 발동을 촉발하며 코스피가 급등했다. 외국인이 오전 중 삼성전자·SK하이닉스 중심으로 1조5천억원 이상 순매수하며 수급 측면에서도 강력한 매수 압력이 확인됐다. 오후에도 외국인 순매수 기조 유지 여부가 핵심 변수이며, 지정학 리스크 완화 + 반도체 수급 개선 조합으로 강세 마감 가능성이 높다.",
+    "candle_11am_interpretation": "11시 캔들 데이터가 미수집 상태이나, 사이드카 발동 및 외국인 1.5조 순매수 등 오전 전반적 흐름이 강한 상승 압력을 시사하므로 사실상 강세 캔들로 간주한다.",
+    "morning_review": "7AM 프리마켓 분석 대비 미·이란 휴전 합의라는 예상치 못한 지정학 이벤트가 추가되며 실제 오전 장은 사이드카 발동을 동반한 급등으로 전망을 크게 상회했다.",
+    "afternoon_catalyst": "외국인 순매수 규모가 오후에도 1조원 이상 유지되는지 여부가 핵심 피벗 변수이며, 미·이란 휴전 합의의 지속성에 대한 시장 신뢰도가 추가 상승 폭을 결정할 것이다.",
+    "factors": [
+      {
+        "name": "미·이란 휴전 합의 (지정학 리스크 해소)",
+        "signal": "bullish",
+        "detail": "트럼프-이란 2주간 휴전 합의, 호르무즈 해협 개방 → 전쟁 리스크 피크아웃 인식 확산, 오전 매수 사이드카 발동"
+      },
+      {
+        "name": "외국인 수급",
+        "signal": "bullish",
+        "detail": "오전 11시37분 기준 코스피 외국인 순매수 1조5,199억원, 삼성전자·SK하이닉스 집중 매수 — 장중 수급 최강 시그널"
+      },
+      {
+        "name": "반도체 대장주 주도 상승",
+        "signal": "bullish",
+        "detail": "삼성전자·SK하이닉스 급등 주도, 삼성전자 +1% 이상 시 익일 KOSPI 상승 확률 ~85% 백테스트 기준 부합"
+      },
+      {
+        "name": "일본 증시 동반 급등",
+        "signal": "bullish",
+        "detail": "닛케이225 오전 +4.44%(2,370p) 급등 — 아시아 증시 전반 위험선호 심리 확인, KOSPI 오후 하락 전환 가능성 낮춤"
+      },
+      {
+        "name": "11시 캔들 데이터 미수집",
+        "signal": "bearish",
+        "detail": "11시 캔들 데이터 부재로 핵심 기술적 시그널 확인 불가 — 불확실성 요인이나 여타 강세 지표로 보완 가능"
+      },
+      {
+        "name": "휴전 합의 지속성 불확실",
+        "signal": "bearish",
+        "detail": "2주 한시적 합의로 구조적 해결 아님 — 오후 추가 뉴스 플로우에 따라 차익실현 매물 출회 가능성 존재"
+      }
+    ],
+    "_raw": {
+      "session": {
+        "kospi_current": null,
+        "kospi_open": null,
+        "kospi_change_pct": null,
+        "morning_high": null,
+        "morning_low": null,
+        "candle_11am": null,
+        "morning_trend": null,
+        "volume_ratio": null
+      },
+      "foreign_flow": {
+        "net_amount": 125.0,
+        "consecutive_days": 1,
+        "direction": "buy",
+        "institutional": null,
+        "retail": null,
+        "source": "etf_proxy",
+        "details": [
+          {
+            "proxy": "EWY",
+            "price_change_pct": 2.5,
+            "volume_ratio": 0.62
+          }
+        ]
+      },
+      "news_count": 10,
+      "generated_at": "2026-04-08T05:20:51.705107+00:00"
+    }
+  }
+}
