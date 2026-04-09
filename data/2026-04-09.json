@@ -4981,5 +4981,86 @@
         }
       ]
     }
+  },
+  "midday_signal": {
+    "direction": "short",
+    "long_pct": 38,
+    "short_pct": 62,
+    "confidence": 0.62,
+    "summary": "오전 장은 7AM 예측(LONG 82%)과 달리 호르무즈 봉쇄 노이즈 및 전일 폭등 차익실현 매물로 KOSPI 0.78% 하락 출발하며 약세 흐름을 보였다. 외국인은 131억원 소규모 순매수에 그쳐 전일 대비 수급 모멘텀이 현저히 약화됐고, 3월 외국인 주식 순유출 역대 최대(298억달러) 기록이 투자심리를 억누르고 있다. 삼성전자 오버행 해소는 중기 긍정 요인이나, 호르무즈 지정학 리스크와 차익실현 압력이 오후에도 지속될 가능성이 높아 하락 마감 예상.",
+    "candle_11am_interpretation": "11AM 캔들 데이터 미수집으로 직접 해석 불가 — 오전 전반적 약세 흐름(0.78% 하락)과 소규모 외국인 순매수를 보조 지표로 대체 활용.",
+    "morning_review": "7AM 예측은 SOX +6.34% 기반 LONG 82%였으나, 실제 오전 장은 호르무즈 봉쇄 노이즈와 전일 폭등 차익실현 매물이 반도체 강세 모멘텀을 압도하며 0.78% 하락 — 예측 대비 완전히 반대 방향으로 전개됨.",
+    "afternoon_catalyst": "호르무즈 해협 봉쇄 관련 이란 추가 발언 또는 중동 지정학 리스크 완화 여부가 오후 방향의 핵심 피벗 변수.",
+    "factors": [
+      {
+        "name": "호르무즈 지정학 리스크",
+        "signal": "bearish",
+        "detail": "이스라엘-레바논 공격에 이란 반발 및 호르무즈 봉쇄 노이즈 — 오전 KOSPI 0.78% 하락의 직접 원인, 오후에도 해소 불확실"
+      },
+      {
+        "name": "외국인 장중 수급",
+        "signal": "bearish",
+        "detail": "외국인 순매수 131억원으로 소규모 — 전일 폭등 당시 대규모 매수 대비 현저히 약화, 수급 모멘텀 지지력 부족"
+      },
+      {
+        "name": "3월 외국인 주식 역대 최대 순유출",
+        "signal": "bearish",
+        "detail": "한국은행 발표: 3월 외국인 주식 순유출 298억달러 역대 최대 — 구조적 매도 압력 재확인, 투자심리 부담"
+      },
+      {
+        "name": "삼성전자 오버행 해소",
+        "signal": "bullish",
+        "detail": "홍라희 명예관장 3조원대 블록딜 마무리 — 5년간 주가 억눌렀던 오버행 사실상 해소, 삼성전자 중기 긍정 요인"
+      },
+      {
+        "name": "전일 폭등 차익실현 압력",
+        "signal": "bearish",
+        "detail": "KOSPI 전일 폭등(뉴스 언급) 이후 차익실현 매물 부담 — 오전 하락의 주요 원인, 오후에도 매물 소화 과정 지속 예상"
+      },
+      {
+        "name": "미국 증시 실적 모멘텀",
+        "signal": "bullish",
+        "detail": "신한증권: 미 증시 실적 모멘텀 2021년 이후 가장 강함 — 하방 지지 요인이나 단기 오후 방향 전환에는 제한적 영향"
+      },
+      {
+        "name": "일본 증시 동조 하락",
+        "signal": "bearish",
+        "detail": "닛케이225 오전 -0.39% 하락 — 아시아 증시 전반 차익실현 흐름, KOSPI 추가 하락 압력 동조"
+      },
+      {
+        "name": "WGBI 편입 및 코리아 프리미엄 기대",
+        "signal": "bullish",
+        "detail": "WGBI 편입 역사적 이정표 평가 + 달튼 인베스트먼트 코리아 프리미엄 언급 — 중장기 긍정이나 오후 단기 방향에 즉각 반영 어려움"
+      }
+    ],
+    "_raw": {
+      "session": {
+        "kospi_current": null,
+        "kospi_open": null,
+        "kospi_change_pct": null,
+        "morning_high": null,
+        "morning_low": null,
+        "candle_11am": null,
+        "morning_trend": null,
+        "volume_ratio": null
+      },
+      "foreign_flow": {
+        "net_amount": 131.0,
+        "consecutive_days": 2,
+        "direction": "buy",
+        "institutional": null,
+        "retail": null,
+        "source": "etf_proxy",
+        "details": [
+          {
+            "proxy": "EWY",
+            "price_change_pct": 0.99,
+            "volume_ratio": 1.32
+          }
+        ]
+      },
+      "news_count": 10,
+      "generated_at": "2026-04-09T05:21:20.118907+00:00"
+    }
   }
 }
