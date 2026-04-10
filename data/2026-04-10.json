@@ -5145,5 +5145,76 @@
         false
       ]
     }
+  },
+  "midday_signal": {
+    "direction": "long",
+    "long_pct": 72,
+    "short_pct": 28,
+    "confidence": 0.65,
+    "summary": "코스피는 이스라엘-레바논 휴전 기대감이라는 강력한 지정학적 모멘텀에 힘입어 오전 +1.96%(5,891선) 급등 출발하며 7AM 예측(LONG 68%)을 상회하는 강세를 시현했다. 외국인 순매도 규모가 28억원으로 극히 소규모에 그쳐 수급 측면의 하방 압력은 제한적이며, 오후에도 휴전 모멘텀 지속 여부와 기관 매수 유입이 상승 유지의 핵심 변수다. 전일 +6.87% 급등 이후 이틀 연속 강세라는 단기 과열 부담이 존재하나, 지정학적 리스크 해소 재료의 파급력이 차익실현 압력을 상쇄할 가능성이 높아 오후 마감은 5,850~5,920 구간에서 양봉 마감을 예상한다.",
+    "candle_11am_interpretation": "11시 캔들 데이터가 수집되지 않아 해당 시그널 활용 불가 — 외국인 수급 및 뉴스 모멘텀을 주요 근거로 대체 판단한다.",
+    "morning_review": "7AM 예측(LONG 68%, 상승폭 제한적)은 방향은 적중했으나, 실제 오전 상승폭(+1.96%, 5,891선)이 예상보다 강했으며 이는 휴전 기대감이라는 추가 지정학적 모멘텀이 반영된 결과다.",
+    "afternoon_catalyst": "이스라엘-레바논 휴전 협상 진전 여부 — 오후 중 추가 협상 소식 또는 부정적 반전 시 코스피 방향성이 즉각 전환될 수 있는 핵심 피벗 변수다.",
+    "factors": [
+      {
+        "name": "지정학적 모멘텀 (휴전 기대감)",
+        "signal": "bullish",
+        "detail": "이스라엘-레바논 평화 협상 소식으로 오전 9시 14분 기준 코스피 +1.96%(5,891.04), 닛케이 +0.99%(56,447) 동반 상승 — 리스크오프 해소 재료로 오후에도 지속 효과 기대"
+      },
+      {
+        "name": "외국인 수급",
+        "signal": "bullish",
+        "detail": "오전 외국인 순매도 28억원으로 사실상 중립 수준 — 전일 급등 이후 대규모 이탈 없이 관망세 유지, 오후 추가 매도 확대 가능성 낮음"
+      },
+      {
+        "name": "전일 급등 이후 단기 과열",
+        "signal": "bearish",
+        "detail": "전일 KOSPI +6.87% 급등 이후 이틀 연속 상승 시도 — RSI 과매수 구간 진입 가능성, 5,900선 전후 심리적 저항 및 차익실현 매물 출회 압력 상존"
+      },
+      {
+        "name": "일본 증시 동조화",
+        "signal": "bullish",
+        "detail": "닛케이225 +0.99%(56,447) 상승으로 아시아 증시 전반 위험선호 분위기 형성 — KOSPI 오후 하락 전환 시 완충 역할 기대"
+      },
+      {
+        "name": "공매도 과열 종목 집중",
+        "signal": "bearish",
+        "detail": "3월 이후 공매도 과열 지정 82건(전체 115건의 71%) 집중 — 중동 관련 유가 수혜주 중심 숏커버링 vs 추가 공매도 압력 혼재, 변동성 확대 요인"
+      },
+      {
+        "name": "미국 기술·반도체 선행 강세",
+        "signal": "bullish",
+        "detail": "전일 NQ +0.83%, SOX +2.1% 강세가 오전 상승 출발을 견인 — 오후 미국 선물 방향이 추가 상승 또는 보합 유지 시 KOSPI 하방 지지"
+      }
+    ],
+    "_raw": {
+      "session": {
+        "kospi_current": null,
+        "kospi_open": null,
+        "kospi_change_pct": null,
+        "morning_high": null,
+        "morning_low": null,
+        "candle_11am": null,
+        "morning_trend": null,
+        "volume_ratio": null
+      },
+      "foreign_flow": {
+        "net_amount": -28.0,
+        "consecutive_days": 1,
+        "direction": "sell",
+        "institutional": null,
+        "retail": null,
+        "source": "etf_proxy",
+        "details": [
+          {
+            "proxy": "EWY",
+            "price_change_pct": -0.56,
+            "volume_ratio": 1.02
+          }
+        ]
+      },
+      "news_count": 6,
+      "generated_at": "2026-04-10T05:32:45.194423+00:00"
+    }
   }
 }
